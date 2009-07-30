@@ -5,21 +5,20 @@
 -- @name clp.mls.Mls
 -- @author Ced-le-pingouin <Ced.le.pingouin@gmail.com>
 --
--- @todo Make the packaging work again
 -- @todo Test on Windows and Mac
---
 -- @todo Icons don't work on Mac (none for the app, and screwed for the about 
 --       box)
+-- @todo Make the packaging work again
 -- @todo Have proper packaging for MacOS (as a real App)
--- @todo A useless Help menu is created on Mac because of the About menu item
+--
 -- @todo Choose which ML version is simulated (2.0/3.0) by (un)loading some 
 --       modules and deleting some vars/constants (for ML 2)
 -- @todo Search in multiple locations for mls.ini
 -- @todo Allow window resizing with stretching of the "screens"
 --
 -- @todo Have a test directory
--- @todo Refactor/split some classes (module loading in ScriptManager? Gui ?
---       Sys?)
+-- @todo Refactor/split some classes (split ScriptManager/Script? split 
+--       Gui/Console? Sys?)
 -- @todo Get key bindings from the ini file, too
 -- @todo Have menu items for every config option
 -- @todo Save config on exit
