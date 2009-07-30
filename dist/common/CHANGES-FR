@@ -1,0 +1,83 @@
+0.4 (?? ??? 2009)
+-----------------
+  ! Micro Lua Simulator est maintenant sous licence GPL v3. Ca signifie que vous
+    avez accès au code source, and pouvez le modifier, MAIS vous êtes obligé de
+    fournir les sources modifiées si vous décidez de redistribuer votre travail
+  * compatible avec la nouvelle version de Micro Lua, 3.0:
+    - Image.scale() fonctionne comme il devrait, càd qu'il ne se réinitialise 
+      pas après un blit()
+    - nouvelle variable: MICROLUA_VERSION
+    - nouvelles fonctions: render(), Font.getStringWidth()
+    - nouvelles classes/objets:
+      . Rumble (pour l'instant, considéré toujours inséré, mais n'a aucun effet
+        visible)
+      . Motion (considéré comme absent, les différentes fonctions de mesure 
+        retournent 0),
+      . DateTime
+      . Wifi (mais sans les sockets UDP)
+      . Sound (seulement une coquille vide pour l'instant)
+  * polices bitmap (càd conformes à l'affichage Micro Lua), mais plus lentes (et
+    seulement compatibles avec les textes encodés en latin-1)
+  * interface graphique et menus: vous pouvez charger des scripts à partir de là
+    et n'êtes plus obligé de fournir le nom d'un script initial en ligne de 
+    commande
+  * quelques raccourcis clavier pour changer les FPS/UPS, mettre le script en 
+    pause, le redémarrer...
+  * toute nouvelle console qui affiche les erreurs rencontrées dans les scripts 
+    au lieu de retourner quitter MLS violemment. Les messages de log/debug de
+    MLS sont également affichés dedans
+  * disparition des clignotements d'écran sous Windows (en tout cas chez moi)
+  * lecture de certaines options à partir d'un fichier de configuration
+  * les scripts et leurs fichiers additionnels (images, libs...) ne doivent plus
+    se trouver obligatoirement dans la racine de MLS pour être chargés 
+    correctement
+  * chargement de fichiers semi insensible à la casse pour les systèmes 
+    non-Windows (différentes combinaisons majuscules/minuscules sont tentées 
+    pour le nom et l'extension)
+
+0.3 (11 mars 2009)
+------------------
+  * version Mac officiellement disponible. Elle semble plus lente que les 
+    versions Linux/Windows en terme d'images/seconde non limitées, mais atteint 
+    les 60fps dans Seaquest, donc je suppose que c'est bon pour l'instant
+  * scripts bash/batch pour lancer le simulateur plus facilement
+  * pas mal d'optimisations au niveau de l'affichage, particulièrement pour les
+    sprites et images non traitées (pas de tint/scale/rotate) => dans le mode 
+    démo du remake de Seaquest, j'ai noté une amélioration d'images/secondes de 
+    350+% sous Linux, et de 1700+% (!!!) sous Windows (bien entendu, j'ai 
+    désactivé temporairement le limiteur de fps pour obtenir ces chiffres)
+  * les images/secondes "d'affichage" sont limitées à 60, et les 
+    itérations/seconde ("frames internes") à 55 (mais les fps réellement 
+    atteints peuvent varier légèrement en fonction de l'OS, de 50 à 60+)
+  * en + des contrôles existants, j'ai réintégré les contrôles de la version 0.1
+    pour haut/bas/gauche/droite, car ils semblent bien fonctionner sous Linux et
+    Mac. Aussi, pour éliminer la différence QWERTY/AZERTY, R/T peuvent 
+    maintenant être utilisés pour L/R, et F/V pour Start/Select
+  * les fichiers README and CHANGES existent maintenant aussi en français
+
+0.2 (22 février 2009)
+---------------------
+  * la version Windows fonctionne, yesssss! (bien que lente, et pas testée à 
+    fond)
+  * changement interne: la boucle principale n'est plus exécutée dans le 
+    processus principal, elle se trouve dans une coroutine Lua. Ceci est mon 
+    premier essai, et ce changement a été fait pour la version Windows. Cela 
+    semble fonctionner sous Linux également, donc pour l'instant tout va bien
+  * modifié les contrôles: haut/bas/gauche/droite sont maintenant les touches
+    I/K/J/L, et Start/Select = Q/W. Ces changements ont été faits car wxWidgets
+    pour Windows ne semble pas détecter les pressions sur les touches fléchées 
+    de mon portable, et aussi les "codes" des touches "&" et "é" (Start et 
+    Select dans la version 0.1) étaient différents de ceux de Linux
+
+0.1 (18 février 2009)
+---------------------
+  * version initiale
+  * ne fonctionne pas sous Windows pour l'instant, pour une raison indéterminée
+  * l'utilisation des objets/méthodes de gestion du son ne provoque pas
+    d'erreur, mais les sons ne sont pas joués
+  * le système de polices est incorrect par rapport à Micro Lua DS
+  * certaines méthodes et comportements de Micro Lua DS ne sont pas encore 
+    implémentés
+  * tous les scripts sont limités à 30 images/seconde (y compris les "frames 
+    internes", pas seulement l'affichage)
+  * un peu lent

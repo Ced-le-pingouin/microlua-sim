@@ -1,0 +1,135 @@
+#!/bin/bash
+
+# make-mls : compiles and optionally packages Micro Lua Simulator
+#
+# @author Ced-le-pingouin <Ced.le.pingouin@gmail.com>
+
+#   Copyright (C) 2009 Cédric FLOQUET
+#   
+#   This file is part of Micro Lua DS Simulator.
+#   
+#   Micro Lua DS Simulator is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
+#   
+#   Micro Lua DS Simulator is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#   
+#   You should have received a copy of the GNU General Public License
+#   along with Micro Lua DS Simulator.  If not, see <http://www.gnu.org/licenses/>.
+
+OLD_DIR=$PWD
+SCRIPT_DIR=$(dirname $0)
+cd $SCRIPT_DIR/..
+
+SRC_MLS_SCRIPT="mls.lua"
+COMPILED_MLS_SCRIPT="mls.comp.lua"
+TMP_MLS_SCRIPT="$COMPILED_MLS_SCRIPT.tmp"
+DIST_DIR="dist"
+DIST_DIR_COMMON="$DIST_DIR/common"
+
+LIB_LIST="
+    clp/Class.lua
+    clp/Observable.lua
+    clp/Logger.lua
+    clp/mls/Mls.lua
+    clp/mls/Sys.lua
+    clp/mls/Config.lua
+    clp/mls/Gui.lua
+    clp/mls/ScriptManager.lua
+    clp/mls/ModuleManager.lua
+    clp/mls/modules/wx/Timer.lua
+    clp/mls/modules/wx/Font_Native.lua
+    clp/mls/modules/wx/Font_Bitmap.lua
+    clp/mls/modules/wx/screen.lua
+    clp/mls/modules/Canvas.lua
+    clp/mls/modules/wx/Color.lua
+    clp/mls/modules/wx/Controls.lua
+    clp/mls/modules/DateTime.lua
+    clp/mls/modules/Debug.lua
+    clp/mls/modules/wx/Image.lua
+    clp/mls/modules/INI.lua
+    clp/mls/modules/wx/Keyboard.lua
+    clp/mls/modules/Map.lua
+    clp/mls/modules/Mod.lua
+    clp/mls/modules/Motion.lua
+    clp/mls/modules/Rumble.lua
+    clp/mls/modules/wx/ScrollMap.lua
+    clp/mls/modules/Sound.lua
+    clp/mls/modules/Sprite.lua
+    clp/mls/modules/wx/System.lua
+    clp/mls/modules/wx/Wifi.lua
+"
+
+REMOVE_REQUIRE='^.*require \"clp'
+REMOVE_MODULE_RETURN='^\s*return M\s*$'
+
+## concatenate the libs in a temp file, replacing/removing module related 
+## stuff in the process
+touch "$TMP_MLS_SCRIPT"
+for LIB_FILE in $LIB_LIST; do
+    MODULE_NAME=`basename "$LIB_FILE" | cut -f1 -d.`
+    LIB_FILE_CONTENT=`cat "$LIB_FILE"`
+    ## replace "local M = " with "<module name> = "
+    LIB_FILE_CONTENT=`echo "$LIB_FILE_CONTENT" | sed -e "s/local M =/$MODULE_NAME ="/`
+    ## when "M.", "M:", or "M[" is found, replace the "M" with "<module name>"
+    LIB_FILE_CONTENT=`echo "$LIB_FILE_CONTENT" | sed -re "s/\bM([.:\[])/$MODULE_NAME\1/g"`
+    ## concatenate current lib's modified content with previous content
+    echo "$LIB_FILE_CONTENT" >> "$TMP_MLS_SCRIPT"
+    echo "" >> "$TMP_MLS_SCRIPT"
+done
+
+## create a special flag to detect the compiled version of MLS, and put the main
+## script at the end of the temp file
+echo "__MLS_COMPILED = true" >> "$TMP_MLS_SCRIPT"
+cat "$SRC_MLS_SCRIPT" >> "$TMP_MLS_SCRIPT"
+echo "" >> "$TMP_MLS_SCRIPT"
+
+## remove file insertions and module definition commands, then compile to final script
+grep -v "$REMOVE_REQUIRE" "$TMP_MLS_SCRIPT" | grep -v "$REMOVE_MODULE_RETURN" | luac -s -o "$DIST_DIR_COMMON/$COMPILED_MLS_SCRIPT" -
+## SHOULD BE COMMENTED - PLAIN TEXT VERSION
+#grep -v "$REMOVE_REQUIRE" "$TMP_MLS_SCRIPT" | grep -v "$REMOVE_MODULE_RETURN" | cat - > "$DIST_DIR_COMMON/$COMPILED_MLS_SCRIPT"
+## copy the new compiled script to root
+cp "$DIST_DIR_COMMON/$COMPILED_MLS_SCRIPT" .
+
+## remove the temp file
+rm "$TMP_MLS_SCRIPT"
+
+## make packages
+if [ "$1" = "--create-packages" ]; then
+    VERSION=`cat VERSION`
+    
+    LINUX_ZIPFILE="$DIST_DIR/mls-$VERSION-linux.zip"
+    WIN_ZIPFILE="$DIST_DIR/mls-$VERSION-win.zip"
+    MAC_ZIPFILE="$DIST_DIR/mls-$VERSION-mac.zip"
+    
+    COMMON_FILES="$DIST_DIR_COMMON/*"
+    LINUX_FILES="$COMMON_FILES $DIST_DIR/linux/mls $DIST_DIR/linux/lua $DIST_DIR/linux/lua.so $DIST_DIR/linux/wx.so"
+    WIN_FILES="$COMMON_FILES $DIST_DIR/win/mls.bat $DIST_DIR/win/wxlua.exe $DIST_DIR/win/lua.exe $DIST_DIR/win/lua.dll $DIST_DIR/win/wx.dll"
+    MAC_FILES="$COMMON_FILES $DIST_DIR/mac/mls $DIST_DIR/mac/*.dylib"
+    MAC_APP="$DIST_DIR/mac/wxLua.app"
+    IMAGE_FILES="clp/mls/images/* clp/mls/images/keyboard/*"
+    
+    rm -f $LINUX_ZIPFILE $WIN_ZIPFILE $MAC_ZIPFILE
+    
+    zip -j $LINUX_ZIPFILE $LINUX_FILES
+    zip $LINUX_ZIPFILE $IMAGE_FILES 
+    
+    zip -j $WIN_ZIPFILE $WIN_FILES
+    zip $WIN_ZIPFILE $IMAGE_FILES
+    
+    zip -j $MAC_ZIPFILE $MAC_FILES
+    zip $MAC_ZIPFILE $IMAGE_FILES
+    # I haven't found a way to zip the .app at the root of the archive :(
+    # so I have to copy it in the root, remove svn dirs, zip it, then clean up
+    cp -r $MAC_APP .
+    TEMP_MAC_APP=./`basename $MAC_APP`
+    find $TEMP_MAC_APP -name '.svn' -type d -prune -exec rm -fR {} \;
+    zip -r $MAC_ZIPFILE $TEMP_MAC_APP
+    rm -fR $TEMP_MAC_APP
+fi
+
+cd $OLD_DIR
