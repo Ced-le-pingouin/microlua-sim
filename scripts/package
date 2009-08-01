@@ -1,0 +1,50 @@
+#!/bin/bash
+
+# package : create os-specific archives of Micro Lua Simulator
+#
+# @author Ced-le-pingouin <Ced.le.pingouin@gmail.com>
+
+#   Copyright (C) 2009 Cédric FLOQUET
+#   
+#   This file is part of Micro Lua DS Simulator.
+#   
+#   Micro Lua DS Simulator is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
+#   
+#   Micro Lua DS Simulator is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#   
+#   You should have received a copy of the GNU General Public License
+#   along with Micro Lua DS Simulator.  If not, see <http://www.gnu.org/licenses/>.
+
+OLD_DIR=$PWD
+SCRIPT_DIR=$(dirname $0)
+cd $SCRIPT_DIR/..
+
+VERSION=`cat VERSION`
+OS_DIR="os_specific"
+COMMON_FILES="mls.lua mls.comp.lua mls.ini.dist icon.png about.png README README-FR CHANGES CHANGES-FR COPYING"
+IMAGE_FILES="clp/mls/images/keyboard/*"
+TMP_DEST_DIR="__mls_tmp_dir"
+for OS in linux win mac; do
+    OS_SRC_DIR="$OS_DIR/$OS"
+    OS_DEST_DIR="$TMP_DEST_DIR/$OS"
+    
+    mkdir -p $OS_DEST_DIR
+    cp $COMMON_FILES $OS_DEST_DIR
+    cp $IMAGE_FILES $OS_DEST_DIR
+    cp -r $OS_SRC_DIR/* $OS_DEST_DIR
+    
+    find $TMP_DEST_DIR -name '.svn' -type d -prune -exec rm -fR {} \;
+    
+    ARCHIVE_NAME="mls-$VERSION-$OS.zip"
+    
+done
+
+rm -fR "$TMP_DEST_DIR"
+
+cd $OLD_DIR
