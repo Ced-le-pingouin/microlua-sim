@@ -25,10 +25,10 @@ OLD_DIR=$PWD
 SCRIPT_DIR=$(dirname $0)
 cd $SCRIPT_DIR/..
 
-LUAC="luac"
+LUAC="./lua -c"
 SRC_MLS_SCRIPT="mls.lua"
+TMP_MLS_SCRIPT="$SRC_MLS_SCRIPT.tmp"
 COMPILED_MLS_SCRIPT="mls.comp.lua"
-TMP_MLS_SCRIPT="$COMPILED_MLS_SCRIPT.tmp"
 DIST_DIR="dist"
 DIST_DIR_COMMON="$DIST_DIR/common"
 
@@ -90,13 +90,13 @@ cat "$SRC_MLS_SCRIPT" >> "$TMP_MLS_SCRIPT"
 echo "" >> "$TMP_MLS_SCRIPT"
 
 ## remove file insertions and module definition commands, then compile to final script
-grep -v "$REMOVE_REQUIRE" "$TMP_MLS_SCRIPT" | grep -v "$REMOVE_MODULE_RETURN" | "$LUAC" -s -o "$DIST_DIR_COMMON/$COMPILED_MLS_SCRIPT" -
+grep -v "$REMOVE_REQUIRE" "$TMP_MLS_SCRIPT" | grep -v "$REMOVE_MODULE_RETURN" > "$COMPILED_MLS_SCRIPT"; $LUAC "$COMPILED_MLS_SCRIPT"; mv -f "$COMPILED_MLS_SCRIPT.compiled" "$COMPILED_MLS_SCRIPT"
 ## SHOULD BE COMMENTED - PLAIN TEXT VERSION
-#grep -v "$REMOVE_REQUIRE" "$TMP_MLS_SCRIPT" | grep -v "$REMOVE_MODULE_RETURN" | cat - > "$DIST_DIR_COMMON/$COMPILED_MLS_SCRIPT"
-## copy the new compiled script to root
-cp "$DIST_DIR_COMMON/$COMPILED_MLS_SCRIPT" .
+#grep -v "$REMOVE_REQUIRE" "$TMP_MLS_SCRIPT" | grep -v "$REMOVE_MODULE_RETURN" | cat - > "$COMPILED_MLS_SCRIPT"
+## rename compiled script to its final name then copy it to dist
+cp "$COMPILED_MLS_SCRIPT" "$DIST_DIR_COMMON"
 
-## remove the temp file
+## remove the temp file and intermediate compiled script
 rm "$TMP_MLS_SCRIPT"
 
 ## make packages
