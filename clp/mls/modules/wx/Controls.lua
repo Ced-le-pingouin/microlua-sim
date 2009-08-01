@@ -87,11 +87,14 @@ function M._initKeyBindings()
         [wx.WXK_F]     = "Start",
         [wx.WXK_V]     = "Select",
         
-        -- more alternate keys, some events don't work in Windows on arrows so...
+        -- more alternate keys, some events don't work in Windows on arrows,
+        -- so...
+        -- note that you can choose between 5 and 2 for Down
         [wx.WXK_NUMPAD4] = "Left",
         [wx.WXK_NUMPAD6] = "Right",
         [wx.WXK_NUMPAD8] = "Up",
         [wx.WXK_NUMPAD2] = "Down",
+        [wx.WXK_NUMPAD5] = "Down",
     }
 end
 
