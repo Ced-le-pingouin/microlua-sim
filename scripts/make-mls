@@ -25,6 +25,7 @@ OLD_DIR=$PWD
 SCRIPT_DIR=$(dirname $0)
 cd $SCRIPT_DIR/..
 
+LUAC="luac"
 SRC_MLS_SCRIPT="mls.lua"
 COMPILED_MLS_SCRIPT="mls.comp.lua"
 TMP_MLS_SCRIPT="$COMPILED_MLS_SCRIPT.tmp"
@@ -89,7 +90,7 @@ cat "$SRC_MLS_SCRIPT" >> "$TMP_MLS_SCRIPT"
 echo "" >> "$TMP_MLS_SCRIPT"
 
 ## remove file insertions and module definition commands, then compile to final script
-grep -v "$REMOVE_REQUIRE" "$TMP_MLS_SCRIPT" | grep -v "$REMOVE_MODULE_RETURN" | luac -s -o "$DIST_DIR_COMMON/$COMPILED_MLS_SCRIPT" -
+grep -v "$REMOVE_REQUIRE" "$TMP_MLS_SCRIPT" | grep -v "$REMOVE_MODULE_RETURN" | "$LUAC" -s -o "$DIST_DIR_COMMON/$COMPILED_MLS_SCRIPT" -
 ## SHOULD BE COMMENTED - PLAIN TEXT VERSION
 #grep -v "$REMOVE_REQUIRE" "$TMP_MLS_SCRIPT" | grep -v "$REMOVE_MODULE_RETURN" | cat - > "$DIST_DIR_COMMON/$COMPILED_MLS_SCRIPT"
 ## copy the new compiled script to root
