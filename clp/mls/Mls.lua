@@ -80,7 +80,16 @@ Mls.VERSION = "0.4beta1"
 -- @param scriptPath (string) The path of an initial script to run
 function Mls:ctr(scriptPath)
     Mls.logger = Logger:new(Logger.WARN, "*")
-    Mls.config = Config:new("mls.ini", "mls", Mls:getValidOptions())
+    
+    -- two config files are valid, first the dev one, then the user one
+    local configFile, found = nil, false
+    for _, possibleConfigFile in ipairs{ "mls.dev.ini", "mls.ini" } do
+        configFile, found = Sys.getFile(possibleConfigFile)
+        if found then break end
+    end
+    if not found then configFile = nil end
+    Mls.config = Config:new(configFile, "mls", Mls:getValidOptions())
+    
     Mls.logger:setLevel(Mls.config:get("debug_log_level", Logger.WARN))
     
     Mls._initVars()
