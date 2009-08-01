@@ -33,8 +33,6 @@ M.MENU_OPEN  = wx.wxID_OPEN
 M.MENU_EXIT  = wx.wxID_EXIT
 M.MENU_ABOUT = wx.wxID_ABOUT
 
-M._imagePath = "clp/mls/images"
-
 --- Constructor.
 -- Creates the main window, the status bars, and the surface representing the 
 -- screens, but does NOT AUTOMATICALLY SHOW THE WINDOW, so you have to call 
@@ -60,7 +58,7 @@ function M:ctr(width, height, windowTitle, iconPath)
     self._width, self._height, self._windowTitle = width, height, windowTitle
     
     iconPath = iconPath or "icon.png"
-    iconPath, found = Sys.getFileWithPath(iconPath, M._imagePath)
+    iconPath, found = Sys.getFile(iconPath)
     Mls.logger:debug("loading app icon "..iconPath, "gui")
     self._icon = found and wx.wxIcon(iconPath, wx.wxBITMAP_TYPE_PNG)
                         or nil
@@ -352,7 +350,7 @@ function M:showAboutBox(appInfo)
     Mls.logger:debug("showing About box", "gui")
     
     local iconPath = appInfo.icon or "about.png"
-    iconPath, found = Sys.getFileWithPath(iconPath, self._imagePath)
+    iconPath, found = Sys.getFile(iconPath)
     local icon = found and wx.wxIcon(iconPath, wx.wxBITMAP_TYPE_PNG)
                         or self._icon
     
