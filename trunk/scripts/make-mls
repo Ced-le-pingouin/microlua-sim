@@ -21,11 +21,32 @@
 #   You should have received a copy of the GNU General Public License
 #   along with Micro Lua DS Simulator.  If not, see <http://www.gnu.org/licenses/>.
 
+LUAC=0
+PLAIN_TEXT=0
+CREATE_PACKAGES=0
+for OPT in "$@"; do
+    case $OPT in
+        # the "compiled" version will just be an all in one plain text file, 
+        # it'll not really be compiled
+        --plain)
+            PLAIN_TEXT=1
+            ;;
+        # compilation on my 64bit linux would produce binaries that are unusable
+        # with the provided lua (AIO, "bad header" message), so we should use
+        # lua (AIO) with "-c" to compile
+        --luac)
+            LUAC=1
+            ;;
+        --create-packages)
+            CREATE_PACKAGES=1
+            ;;
+    esac
+done
+
 OLD_DIR=$PWD
 SCRIPT_DIR=$(dirname $0)
 cd $SCRIPT_DIR/..
 
-LUAC="./lua -c"
 SRC_MLS_SCRIPT="mls.lua"
 TMP_MLS_SCRIPT="$SRC_MLS_SCRIPT.tmp"
 COMPILED_MLS_SCRIPT="mls.comp.lua"
@@ -68,8 +89,7 @@ LIB_LIST="
 REMOVE_REQUIRE='^.*require \"clp'
 REMOVE_MODULE_RETURN='^\s*return M\s*$'
 
-## concatenate the libs in a temp file, replacing/removing module related 
-## stuff in the process
+## concatenate all source files in one unique temp file 
 touch "$TMP_MLS_SCRIPT"
 for LIB_FILE in $LIB_LIST; do
     MODULE_NAME=`basename "$LIB_FILE" | cut -f1 -d.`
@@ -89,18 +109,29 @@ echo "__MLS_COMPILED = true" >> "$TMP_MLS_SCRIPT"
 cat "$SRC_MLS_SCRIPT" >> "$TMP_MLS_SCRIPT"
 echo "" >> "$TMP_MLS_SCRIPT"
 
-## remove file insertions and module definition commands, then compile to final script
-grep -v "$REMOVE_REQUIRE" "$TMP_MLS_SCRIPT" | grep -v "$REMOVE_MODULE_RETURN" > "$COMPILED_MLS_SCRIPT"; $LUAC "$COMPILED_MLS_SCRIPT"; mv -f "$COMPILED_MLS_SCRIPT.compiled" "$COMPILED_MLS_SCRIPT"
-## SHOULD BE COMMENTED - PLAIN TEXT VERSION
-#grep -v "$REMOVE_REQUIRE" "$TMP_MLS_SCRIPT" | grep -v "$REMOVE_MODULE_RETURN" | cat - > "$COMPILED_MLS_SCRIPT"
-## rename compiled script to its final name then copy it to dist
+## remove require()s and module definition commands
+grep -v "$REMOVE_REQUIRE" "$TMP_MLS_SCRIPT" | grep -v "$REMOVE_MODULE_RETURN" > "$COMPILED_MLS_SCRIPT"
+
+## compile the only resulting file either with luac or lua AIO ("-c" option)
+if [ "$PLAIN_TEXT" -eq 0 ]; then
+    if [ "$LUAC" -eq 1 ]; then
+        luac -s "$COMPILED_MLS_SCRIPT"
+        mv -f luac.out "$COMPILED_MLS_SCRIPT"
+
+    else
+        ./lua -c "$COMPILED_MLS_SCRIPT"
+        mv -f "$COMPILED_MLS_SCRIPT.compiled" "$COMPILED_MLS_SCRIPT"
+    fi
+fi
+
+## copy compiled script to dist
 cp "$COMPILED_MLS_SCRIPT" "$DIST_DIR_COMMON"
 
 ## remove the temp file and intermediate compiled script
 rm "$TMP_MLS_SCRIPT"
 
 ## make packages
-if [ "$1" = "--create-packages" ]; then
+if [ "$CREATE_PACKAGES" -eq 1 ]; then
     VERSION=`cat VERSION`
     
     LINUX_ZIPFILE="$DIST_DIR/mls-$VERSION-linux.zip"
