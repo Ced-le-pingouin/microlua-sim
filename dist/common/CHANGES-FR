@@ -23,6 +23,8 @@
     commande
   * quelques raccourcis clavier pour changer les FPS/UPS, mettre le script en 
     pause, le redémarrer...
+  * aussi ajouté les nombres du pavé numérique pour les déplacements haut, bas, 
+    gauche, droite, en plus des flèches "classiques"
   * toute nouvelle console qui affiche les erreurs rencontrées dans les scripts 
     au lieu de retourner quitter MLS violemment. Les messages de log/debug de
     MLS sont également affichés dedans
