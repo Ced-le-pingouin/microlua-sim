@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# make-mls : compiles and optionally packages Micro Lua Simulator
+# copile : compiles Micro Lua Simulator into one unique big file
 #
 # @author Ced-le-pingouin <Ced.le.pingouin@gmail.com>
 
@@ -21,9 +21,12 @@
 #   You should have received a copy of the GNU General Public License
 #   along with Micro Lua DS Simulator.  If not, see <http://www.gnu.org/licenses/>.
 
+OLD_DIR=$PWD
+SCRIPT_DIR=$(dirname $0)
+cd $SCRIPT_DIR/..
+
 LUAC=0
 PLAIN_TEXT=0
-CREATE_PACKAGES=0
 for OPT in "$@"; do
     case $OPT in
         # the "compiled" version will just be an all in one plain text file, 
@@ -37,21 +40,12 @@ for OPT in "$@"; do
         --luac)
             LUAC=1
             ;;
-        --create-packages)
-            CREATE_PACKAGES=1
-            ;;
     esac
 done
-
-OLD_DIR=$PWD
-SCRIPT_DIR=$(dirname $0)
-cd $SCRIPT_DIR/..
 
 SRC_MLS_SCRIPT="mls.lua"
 TMP_MLS_SCRIPT="$SRC_MLS_SCRIPT.tmp"
 COMPILED_MLS_SCRIPT="mls.comp.lua"
-DIST_DIR="dist"
-DIST_DIR_COMMON="$DIST_DIR/common"
 
 LIB_LIST="
     clp/Class.lua
@@ -86,9 +80,6 @@ LIB_LIST="
     clp/mls/modules/wx/Wifi.lua
 "
 
-REMOVE_REQUIRE='^.*require \"clp'
-REMOVE_MODULE_RETURN='^\s*return M\s*$'
-
 ## concatenate all source files in one unique temp file 
 touch "$TMP_MLS_SCRIPT"
 for LIB_FILE in $LIB_LIST; do
@@ -110,6 +101,8 @@ cat "$SRC_MLS_SCRIPT" >> "$TMP_MLS_SCRIPT"
 echo "" >> "$TMP_MLS_SCRIPT"
 
 ## remove require()s and module definition commands
+REMOVE_REQUIRE='^.*require \"clp'
+REMOVE_MODULE_RETURN='^\s*return M\s*$'
 grep -v "$REMOVE_REQUIRE" "$TMP_MLS_SCRIPT" | grep -v "$REMOVE_MODULE_RETURN" > "$COMPILED_MLS_SCRIPT"
 
 ## compile the only resulting file either with luac or lua AIO ("-c" option)
@@ -124,44 +117,7 @@ if [ "$PLAIN_TEXT" -eq 0 ]; then
     fi
 fi
 
-## copy compiled script to dist
-cp "$COMPILED_MLS_SCRIPT" "$DIST_DIR_COMMON"
-
 ## remove the temp file and intermediate compiled script
 rm "$TMP_MLS_SCRIPT"
-
-## make packages
-if [ "$CREATE_PACKAGES" -eq 1 ]; then
-    VERSION=`cat VERSION`
-    
-    LINUX_ZIPFILE="$DIST_DIR/mls-$VERSION-linux.zip"
-    WIN_ZIPFILE="$DIST_DIR/mls-$VERSION-win.zip"
-    MAC_ZIPFILE="$DIST_DIR/mls-$VERSION-mac.zip"
-    
-    COMMON_FILES="$DIST_DIR_COMMON/*"
-    LINUX_FILES="$COMMON_FILES $DIST_DIR/linux/mls $DIST_DIR/linux/lua $DIST_DIR/linux/lua.so $DIST_DIR/linux/wx.so"
-    WIN_FILES="$COMMON_FILES $DIST_DIR/win/mls.bat $DIST_DIR/win/wxlua.exe $DIST_DIR/win/lua.exe $DIST_DIR/win/lua.dll $DIST_DIR/win/wx.dll"
-    MAC_FILES="$COMMON_FILES $DIST_DIR/mac/mls $DIST_DIR/mac/*.dylib"
-    MAC_APP="$DIST_DIR/mac/wxLua.app"
-    IMAGE_FILES="clp/mls/images/* clp/mls/images/keyboard/*"
-    
-    rm -f $LINUX_ZIPFILE $WIN_ZIPFILE $MAC_ZIPFILE
-    
-    zip -j $LINUX_ZIPFILE $LINUX_FILES
-    zip $LINUX_ZIPFILE $IMAGE_FILES 
-    
-    zip -j $WIN_ZIPFILE $WIN_FILES
-    zip $WIN_ZIPFILE $IMAGE_FILES
-    
-    zip -j $MAC_ZIPFILE $MAC_FILES
-    zip $MAC_ZIPFILE $IMAGE_FILES
-    # I haven't found a way to zip the .app at the root of the archive :(
-    # so I have to copy it in the root, remove svn dirs, zip it, then clean up
-    cp -r $MAC_APP .
-    TEMP_MAC_APP=./`basename $MAC_APP`
-    find $TEMP_MAC_APP -name '.svn' -type d -prune -exec rm -fR {} \;
-    zip -r $MAC_ZIPFILE $TEMP_MAC_APP
-    rm -fR $TEMP_MAC_APP
-fi
 
 cd $OLD_DIR
