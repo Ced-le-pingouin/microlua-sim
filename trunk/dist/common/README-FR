@@ -125,24 +125,25 @@ Bien entendu, le stylet est remplacé par la souris, et la pression de ce dernie
 par le bouton gauche
 
 Dans cette version, les touches utilisées ne peuvent être modifiées. Les voici:
-(dans le tableau, "CD" représente la croix directionnelle de la DS)
+(dans le tableau, "CD" représente la croix directionnelle de la DS, et "PN" veut
+dire "pavé numérique")
 
-+-------------+--------------------+
-|     DS      |         PC         |
-+-------------+--------------------+
-| Haut (CD)   | I ou Flèche haut   |
-| Bas (CD)    | K ou Flèche bas    |
-| Gauche (CD) | J ou Flèche gauche |
-| Droite (CD) | L ou Flèche droite |
-| L           | A ou R             |
-| R           | Z ou T             |
-| A           | D                  |
-| B           | X                  |
-| X           | E                  |
-| Y           | S                  |
-| Start       | Q ou F             |
-| Select      | W ou V             |
-+-------------+--------------------+
++-------------+-----------------------------+
+|     DS      |             PC              |
++-------------+-----------------------------+
+| Haut (CD)   | I, Flèche haut ou 8 PN      |
+| Bas (CD)    | K, Flèche bas, 5 PN ou 2 PN |
+| Gauche (CD) | J, Flèche gauche ou 4 PN    |
+| Droite (CD) | L, Flèche droite ou 6 PN    |
+| L           | A ou R                      |
+| R           | Z ou T                      |
+| A           | D                           |
+| B           | X                           |
+| X           | E                           |
+| Y           | S                           |
+| Start       | Q ou F                      |
+| Select      | W ou V                      |
++-------------+-----------------------------+
 
 A partir de la v0.4, des commandes indépendantes de la DS sont également 
 disponibles:

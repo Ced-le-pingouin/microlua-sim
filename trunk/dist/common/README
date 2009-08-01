@@ -112,22 +112,22 @@ mouse button.
 
 In this version, the buttons<>keys bindings cannot be changed. They are:
 
-+-----------+------------------+
-|    DS     |        PC        |
-+-----------+------------------+
-| Pad Up    | I or Up arrow    |
-| Pad Down  | K or Down arrow  |
-| Pad Left  | J or Left arrow  |
-| Pad Right | L or Right arrow |
-| L         | A or R           |
-| R         | Z or T           |
-| A         | D                |
-| B         | X                |
-| X         | E                |
-| Y         | S                |
-| Start     | Q or F           |
-| Select    | W or V           |
-+----------+-------------------+
++-----------+-----------------------------+
+|    DS     |             PC              |
++-----------+-----------------------------+
+| Pad Up    | I, Up arrow or KP 8         |
+| Pad Down  | K, Down arrow, KP 5 or KP 2 |
+| Pad Left  | J, Left arrow or KP 4       |
+| Pad Right | L, Right arrow or KP 6      |
+| L         | A or R                      |
+| R         | Z or T                      |
+| A         | D                           |
+| B         | X                           |
+| X         | E                           |
+| Y         | S                           |
+| Start     | Q or F                      |
+| Select    | W or V                      |
++----------+------------------------------+
 
 Starting with v0.4, additional keys and combinations not related to the DS are 
 available:

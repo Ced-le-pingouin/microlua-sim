@@ -19,6 +19,7 @@
   * GUI and menus: you can load scripts from there, and you don't have to 
     provide the name of the initial script at the command line anymore
   * some key bindings allowing to change FPS/UPS, pause and restart scripts...
+  * also added the keypad numbers for up/down/left/right moves
   * all new console that displays the errors encountered in scripts, instead
     of violently exiting MLS. MLS log/debug messages also appear there
   * no more screen flickering in Windows (at least not on my side)
