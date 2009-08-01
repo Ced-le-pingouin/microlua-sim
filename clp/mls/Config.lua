@@ -31,6 +31,9 @@ local M = Class.new()
 
 --- Reads a config file and its options.
 --
+-- If the file parameter is not given, all options will be empty (nil), so you'd
+-- better use the defaultValue parameter when you use the get() function later
+--
 -- @param file (string) The path of the config file
 -- @param uniqueSection (string) The name of the section to load (others will be
 --                               ignored
@@ -40,10 +43,12 @@ local M = Class.new()
 --
 -- @todo support for multiple sections
 function M:ctr(file, uniqueSection, validOptions)
-    --LOG? assert(wx.wxFileExists(file), "Config file "..file.." doesn't exist!")
-    assert(uniqueSection, "Only config files with one section are supported")
-    self.options = INI.load(file)
-    if uniqueSection then self.options = self.options[uniqueSection] end
+    if not uniqueSection then
+        Mls.logger:warn("only config files with one section are supported", "config")
+    end
+    
+    self.options = file and INI.load(file) or {}
+    if uniqueSection then self.options = self.options[uniqueSection] or {} end
     if validOptions then self:validateOptions(validOptions) end
 end
 
