@@ -99,6 +99,13 @@ de MLS, ce qui veut dire que c'est celui que vous devez utiliser si vous
 modifiez les sources et voulez tester vos changements. (puisque l'autre script
 de lancement ne démarre que la version compilée).
 
+Notez toutefois que la version "source" est plus brute de décoffrage, et qu'elle
+comporte les exécutables et scripts de lancements pour les trois systèmes 
+d'exploitation. Ces exécutables et scripts ne se trouvent donc pas par défaut 
+dans la racine de l'archive source; vous devrez, en fonction de votre système, 
+copier le contenu d'un sous-dossier d' "os_specific" dans la racine de MLS. Ces 
+trois sous-dossiers sont, fort logiquement, "linux", "mac", et "win".
+
 Pour lancer votre script ML, tapez la commande suivante, lorsque vous vous 
 trouvez dans le dossier du simulateur:
 

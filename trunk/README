@@ -87,6 +87,13 @@ the non-compiled version of MLS. This means that if you change the source and
 want to see what happens, you must use this launcher, since the other one 
 launches the "compiled" version.
 
+Please note that the "source" version is rather raw, and that it includes the
+binaries and launching scripts for the three operating systems. As a result, 
+those binaries and scripts aren't by default at the root of the archive, and you
+should copy them from one of the subdirectories of "os_specific", depending on 
+which OS you use. These subfolders are obviously named "linux", "mac", and 
+"win".
+
 You can run your Micro Lua script by typing the following command at the prompt,
 while in the MLS directory:
 
