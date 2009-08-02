@@ -29,22 +29,22 @@ VERSION=`cat VERSION`
 OS_DIR="os_specific"
 COMMON_FILES="mls.lua mls.comp.lua mls.ini.dist icon.png about.png README README-FR CHANGES CHANGES-FR COPYING"
 IMAGE_FILES="clp/mls/images/keyboard/*"
-TMP_DEST_DIR="__mls_tmp_dir"
 for OS in linux win mac; do
     OS_SRC_DIR="$OS_DIR/$OS"
-    OS_DEST_DIR="$TMP_DEST_DIR/$OS"
+    DEST_DIR="mls-$VERSION-$OS"
+    ARCHIVE_NAME="$DEST_DIR.zip"
     
-    mkdir -p $OS_DEST_DIR
-    cp $COMMON_FILES $OS_DEST_DIR
-    cp $IMAGE_FILES $OS_DEST_DIR
-    cp -r $OS_SRC_DIR/* $OS_DEST_DIR
+    mkdir -p $DEST_DIR
+    cp $COMMON_FILES $DEST_DIR
+    cp $IMAGE_FILES $DEST_DIR
+    cp -r $OS_SRC_DIR/* $DEST_DIR
     
-    find $TMP_DEST_DIR -name '.svn' -type d -prune -exec rm -fR {} \;
+    find $DEST_DIR -name '.svn' -type d -prune -exec rm -fR {} \;
+    rm $DEST_DIR/mls-src* $DEST_DIR/mls.lua
     
-    ARCHIVE_NAME="mls-$VERSION-$OS.zip"
-    
+    rm -f $ARCHIVE_NAME
+    zip -r $ARCHIVE_NAME $DEST_DIR
+    rm -fR $DEST_DIR
 done
-
-rm -fR "$TMP_DEST_DIR"
 
 cd $OLD_DIR
