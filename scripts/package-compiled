@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# package : create os-specific archives of Micro Lua Simulator
+# package-compiled : create os-specific archives of the compiled version of 
+#                    Micro Lua Simulator
 #
 # @author Ced-le-pingouin <Ced.le.pingouin@gmail.com>
 
