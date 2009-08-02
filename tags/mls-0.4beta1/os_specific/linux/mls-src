@@ -1,0 +1,2 @@
+#!/bin/sh
+./lua mls.lua "$1"

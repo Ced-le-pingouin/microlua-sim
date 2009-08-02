@@ -1,0 +1,71 @@
+0.4 (?? ??? 2009)
+-----------------
+  ! Micro Lua Simulator is now licenced under GPL v3. This means you get the 
+    source, and you can modify it, BUT you have to provide the modified source
+    whenever you decide to re-distribute your work
+  * compatible with the new Micro Lua version, 3.0:
+    - Image.scale() works as it should, i.e. it doesn't reset itself after a 
+      blit()
+    - new variable: MICROLUA_VERSION
+    - new functions: render(), Font.getStringWidth()
+    - new classes/objects:
+      . Rumble (right now it's seen as always inserted, but does nothing 
+        visible)
+      . Motion (considered missing, the various measure functions return 0)
+      . DateTime
+      . Wifi (but no UDP sockets)
+      . Sound (a stub)
+  * bitmap fonts (read: MicroLua-correct), but slower (and latin-1 only)
+  * GUI and menus: you can load scripts from there, and you don't have to 
+    provide the name of the initial script at the command line anymore
+  * some key bindings allowing to change FPS/UPS, pause and restart scripts...
+  * also added the keypad numbers for up/down/left/right moves
+  * all new console that displays the errors encountered in scripts, instead
+    of violently exiting MLS. MLS log/debug messages also appear there
+  * no more screen flickering in Windows (at least not on my side)
+  * the sim now reads some options from a config file
+  * scripts and their additional files (images, libs...) don't have to sit in 
+    MLS root anymore to be found
+  * semi case-insensitive file loading for non-Windows systems (different 
+    uppercase/lowercase combinations tried for the name and extension)
+
+0.3 (11 March 2009)
+-------------------
+  * Mac version officially released. It seems slower than Linux/Windows versions
+    as far as unlimited FPS average are concerned, but it can achieve 60fps in 
+    Seaquest, so I guess it's not a problem right now
+  * bash/batch scripts to launch the sim more easily
+  * many graphics optimisations for "simple" images, i.e. sprites and 
+    non-transformed images (no tint/scale/rotate) => in the Seaquest remake demo
+    mode, I noticed a 350+% FPS increase on Linux, and a whopping 1700+% on 
+    Windows! (of course, for optimisation measurement, I temporarily removed FPS
+    limit to get these)
+  * "display" FPS are limited to 60, and "internal" FPS (main loop) to 55
+    (although the real achieved FPS may vary slightly depending on the OS, from 
+    50 to 60+)
+  * in addition to the existing key bindings, I put back the arrow keys for 
+    up/down/left/right, because these seem to work well on Linux and Mac.
+    Also, to eliminate differences between AZERTY and QWERTY keyboard layouts, 
+    R/T can now be used as L/R, and F/V as Start/Select
+  * README and CHANGES are now also available in french
+
+0.2 (22 February 2009)
+----------------------
+  * Windows version now works, yeah! (though slowly, and not thoroughly tested)
+  * internal change: the main loop is no longer executed in the main process, it
+    is in a Lua coroutine. This is my first try, and this change was made for 
+    the Windows version. It seems to work in Linux too, so all is ok for now
+  * changed key bindings: up/down/left/right are now the I/K/J/L keys, and 
+    Start/Select = Q/W. These changes were made because wxWidgets for Windows 
+    doesn't seem to detect key presses on arrows on my laptop, and the key codes
+    for "&" and "é" (Start/Select in version 0.1) were different than Linux
+
+0.1 (18 February 2009)
+----------------------
+  * initial release
+  * doesn't work under Windows at the moment, for unknown reasons
+  * sound doesn't crash the scripts but is not heard
+  * font system not correct
+  * some methods and behaviours of ML DS not implemented yet
+  * all scripts are limited to 30FPS (even "internal" frames, not only display)
+  * a bit slow
