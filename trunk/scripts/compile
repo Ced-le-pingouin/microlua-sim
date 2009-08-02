@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# copile : compiles Micro Lua Simulator into one unique big file
+# compile : compiles Micro Lua Simulator into one unique big file
 #
 # @author Ced-le-pingouin <Ced.le.pingouin@gmail.com>
 
