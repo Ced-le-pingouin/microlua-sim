@@ -188,7 +188,12 @@ and allows you to change some settings (fps, ups, font system...).
 Comments are allowed in the config file, they should begin with the ";" 
 character.
 
-For more information, see the comments in the provided config file.
+There is a sample mls.ini in the distribution, called mls.ini.dist. All its 
+options are set to default values, but you can rename it to mls.ini, and start
+changing it.
+
+For more information about the options themselves, see the comments in the 
+provided config file.
 
 
 ----------------------------------------------------

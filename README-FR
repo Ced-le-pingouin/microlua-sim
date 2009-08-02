@@ -199,9 +199,9 @@ MLS qui envahissent la console, et cela pourrait même ralentir les scripts en
 cours.
 
 
----------------
-[4] Config file
----------------
+----------------------------
+[4] Fichier de configuration
+----------------------------
 Un fichier de configuration nommé "mls.ini" est chargé s'il existe à partir du 
 dossier courant. Il vous permet de définir quelques options (fps, ups, système 
 de polices).
@@ -209,7 +209,12 @@ de polices).
 Les commentaires sont autorisés dans ce fichier, il doivent débuter par le 
 caractère ";".
 
-Pour plus d'informations, consultez le fichier de configuration fourni.
+Il y a un mls.ini en exemple dans la distribution, nommé mls.ini.dist. 
+Toutes ses options sont définies aux valeurs par défaut, mais vous pouvez le 
+renommer en mls.ini, et commencer à la modifier.
+
+Pour plus d'informations sur les options, consultez le fichier de configuration 
+fourni.
 
 
 ------------------------------------------------
