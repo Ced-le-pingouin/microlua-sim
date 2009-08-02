@@ -21,10 +21,12 @@
 #   You should have received a copy of the GNU General Public License
 #   along with Micro Lua DS Simulator.  If not, see <http://www.gnu.org/licenses/>.
 
+## go to MLS root dir (doesn't work if script was started from PATH)
 OLD_DIR=$PWD
 SCRIPT_DIR=$(dirname $0)
 cd $SCRIPT_DIR/..
 
+## process arguments
 LUAC=0
 PLAIN_TEXT=0
 for OPT in "$@"; do
@@ -120,4 +122,5 @@ fi
 ## remove the temp file and intermediate compiled script
 rm "$TMP_MLS_SCRIPT"
 
+## back to original dir
 cd $OLD_DIR
