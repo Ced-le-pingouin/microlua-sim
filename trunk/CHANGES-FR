@@ -1,7 +1,7 @@
 0.4 (?? ??? 2009)
 -----------------
   ! Micro Lua Simulator est maintenant sous licence GPL v3. Ca signifie que vous
-    avez accès au code source, and pouvez le modifier, MAIS vous êtes obligé de
+    avez accès au code source, et pouvez le modifier, MAIS vous êtes obligé de
     fournir les sources modifiées si vous décidez de redistribuer votre travail
   * compatible avec la nouvelle version de Micro Lua, 3.0:
     - Image.scale() fonctionne comme il devrait, càd qu'il ne se réinitialise 
@@ -26,8 +26,8 @@
   * aussi ajouté les nombres du pavé numérique pour les déplacements haut, bas, 
     gauche, droite, en plus des flèches "classiques"
   * toute nouvelle console qui affiche les erreurs rencontrées dans les scripts 
-    au lieu de retourner quitter MLS violemment. Les messages de log/debug de
-    MLS sont également affichés dedans
+    au lieu de quitter MLS violemment. Les messages de log/debug de MLS sont 
+    également affichés dedans
   * disparition des clignotements d'écran sous Windows (en tout cas chez moi)
   * lecture de certaines options à partir d'un fichier de configuration
   * les scripts et leurs fichiers additionnels (images, libs...) ne doivent plus
