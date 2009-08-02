@@ -1,0 +1,46 @@
+#!/bin/bash
+
+# package-src : create an archive of the source version of Micro Lua Simulator
+#
+# @author Ced-le-pingouin <Ced.le.pingouin@gmail.com>
+
+#   Copyright (C) 2009 Cédric FLOQUET
+#   
+#   This file is part of Micro Lua DS Simulator.
+#   
+#   Micro Lua DS Simulator is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
+#   
+#   Micro Lua DS Simulator is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#   
+#   You should have received a copy of the GNU General Public License
+#   along with Micro Lua DS Simulator.  If not, see <http://www.gnu.org/licenses/>.
+
+## go to MLS root dir (doesn't work if script was started from PATH)
+OLD_DIR=$PWD
+SCRIPT_DIR=$(dirname $0)
+cd $SCRIPT_DIR/..
+
+VERSION=`cat VERSION`
+DEST_DIR="mls-$VERSION-src"
+ARCHIVE_NAME="$DEST_DIR.zip"
+
+# this command copies the working copy to another location, without copying non
+# version-controlled files, but keeping local changes. Here we copy to a temp
+# dir
+svn export . $DEST_DIR
+
+# delete any previous archive with the same name
+rm -f $ARCHIVE_NAME
+# create the new archive
+zip -r $ARCHIVE_NAME $DEST_DIR
+# remove temp dir used to create the archive
+rm -fR $DEST_DIR
+
+## back to original dir
+cd $OLD_DIR
