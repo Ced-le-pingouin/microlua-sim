@@ -241,9 +241,16 @@ function M:getSurface()
     return self._surface
 end
 
---- @param text (string)
+--- Writes a line of text in the GUI console
+--
+-- @param text (string)
 function M:writeToConsole(text)
     self._consoleText:AppendText(text .. "\n")
+end
+
+--- Clears the GUI console
+function M:clearConsole()
+    self._consoleText:Clear()
 end
 
 --- Creates a closure that allows other objects to call it, but still write 
