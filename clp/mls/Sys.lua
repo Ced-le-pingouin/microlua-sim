@@ -216,6 +216,8 @@ end
 -- @param additionalPath (string) A path to search the file/dir in before the 
 --                                additional paths set in the class
 --
+-- @return (string, boolean)
+--
 -- @see getFile
 function M.getFileWithPath(path, additionalPath)
     M.addPath(additionalPath, true)
@@ -223,6 +225,44 @@ function M.getFileWithPath(path, additionalPath)
     M.removePath(additionalPath)
     
     return p, found
+end
+
+--- Gets the case-sensitive name of a file/directory if it exists in a given 
+--  directory, the search being case-insensitive.
+--  (for example, if you search for "MLS.Lua" in a directory where "mls.lua" 
+--  exists, the latter will be returned, even in Linux)
+--
+-- @param file (string) The name of the file/dir to search for. It must not 
+--                      contain any file separator, it should only be a name!
+-- @param dir (string) The directory to search in. This one can be a path.
+--
+-- @return (string, boolean) (string): The case-sensitive name of the file/dir 
+--                           if it was found, or the passed name if it was not 
+--                           found.
+--                           (boolean): true if the file/dir was found in the 
+--                           given directory, false otherwise.
+function M.getFileInDirCaseInsensitive(file, dir)
+    local found = false
+    local originalFile = file
+    
+    file = file:lower()
+    dir = dir or "."
+    dir = wx.wxDir(dir)
+    
+    local moreFiles, currentFile = dir:GetFirst("", wx.wxDIR_FILES
+                                                    + wx.wxDIR_DIRS
+                                                    + wx.wxDIR_HIDDEN)
+    while moreFiles do
+        if currentFile:lower() == file then
+            found = true
+            break
+        end
+        moreFiles, currentFile = dir:GetNext()
+    end
+    
+    if not found then currentFile = originalFile end
+    
+    return file, found
 end
 
 --- Gets the memory currently used by Lua (in kB).
