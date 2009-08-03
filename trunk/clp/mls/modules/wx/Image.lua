@@ -58,7 +58,7 @@ function M.load(path, destination)
     local image = {}
     
     local path, found = Sys.getFile(path)
-    --assert(found, "Image "..path.." was not found!")
+    if not found then error("Image '"..path.."' was not found!", 2) end
     image._source  = wx.wxImage(path)
     -- if a non-masked image is rotated, a black square will appear around it;
     -- also, a transparent gif image has no alpha information but often has 
