@@ -260,12 +260,18 @@ function M:getConsoleWriter()
     return function(text) self:writeToConsole(text) end
 end
 
---- Shows or hide the GUI console depending on its current visibility (GUI 
---  console only exists in Windows).
-function M:showOrHideConsole()
+--- Shows or hide the GUI console.
+--
+-- @param visibility (boolean) If given, sets the visibility of the console 
+--                             accordingly (true = visible, false = hidden). 
+--                             If nil, the console visibility is switched (i.e.
+--                             shown if currently hidden, hidden if currently 
+--                             visible)
+function M:showOrHideConsole(visibility)
     if not self._console then return end
     
-    local visible = not self._console:IsShown()
+    local visible = visibility ~= nil and visibility
+                                       or not self._console:IsShown()
     self._console:Show(visible)
     
     if visible then self:focus() end
