@@ -5,7 +5,12 @@
 -- @name clp.mls.Mls
 -- @author Ced-le-pingouin <Ced.le.pingouin@gmail.com>
 --
+-- @todo INI, Map, Mod, Sound, Sprite, ScrollMap: raise an error when a file is
+--       not found ? Check what ML does when it happens. I've already done this
+--       for Image.load()
 -- @todo Have proper packaging for MacOS (as a real App)
+-- @todo Have a specific screen displayed when there is no script loaded, or the
+--       loaded one is paused, has terminated, or error'ed
 --
 -- @todo Choose which ML version is simulated (2.0/3.0) by (un)loading some 
 --       modules and deleting some vars/constants (for ML 2)
@@ -20,9 +25,6 @@
 -- @todo Save config on exit
 -- @todo Remember last directory we loaded a script from
 -- @todo Remember recently loaded scripts
--- @todo Clear console button (and clear console on script load/restart ?)
--- @todo Have a specific screen displayed when there is no script loaded, or the
---       loaded one is paused, has terminated, or error'ed
 -- @todo Toolbar with shortcut buttons (open file, pause/resume...)
 -- @todo Delete calls to Logger in compiled version ?
 -- @todo Succeed in running LuaDoc on the source code
