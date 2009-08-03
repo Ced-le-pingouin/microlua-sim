@@ -320,7 +320,10 @@ function Mls.onFileOpen()
             defaultPath = "",
             defaultFile = "",
             defaultExt  = "lua",
-            filters = { ["*.lua"] = "Lua scripts (*.lua)" }
+            filters = {
+                ["*.lua"] = "Lua scripts (*.lua)",
+                ["*.*"] = "All files (*.*)",
+            }
         }
         
         if file ~= "" then
