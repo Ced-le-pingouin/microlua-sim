@@ -327,6 +327,8 @@ function Mls.onFileOpen()
         }
         
         if file ~= "" then
+            Mls.gui:writeToConsole("\n\n")
+            screen.clearOffscreenSurface()
             Mls.scriptManager:loadScript(file)
             Mls.scriptManager:startScript()
         end
