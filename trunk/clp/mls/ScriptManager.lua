@@ -253,7 +253,7 @@ function M:_onMainLoopEvent(event)
             if ok then
                 self:_setScriptState(M.SCRIPT_FINISHED)
             else
-                Mls.logger:error(message, "script")
+                Mls.logger:error(debug.traceback(co, message), "script")
                 
                 self:_setScriptState(M.SCRIPT_ERROR)
             end
