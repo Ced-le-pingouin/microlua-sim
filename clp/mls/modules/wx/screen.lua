@@ -46,7 +46,7 @@ function M:initModule(surface)
     M._initVars()
     M._initTimer()
     M._initOffscreenSurface()
-    M._clearOffscreenSurface()
+    M.clearOffscreenSurface()
     M._bindEvents()
 end
 
@@ -93,7 +93,7 @@ end
 function startDrawing()
     Mls.logger:trace("startDrawing called", "screen")
     
-    M._clearOffscreenSurface()
+    M.clearOffscreenSurface()
 end
 
 --- All drawing instructions must be between startDrawing() and this [ML 2 API].
@@ -314,6 +314,13 @@ function M.getUpdates()
     return M._totalFrames
 end
 
+--- Clears the offscreen surface (with black).
+function M.clearOffscreenSurface()
+    local offscreenDC = M.offscreenDC
+    offscreenDC:SetBackground(wx.wxBLACK_BRUSH)
+    offscreenDC:Clear()
+end
+
 --- Forces the underlying GUI/GFX lib to immediately repaint the "screens".
 -- This should blit the offscreen surface to the "GUI surface"
 function M.forceRepaint()
@@ -335,13 +342,6 @@ function M._drawPoint(screenOffset, x, y, color)
     M._pen:SetColour(color)
     offscreenDC:SetPen(M._pen)
     offscreenDC:DrawPoint(x, y)
-end
-
---- Clears the offscreen surface (with black).
-function M._clearOffscreenSurface()
-    local offscreenDC = M.offscreenDC
-    offscreenDC:SetBackground(wx.wxBLACK_BRUSH)
-    offscreenDC:Clear()
 end
 
 --- Increments fps counter if needed.
