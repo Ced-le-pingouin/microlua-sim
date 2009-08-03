@@ -162,6 +162,7 @@ disponibles:
 |     P     | Met le script en pause    |
 |     B     | Redémarre le script       |
 |     C     | Affiche/cache la console  |
+|     DEL   | Vide la console           |
 |     F1    | Diminue les FPS           |
 |     F2    | Augmente les FPS          |
 |     F3    | Diminue les UPS           |
@@ -381,6 +382,11 @@ site web (téléchargement seulement):
   http://www.cedlepingouin.com/mls/files/mls-0.4-win.zip
   http://www.cedlepingouin.com/mls/files/mls-0.4-mac.zip
   http://www.cedlepingouin.com/mls/files/mls-0.4-src.zip
+
+Dans les URL ci-dessus, vous pouvez remplacer le n° de version par celui que 
+vous désirez, car toutes les versions sont maintenant gardées sur le site.
+Notez toutefois que la version "mac" n'existe qu'à partir de la v0.3, et que 
+la version "src" n'existe qu'à partir de la v0.4.
 
 
 --------------------------
