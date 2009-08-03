@@ -239,7 +239,8 @@ function Mls:onStopDrawing()
 end
 
 --- Handles keys that are not part of ML, such as FPS/UPS modification, log 
---  level modification, pause/resume script, and reset script.
+--  level modification, pause/resume script, reset script, show/hide GUI 
+--  console, clear GUI console...
 -- Called on keyDown events
 --
 -- @param event (string) The name of the event that caused the callback. 
@@ -256,6 +257,8 @@ function Mls:onKeyDown(event, key)
         Mls.scriptManager:restartScript()
     elseif key == wx.WXK_C then
         Mls.gui:showOrHideConsole()
+    elseif key == wx.WXK_DELETE or key == wx.WXK_NUMPAD_DELETE then
+        Mls.gui:clearConsole()
     elseif key == wx.WXK_F1 then
         sm:setTargetFps(sm:getTargetFps() - 1)
     elseif key == wx.WXK_F2 then
