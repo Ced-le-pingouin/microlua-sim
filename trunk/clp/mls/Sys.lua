@@ -145,16 +145,15 @@ end
 -- combinations for the file name and extension if the original path doesn't 
 -- exist, and some additional paths as well.
 --
--- If the original path is valid, the original path.
--- 
+-- If the original path exists, the original path is returned.
 -- If a variant of this path with different case exists, returns the variant. 
 -- The second value returned is true in these cases.
 --
--- If variants are not found, the paths define by add/set-Path() are prepended 
+-- If variants are not found, the paths defined by add/set-Path() are prepended 
 -- to the original path to try and find the file/dir again.
 --
--- If the path doesn't exist, the original path is still returned, and the 
--- second value returned is false.
+-- If the path doesn't exist in any variant and with additional paths prepended,
+-- the original path is still returned, but the second value returned is false.
 --
 -- @param file (string) The path of the file/dir to check for existence
 -- @param usePath (boolean) If true, uses the currently defined path of the 
