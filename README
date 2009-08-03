@@ -146,6 +146,7 @@ available:
 |     P     | Pause script       |
 |     B     | Restart script     |
 |     C     | Show/hide console  |
+|     DEL   | Clear console      |
 |     F1    | Decrease FPS       |
 |     F2    | Increase FPS       |
 |     F3    | Decrease UPS       |
@@ -341,6 +342,11 @@ website (download only):
   http://www.cedlepingouin.com/mls/files/mls-0.4-win.zip
   http://www.cedlepingouin.com/mls/files/mls-0.4-mac.zip
   http://www.cedlepingouin.com/mls/files/mls-0.4-src.zip
+
+In the above URLs, you can replace the version number with the one you'd like
+to download, since all previous versions are now kept on the site.
+Please note that the "mac" version only exists from v0.3 on though, and that the
+"src" version only exists from v0.4 on.
 
 
 ------------------
