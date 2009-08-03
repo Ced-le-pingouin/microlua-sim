@@ -289,7 +289,9 @@ function Mls:onUpsUpdate(event, ups)
     ))
 end
 
---- Displays script name and state in the Gui.
+--- Displays script name and state in the Gui, and shows GUI console when a
+--  script error has occured.
+--
 -- Called on scriptStateChange events
 --
 -- @param event (string) The name of the event that caused the callback. 
@@ -302,6 +304,10 @@ end
 function Mls:onScriptStateChange(event, script, state)
     self.gui:displayScriptName(script)
     self.gui:displayScriptState(ScriptManager.getStateName(state))
+    
+    if state == ScriptManager.SCRIPT_ERROR then
+        self.gui:showOrHideConsole(true)
+    end
 end
 
 --- Opens a script file selection dialog and runs the chosen script.
