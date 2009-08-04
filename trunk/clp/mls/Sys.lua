@@ -163,40 +163,58 @@ end
 function M.getFile(path, usePath)
     Mls.logger:debug("searching file "..path, "file")
     
-    if usePath == nil then usePath = true end
-    
-    local transformFunctions = {
-        function (s) return s end, 
-        string.lower,
-        string.upper,
-        function (s)
-            if s:len() > 1 then return s:sub(1, 1):upper() .. s:sub(2) 
-            else return s end
-        end
-    }
-    local file = wx.wxFileName(path)
-    local filePath = file:GetPath()
-    local fileName = file:GetName()
-    local fileExt  = file:GetExt()
-    local fileSeparator = string.char(wx.wxFileName.GetPathSeparator())
-    
-    if filePath ~= "" then
-        filePath = filePath .. fileSeparator
+    -- whatever the OS, if the provided path exists as is, no need to do complex
+    -- stuff, we return
+    if wx.wxFileExists(path) or wx.wxDirExists(path) then
+        return path, true
     end
     
-    for _, transformName in ipairs(transformFunctions) do
-        for _, transformExt in ipairs(transformFunctions) do
-            local testPath = filePath .. transformName(fileName) 
-                             .. "." .. transformExt(fileExt)
-            
-            if (wx.wxFileExists(testPath)) then
-                Mls.logger:debug("file "..testPath.." found", "file")
-                
-                return testPath, true
-            end
-        end
-    end 
+    if usePath == nil then usePath = true end
     
+    -- if we're on a case-sensitive OS, we'll try to detect if a path/file/dir 
+    -- with the same name but different case exists
+    if M.getOS() ~= "Windows" then
+        -- what kind of path is it, Windows-like or Unix-like ?
+        local fileSeparator = path:match("[/\\]") or "/"
+        
+        -- every directory from the path is separated, as we'll check each part
+        -- to see if it exists in the previous part (which is a directory)
+        local parts = {}
+        for part in path:gmatch("[/\\]?([^/\\]+)") do parts[#parts+1] = part end
+        
+        -- when we have an absolute path, we should add "/" to make the first 
+        -- "part" the root dir. When we have a relative path, the first part
+        -- should be "."
+        if path:sub(1,1) == fileSeparator then
+            table.insert(parts, 1, "/")
+        elseif parts[1] ~= "." then
+            table.insert(parts, 1, ".")
+        end
+        
+        -- every part of the path must exist as a directory and contain the next
+        -- part. As soon as a part doesn't exist, or doesn't contain the next 
+        -- part, the search fails, so we must break
+        local p = path
+        local found = false
+        local currentDir = parts[1]
+        for i = 2, #parts do
+            local entry = parts[i]
+            
+            --print(string.format("checking for %s%s%s", currentDir, fileSeparator, entry))
+            p, found = M.dirContainsFileCaseInsensitive(currentDir, entry)
+            if not found then break end
+            --print(string.format("%s%s%s found", currentDir, fileSeparator, entry))
+            
+            currentDir = currentDir .. fileSeparator .. p
+        end
+        
+        -- if found = true, it means we made it to the last part of the path, so
+        -- the path is correct
+        if found then return currentDir, found end
+    end
+    
+    -- when we're sure the provided path doesn't exist, should we try it with 
+    -- additional prepended paths from this class ?
     if usePath and path:sub(1,1) ~= fileSeparator then
         Mls.logger:debug("file not found, trying additional paths", "file")
         
@@ -232,16 +250,16 @@ end
 --  (for example, if you search for "MLS.Lua" in a directory where "mls.lua" 
 --  exists, the latter will be returned, even in Linux)
 --
+-- @param dir (string) The directory to search in. This one can be a path.
 -- @param file (string) The name of the file/dir to search for. It must not 
 --                      contain any file separator, it should only be a name!
--- @param dir (string) The directory to search in. This one can be a path.
 --
 -- @return (string, boolean) (string): The case-sensitive name of the file/dir 
 --                           if it was found, or the passed name if it was not 
 --                           found.
 --                           (boolean): true if the file/dir was found in the 
 --                           given directory, false otherwise.
-function M.getFileInDirCaseInsensitive(file, dir)
+function M.dirContainsFileCaseInsensitive(dir, file)
     local found = false
     local originalFile = file
     
@@ -249,7 +267,8 @@ function M.getFileInDirCaseInsensitive(file, dir)
     dir = dir or "."
     dir = wx.wxDir(dir)
     
-    local moreFiles, currentFile = dir:GetFirst("", wx.wxDIR_FILES
+    local moreFiles, currentFile = dir:GetFirst("", wx.wxDIR_DOTDOT 
+                                                    + wx.wxDIR_FILES
                                                     + wx.wxDIR_DIRS
                                                     + wx.wxDIR_HIDDEN)
     while moreFiles do
