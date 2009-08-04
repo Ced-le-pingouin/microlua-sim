@@ -89,7 +89,7 @@ function M.load(path, destination)
     
     image._bitmap  = wx.wxBitmap(image._source, Mls.DEPTH)
     image._DC = wx.wxMemoryDC()
-    image._DC:SelectObjectAsSource(image._bitmap)    
+    image._DC:SelectObjectAsSource(image._bitmap)
     image._changed = false
     
     return image
