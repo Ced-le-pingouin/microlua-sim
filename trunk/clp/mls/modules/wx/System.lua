@@ -87,7 +87,7 @@ end
 --
 -- @return (table) A table listing the directory content, each entry being 
 --                 itself a table of files or directories, with key/value items.
---                 These keys are "file" (string, the file/directory name) and
+--                 These keys are "name" (string, the file/directory name) and
 --                 "isDir" (boolean, tells if an entry is a directory)
 function M.listDirectory(path)
     local dotTable  = {}
