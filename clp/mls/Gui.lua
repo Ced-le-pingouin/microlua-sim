@@ -223,7 +223,7 @@ function M:showWindow()
     self._window:Fit()
     
     self._window:Center()
-    self._window:Show(true)
+    self._window:Show()
     wx.wxGetApp():SetTopWindow(self._window)
     
     self:_createConsole()
