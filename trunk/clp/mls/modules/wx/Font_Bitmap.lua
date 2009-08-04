@@ -60,6 +60,7 @@ function M.load(path)
     font.lineWidth     = M._readInt(file)
     font.addedSpace    = M._readByte(file)
     font.paletteCount  = M._readShort(file)
+    font.cachedStrings = {}
     assert(font.paletteCount == 0, 
            "Micro Lua Simulator doesn't support palette info in fonts")
 
@@ -126,8 +127,7 @@ end
 function M.print(screenOffset, font, x, y, text, color)
     local offscreenDC = screen._getOffscreenDC(screenOffset)
     
-    M._printNoClip(screenOffset, font, x, screenOffset + y, text, 
-                             color)
+    M._printNoClip(screenOffset, font, x, screenOffset + y, text, color)
 end
 
 --- Prints a text, without using clipping at screen limits.
@@ -149,28 +149,50 @@ function M._printNoClip(screenOffset, font, x, y, text, color)
     if not color then color = wx.wxWHITE end
     
     local offscreenDC = screen.offscreenDC
-    local len = text:len()
-    local currentX = x
-    local charNum
-    
+    --[[
+    if font.cachedStrings[text] then
+        print(string.format("'%s' en CACHE", text))
+    else
+        font.cachedStrings[text] = text
+        print(string.format("'%s' PAS en cache (%d)", text, M.getStringWidth(font, text)))
+    end
+    ]]
     if not color:op_eq(font._lastColor) then
 	    screen._brush:SetColour(color)
 	    font._DC:SetBackground(screen._brush)
 	    font._DC:Clear()
 	    font._lastColor = color
 	end
+    
+    local len = text:len()
+    local currentX = x
     for i = 1, len do
-        charNum = text:sub(i, i):byte() + 1
-
+        local charNum = text:sub(i, i):byte() + 1
+        
         offscreenDC:Blit(currentX, y,
                          font.charsWidths[charNum], font.charHeight,
                          font._DC,
                          font.charsPos[charNum].x, font.charsPos[charNum].y,
                          wx.wxCOPY, true)
-
+        
         currentX = currentX + font.charsWidths[charNum] + font.addedSpace
         if (currentX > SCREEN_WIDTH) then break end
     end
+end
+
+function M._printToCache(font, text, color)
+    local textImage = wx.wxImage(M.getCharHeight(), 
+                                 M.getStringWidth(font, text), true)
+    local textBitmap = wx.wxBitmap(textImage, Mls.DEPTH)
+    local textDC = wx.wxMemoryDC()
+    textDC:SelectObject(textBitmap)
+    
+    
+    
+    textDC:delete()
+    textImage:delete()
+    
+    font.cachedStrings[text] = textBitmap
 end
 
 --- Gets the pixel height of the characters of a font [ML 2+ API].
@@ -357,6 +379,7 @@ function M._initDefaultFont()
     font.lineWidth     = 1
     font.addedSpace    = 0
     font.paletteCount  = 0
+    font.cachedStrings = {}
 
     local charsWidths = {}
     for charNum = 1, M.NUM_CHARS do
