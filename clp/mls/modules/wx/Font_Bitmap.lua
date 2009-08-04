@@ -149,49 +149,52 @@ function M._printNoClip(screenOffset, font, x, y, text, color)
     if not color then color = wx.wxWHITE end
     
     local offscreenDC = screen.offscreenDC
-    --[[
-    if font.cachedStrings[text] then
-        print(string.format("'%s' en CACHE", text))
-    else
-        font.cachedStrings[text] = text
-        print(string.format("'%s' PAS en cache (%d)", text, M.getStringWidth(font, text)))
-    end
-    ]]
-    if not color:op_eq(font._lastColor) then
-	    screen._brush:SetColour(color)
-	    font._DC:SetBackground(screen._brush)
-	    font._DC:Clear()
-	    font._lastColor = color
-	end
     
-    local len = text:len()
-    local currentX = x
-    for i = 1, len do
-        local charNum = text:sub(i, i):byte() + 1
-        
-        offscreenDC:Blit(currentX, y,
-                         font.charsWidths[charNum], font.charHeight,
-                         font._DC,
-                         font.charsPos[charNum].x, font.charsPos[charNum].y,
-                         wx.wxCOPY, true)
-        
-        currentX = currentX + font.charsWidths[charNum] + font.addedSpace
-        if (currentX > SCREEN_WIDTH) then break end
+    if font.cachedStrings[text] then
+        --print(string.format("'%s' en CACHE", text))
+        --[[if not color:op_eq(font._lastColor) then
+	        screen._brush:SetColour(color)
+            font._DC:SetBackground(screen._brush)
+            font._DC:Clear()
+            font._lastColor = color
+        end]]
+        offscreenDC:DrawBitmap(font.cachedStrings[text], x, y, true)
+    else
+        M._printToCache(font, text, color)
+        --print(string.format("'%s' PAS en cache (%d)", text, M.getStringWidth(font, text)))
     end
 end
 
 function M._printToCache(font, text, color)
-    local textImage = wx.wxImage(M.getCharHeight(), 
-                                 M.getStringWidth(font, text), true)
-    local textBitmap = wx.wxBitmap(textImage, Mls.DEPTH)
+    local textBitmap = wx.wxBitmap(M.getStringWidth(font, text), 
+                                   M.getCharHeight(font), Mls.DEPTH)
     local textDC = wx.wxMemoryDC()
     textDC:SelectObject(textBitmap)
+    textDC:SetBackground(wx.wxBrush(wx.wxBLACK_BRUSH))
+    textDC:Clear()
     
-    
+    local len = text:len()
+    local x, y = 0, 0
+    local fontDC = font._DC
+    local charsWidths, charHeight = font.charsWidths, font.charHeight
+    local charsPos = font.charsPos
+    local addedSpace = font.addedSpace
+    for i = 1, len do
+        local charNum = text:sub(i, i):byte() + 1
+        
+        textDC:Blit(x, y, 
+                    charsWidths[charNum], charHeight,
+                    fontDC,
+                    charsPos[charNum].x, charsPos[charNum].y,
+                    wx.wxCOPY, false)
+        
+        x = x + charsWidths[charNum] + addedSpace
+        --if (x > SCREEN_WIDTH) then break end
+    end
     
     textDC:delete()
-    textImage:delete()
     
+    textBitmap:SetMask(wx.wxMask(textBitmap, wx.wxBLACK))
     font.cachedStrings[text] = textBitmap
 end
 
