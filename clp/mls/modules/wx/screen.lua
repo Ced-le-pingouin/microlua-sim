@@ -321,6 +321,36 @@ function M.clearOffscreenSurface()
     offscreenDC:Clear()
 end
 
+--- Displays a bar with some text on the upper screen.
+--
+-- This is used by Mls to display the script state directly on the screen, in 
+-- addition to the status bar
+--
+-- @param text (string)
+-- @param color (Color) The color of the bar. The default is blue.
+function M.displayInfoText(text, color)
+    if not color then color = Color.new(0, 0, 31) end
+    
+    local textColor = Color.new(31, 31, 31)
+    local shadowColor = Color.new(0, 0, 0)
+    local shadowOffset = 1
+    
+    local w, h = SCREEN_WIDTH / 1.5, 12
+    local x, y = (SCREEN_WIDTH - w) / 2, (SCREEN_HEIGHT - h) / 2
+    local textXOffset = (w - Font.getStringWidth(Font._defaultFont, text)) / 2
+    local textYOffset = (h - Font.getCharHeight(Font._defaultFont)) / 2
+    
+    -- draw the frame and its shadow
+    M.drawFillRect(SCREEN_UP, x + shadowOffset, y + shadowOffset, 
+                   x + w + shadowOffset, y + h + shadowOffset, shadowColor)
+    M.drawFillRect(SCREEN_UP, x, y, x + w, y + h, color)
+    
+    -- draw text and its shadow
+    M.print(SCREEN_UP, x + textXOffset + shadowOffset, 
+            y + textYOffset + shadowOffset, text, shadowColor)
+    M.print(SCREEN_UP, x + textXOffset, y + textYOffset, text, textColor)
+end
+
 --- Forces the underlying GUI/GFX lib to immediately repaint the "screens".
 -- This should blit the offscreen surface to the "GUI surface"
 function M.forceRepaint()
