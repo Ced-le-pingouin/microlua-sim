@@ -98,7 +98,8 @@ function M:init()
     self:_initUpsSystem()
     self:setTargetUps(self._ups)
     
-    Mls:attach(self, "stopDrawing", self.onStopDrawing)
+    --Mls:attach(self, "stopDrawing", self.onStopDrawing)
+    Mls:attach(self, "controlsRead", self.onStopDrawing)
 end
 
 function M:_initTimer()
