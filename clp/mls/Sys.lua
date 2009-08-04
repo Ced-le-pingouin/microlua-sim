@@ -281,7 +281,7 @@ function M.dirContainsFileCaseInsensitive(dir, file)
     
     if not found then currentFile = originalFile end
     
-    return file, found
+    return currentFile, found
 end
 
 --- Gets the memory currently used by Lua (in kB).
