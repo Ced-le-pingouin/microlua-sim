@@ -59,6 +59,8 @@ function M.read()
     Mls.logger:trace("reading input", "controls")
     
     M._copyInternalStateToExternalState()
+    
+    Mls:notify("controlsRead")
 end
 
 --- Initializes computer keys <=> DS input bindings.
