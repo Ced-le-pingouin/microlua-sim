@@ -5,6 +5,10 @@
 -- @name clp.mls.Mls
 -- @author Ced-le-pingouin <Ced.le.pingouin@gmail.com>
 --
+-- @todo Find a way to improve speed of bitmap fonts (cache?)
+-- @todo Some scripts with multiple start/stopDrawing() completely collapse, 
+--       probably due to frantic yield/resume of the coroutine (the yield is 
+--       in a stopDrawing() event handler)
 -- @todo INI, Map, Mod, Sound, Sprite, ScrollMap: raise an error when a file is
 --       not found ? Check what ML does when it happens. I've already done this
 --       for Image.load()
