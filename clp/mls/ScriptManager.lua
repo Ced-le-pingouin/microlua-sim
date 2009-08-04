@@ -355,7 +355,7 @@ end
 --- Pauses a running script.
 function M:pauseScript()
     if self._scriptState ~= M.SCRIPT_RUNNING then
-        Mls.logger:warn("can't pause a script that's not running", "script")
+        Mls.logger:warn("can't pause a script that is not running", "script")
         return
     end
     
@@ -366,7 +366,7 @@ end
 --- Resumes a paused script.
 function M:resumeScript()
     if self._scriptState ~= M.SCRIPT_PAUSED then
-        Mls.logger:warn("can't resume a script that's not been paused", "script")
+        Mls.logger:warn("can't resume a script that is not paused", "script")
         return
     end
     
@@ -378,7 +378,7 @@ end
 function M:pauseOrResumeScript()
     if self._scriptState == M.SCRIPT_RUNNING then
         self:pauseScript()
-    else
+    elseif self._scriptState == M.SCRIPT_PAUSED then
         self:resumeScript()
     end
 end
