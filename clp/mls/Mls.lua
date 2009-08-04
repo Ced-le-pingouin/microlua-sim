@@ -9,8 +9,6 @@
 --       not found ? Check what ML does when it happens. I've already done this
 --       for Image.load()
 -- @todo Have proper packaging for MacOS (as a real App)
--- @todo Have a specific screen displayed when there is no script loaded, or the
---       loaded one is paused, has terminated, or error'ed
 --
 -- @todo Choose which ML version is simulated (2.0/3.0) by (un)loading some 
 --       modules and deleting some vars/constants (for ML 2)
@@ -306,6 +304,15 @@ end
 function Mls:onScriptStateChange(event, script, state)
     self.gui:displayScriptName(script)
     self.gui:displayScriptState(ScriptManager.getStateName(state))
+    
+    if state == ScriptManager.SCRIPT_ERROR then
+        color = Color.new(31, 0, 0)
+    elseif state == ScriptManager.SCRIPT_PAUSED then
+        color = Color.new(0, 20, 0)
+    else
+        color = Color.new(0, 0, 31)
+    end
+    screen.displayInfoText(Mls.scriptManager.getStateName(state):upper(), color)
     
     if state == ScriptManager.SCRIPT_ERROR then
         self.gui:showOrHideConsole(true)
