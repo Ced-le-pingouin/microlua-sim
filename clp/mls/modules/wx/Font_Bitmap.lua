@@ -31,6 +31,7 @@ local M = Class.new()
 
 function M:initModule()
     M.NUM_CHARS = 256
+    M.MAX_CACHED_STRINGS = 10
     M._initDefaultFont()
 end
 
@@ -61,6 +62,7 @@ function M.load(path)
     font.addedSpace    = M._readByte(file)
     font.paletteCount  = M._readShort(file)
     font.cachedStrings = {}
+    font.cachedContent = {}
     assert(font.paletteCount == 0, 
            "Micro Lua Simulator doesn't support palette info in fonts")
 
@@ -150,19 +152,20 @@ function M._printNoClip(screenOffset, font, x, y, text, color)
     
     local offscreenDC = screen.offscreenDC
     
-    if font.cachedStrings[text] then
-        --print(string.format("'%s' en CACHE", text))
-        --[[if not color:op_eq(font._lastColor) then
-	        screen._brush:SetColour(color)
-            font._DC:SetBackground(screen._brush)
-            font._DC:Clear()
-            font._lastColor = color
-        end]]
-        offscreenDC:DrawBitmap(font.cachedStrings[text], x, y, true)
-    else
+    if not font.cachedStrings[text] then
+        --print(string.format("'%s' just CACHED", text))
         M._printToCache(font, text, color)
-        --print(string.format("'%s' PAS en cache (%d)", text, M.getStringWidth(font, text)))
     end
+    
+    local textDC = wx.wxMemoryDC()
+    textDC:SelectObject(font.cachedStrings[text])
+    screen._brush:SetColour(color)
+    textDC:SetBackground(screen._brush)
+    textDC:Clear()
+    
+    offscreenDC:DrawBitmap(font.cachedStrings[text], x, y, true)
+    
+    textDC:delete()
 end
 
 function M._printToCache(font, text, color)
@@ -170,7 +173,7 @@ function M._printToCache(font, text, color)
                                    M.getCharHeight(font), Mls.DEPTH)
     local textDC = wx.wxMemoryDC()
     textDC:SelectObject(textBitmap)
-    textDC:SetBackground(wx.wxBrush(wx.wxBLACK_BRUSH))
+    textDC:SetBackground(wx.wxBLACK_BRUSH)
     textDC:Clear()
     
     local len = text:len()
@@ -195,7 +198,15 @@ function M._printToCache(font, text, color)
     textDC:delete()
     
     textBitmap:SetMask(wx.wxMask(textBitmap, wx.wxBLACK))
+    
+    if #font.cachedContent >= M.MAX_CACHED_STRINGS then
+        font.cachedStrings[font.cachedContent[1]]:delete()
+        table.remove(font.cachedContent, 1)
+    end
+    
     font.cachedStrings[text] = textBitmap
+    font.cachedContent[#font.cachedContent+1] = text
+    print(#font.cachedContent, text)
 end
 
 --- Gets the pixel height of the characters of a font [ML 2+ API].
@@ -383,6 +394,7 @@ function M._initDefaultFont()
     font.addedSpace    = 0
     font.paletteCount  = 0
     font.cachedStrings = {}
+    font.cachedContent = {}
 
     local charsWidths = {}
     for charNum = 1, M.NUM_CHARS do
