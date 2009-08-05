@@ -5,7 +5,6 @@
 -- @name clp.mls.Mls
 -- @author Ced-le-pingouin <Ced.le.pingouin@gmail.com>
 --
--- @todo Find a way to improve speed of bitmap fonts (cache?)
 -- @todo Some scripts with multiple start/stopDrawing() completely collapse, 
 --       probably due to frantic yield/resume of the coroutine (the yield is 
 --       in a stopDrawing() event handler)
