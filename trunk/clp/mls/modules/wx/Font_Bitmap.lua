@@ -237,9 +237,10 @@ end
 --       display characters, only ASCII texts will work correctly
 -- @todo Is this the correct use of addedSpace ?
 function M.getStringWidth(font, text)
+    if #text == 0 then return 0 end
+    
     local width = 0
     local len = #text
-    local charNum
     
     if not font.variableWidth then
         return (font.charWidth * len) + (font.addedSpace * len)
@@ -247,7 +248,7 @@ function M.getStringWidth(font, text)
     
     local charsWidths, addedSpace = font.charsWidths, font.addedSpace
     for i = 1, len do
-        charNum = text:sub(i, i):byte() + 1
+        local charNum = text:sub(i, i):byte() + 1
         width = width + charsWidths[charNum] + addedSpace
     end
     
