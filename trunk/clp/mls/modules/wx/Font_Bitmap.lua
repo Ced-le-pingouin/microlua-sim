@@ -31,7 +31,8 @@ local M = Class.new()
 
 function M:initModule()
     M.NUM_CHARS = 256
-    M.MAX_CACHED_STRINGS = 10
+    M.CACHE_MAX_STRINGS = 25
+    M.CACHE_MIN_STRING_LEN = 3
     M._initDefaultFont()
 end
 
@@ -143,7 +144,7 @@ end
 --
 -- @see print
 --
--- @todo Since I use lua string.len() and process *bytes* (NOT characters) to 
+-- @todo Since I use lua length operator and process *bytes* (NOT characters) to
 --       display characters, only ASCII texts will work correctly 
 -- @todo Is this the correct use of addedSpace ?
 function M._printNoClip(screenOffset, font, x, y, text, color)
@@ -151,19 +152,21 @@ function M._printNoClip(screenOffset, font, x, y, text, color)
     if not color then color = wx.wxWHITE end
     
     local offscreenDC = screen.offscreenDC
-    
+    local stringBitmap
     if not font.cachedStrings[text] then
         --print(string.format("'%s' just CACHED", text))
-        M._printToCache(font, text, color)
+        stringBitmap = M._printToCache(font, text, color)
+    else
+        stringBitmap = font.cachedStrings[text]
     end
     
     local textDC = wx.wxMemoryDC()
-    textDC:SelectObject(font.cachedStrings[text])
+    textDC:SelectObject(stringBitmap)
     screen._brush:SetColour(color)
     textDC:SetBackground(screen._brush)
     textDC:Clear()
     
-    offscreenDC:DrawBitmap(font.cachedStrings[text], x, y, true)
+    offscreenDC:DrawBitmap(stringBitmap, x, y, true)
     
     textDC:delete()
 end
@@ -199,14 +202,18 @@ function M._printToCache(font, text, color)
     
     textBitmap:SetMask(wx.wxMask(textBitmap, wx.wxBLACK))
     
-    if #font.cachedContent > M.MAX_CACHED_STRINGS then
-        font.cachedStrings[font.cachedContent[1]]:delete()
-        table.remove(font.cachedContent, 1)
+    if #text >= M.CACHE_MIN_STRING_LEN then
+        if #font.cachedContent >= M.CACHE_MAX_STRINGS then
+            font.cachedStrings[font.cachedContent[1]]:delete()
+            font.cachedStrings[font.cachedContent[1]] = nil
+            table.remove(font.cachedContent, 1)
+        end
+        
+        font.cachedStrings[text] = textBitmap
+        font.cachedContent[#font.cachedContent+1] = text
     end
     
-    font.cachedStrings[text] = textBitmap
-    font.cachedContent[#font.cachedContent+1] = text
-    print(#font.cachedContent, text)
+    return textBitmap
 end
 
 --- Gets the pixel height of the characters of a font [ML 2+ API].
