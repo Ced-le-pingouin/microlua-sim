@@ -32,7 +32,7 @@ local M = Class.new()
 function M:initModule()
     M.NUM_CHARS = 256
     M.CACHE_MAX_STRINGS = 25
-    M.CACHE_MIN_STRING_LEN = 3
+    M.CACHE_MIN_STRING_LEN = 1
     M._initDefaultFont()
 end
 
