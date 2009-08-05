@@ -166,10 +166,9 @@ function M._printNoClip(screenOffset, font, x, y, text, color)
     screen._brush:SetColour(color)
     textDC:SetBackground(screen._brush)
     textDC:Clear()
+    textDC:delete()
     
     offscreenDC:DrawBitmap(stringBitmap, x, y, true)
-    
-    textDC:delete()
 end
 
 function M._printToCache(font, text, color)
