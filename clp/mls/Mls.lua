@@ -8,13 +8,21 @@
 -- @todo Some scripts with multiple start/stopDrawing() completely collapse, 
 --       probably due to frantic yield/resume of the coroutine (the yield is 
 --       in a stopDrawing() event handler)
+-- @todo Some scripts don't work, such as libBarre (normal?), CodeMonkeyDS, 
+--       Command-EZ, LED 1.2b (in files menu whe, pressed Back), tiles-engine-
+--       evolution (for this one, some ScrollMap methods are missing, see ML 
+--       source/libs to see what functions are missing)
+-- @todo doubleclick ?
 -- @todo INI, Map, Mod, Sound, Sprite, ScrollMap: raise an error when a file is
 --       not found ? Check what ML does when it happens. I've already done this
 --       for Image.load()
 -- @todo Have proper packaging for MacOS (as a real App)
 --
 -- @todo Choose which ML version is simulated (2.0/3.0) by (un)loading some 
---       modules and deleting some vars/constants (for ML 2)
+--       modules and deleting some vars/constants (for ML 2). Keep in mind that
+--       ML 2 had a different behaviour for Stylus.newPress. See unmodified 
+--       StylusBox lib with Stylus.newPressinBox() working in ML 2 but not in 
+--       ML 3 (DS-laby and PPC DS use this lib)
 -- @todo Search in multiple locations for mls.ini
 -- @todo Allow window resizing with stretching of the "screens"
 --
