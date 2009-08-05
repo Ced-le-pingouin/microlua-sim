@@ -176,7 +176,7 @@ function M._printToCache(font, text, color)
     textDC:SetBackground(wx.wxBLACK_BRUSH)
     textDC:Clear()
     
-    local len = text:len()
+    local len = #text
     local x, y = 0, 0
     local fontDC = font._DC
     local charsWidths, charHeight = font.charsWidths, font.charHeight
@@ -199,7 +199,7 @@ function M._printToCache(font, text, color)
     
     textBitmap:SetMask(wx.wxMask(textBitmap, wx.wxBLACK))
     
-    if #font.cachedContent >= M.MAX_CACHED_STRINGS then
+    if #font.cachedContent > M.MAX_CACHED_STRINGS then
         font.cachedStrings[font.cachedContent[1]]:delete()
         table.remove(font.cachedContent, 1)
     end
@@ -230,7 +230,7 @@ end
 -- @todo Is this the correct use of addedSpace ?
 function M.getStringWidth(font, text)
     local width = 0
-    local len = text:len()
+    local len = #text
     local charNum
     
     if not font.variableWidth then

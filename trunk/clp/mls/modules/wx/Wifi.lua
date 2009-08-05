@@ -74,7 +74,7 @@ function M.createTCPSocket(host, port)
     Mls.logger:debug("creating TCP socket", "wifi")
     
     M._checkConnected()
-    assert(type(host) == "string" and host:len() > 0, "URL can't be empty")
+    assert(type(host) == "string" and #host > 0, "URL can't be empty")
     assert(type(port) == "number" and port >=0 and port <= 65535, 
            "Port number must be between 0 and 65535")
 
@@ -132,7 +132,7 @@ function M.send(socket, buffer)
     
     M._checkConnected()
     assert(type(socket) == "userdata", "Invalid socket")
-    assert(type(buffer) == "string" and buffer:len() > 0,
+    assert(type(buffer) == "string" and #buffer > 0,
            "Buffer can't be empty")
 
     socket:Write(buffer)

@@ -69,7 +69,7 @@ function M.getPathComponents(path)
     end
     
     -- if dir is longer than 1 char, i.e. is not the root, we remove the trailing separator
-    if dir:len() > 1 then dir = dir:sub(1, -2) end
+    if #dir > 1 then dir = dir:sub(1, -2) end
     
     -- the file can't keep any trailing separator (e.g. "/home/ced/" probably 
     -- means "/home/ced", so the file would be "ced", not "ced/")
