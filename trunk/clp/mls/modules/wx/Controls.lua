@@ -171,7 +171,7 @@ function M._onKeyDownEvent(event)
         M._Keys.held[mappedKey] = true
     end
     
-    Mls.logger:trace("keyDown: raw = "..key..", mapped to "..tostring(mappedKey), "controls")
+    Mls.logger:debug("keyDown: raw = "..key..", mapped to "..tostring(mappedKey), "controls")
     
     Mls:notify("keyDown", key)
     
@@ -189,7 +189,7 @@ function M._onKeyUpEvent(event)
         M._Keys.held[mappedKey] = false
     end
     
-    Mls.logger:trace("keyUp: raw = "..key..", mapped to "..tostring(mappedKey), "controls")
+    Mls.logger:debug("keyUp: raw = "..key..", mapped to "..tostring(mappedKey), "controls")
     
     event:Skip()
 end
@@ -203,7 +203,7 @@ function M._onMouseDownEvent(event)
     local x, y = M._GetX(event), M._GetY(event)
     M._Stylus.X, M._Stylus.Y = x, y
     
-    Mls.logger:trace("mouseDown: x = "..x..", y = "..y, "controls")
+    Mls.logger:debug("mouseDown: x = "..x..", y = "..y, "controls")
     
     event:Skip()
 end
@@ -214,7 +214,7 @@ end
 function M._onMouseUpEvent(event)
     M._Stylus.held = false
     
-    Mls.logger:trace("mouseUp", "controls")
+    Mls.logger:debug("mouseUp", "controls")
     
     event:Skip()
 end
