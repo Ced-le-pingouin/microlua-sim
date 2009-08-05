@@ -1,1 +1,1 @@
-@lua mls.lua "%1"
+@lua mls.lua %1
