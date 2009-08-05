@@ -237,9 +237,10 @@ function M.getStringWidth(font, text)
         return (font.charWidth * len) + (font.addedSpace * len)
     end
     
+    local charsWidths, addedSpace = font.charsWidths, font.addedSpace
     for i = 1, len do
         charNum = text:sub(i, i):byte() + 1
-        width = width + font.charsWidths[charNum] + font.addedSpace
+        width = width + charsWidths[charNum] + addedSpace
     end
     
     return width
