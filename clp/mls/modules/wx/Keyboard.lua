@@ -221,7 +221,7 @@ function M._processKey(line, num)
     Mls.logger:trace("key '"..keyVal.."' received", "keyboard")
     
     -- my convention: if a key value is a one-character string, it's "printable"
-    if keyVal:len() == 1 and M._text:len() < M._maxLength then
+    if #keyVal == 1 and #M._text < M._maxLength then
         M._text = M._text .. keyVal
     elseif keyVal == "back" then
         -- -2 to strip only one char at the end ? Well, it's the Lua way :)
