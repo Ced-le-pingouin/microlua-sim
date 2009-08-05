@@ -149,6 +149,7 @@ end
 -- @todo Is this the correct use of addedSpace ?
 function M._printNoClip(screenOffset, font, x, y, text, color)
     if type(text) == "number" then text = tostring(text) end
+    if #text == 0 then return end
     if not color then color = wx.wxWHITE end
     
     local offscreenDC = screen.offscreenDC
