@@ -118,13 +118,15 @@ end
 --
 -- @return (number)
 function M.getStringWidth(font, text)
+    if #text == 0 then return 0 end
+    
     local offscreenDC = screen.offscreenDC
     
     local oldFont = offscreenDC:GetFont()
     offscreenDC:SetFont(font)
     local stringWidth = offscreenDC:GetTextExtent(text)
     offscreenDC:SetFont(oldFont)
-
+    
     return stringWidth
 end
 
