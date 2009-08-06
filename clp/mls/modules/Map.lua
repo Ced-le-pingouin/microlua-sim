@@ -91,7 +91,7 @@ end
 --- Draws a map [ML 2+ API].
 --
 -- @param screen (number) The screen where to draw (SCREEN_UP or SCREEN_DOWN)
--- @param map (Map) The map to destroy
+-- @param map (Map) The map to draw
 -- @param x (number) The x coordinate where to draw the map
 -- @param y (number) The y coordinate where to draw the map
 -- @param width (number) The x number of tiles to draw
@@ -144,7 +144,7 @@ end
 
 --- Scrolls a map [ML 2+ API].
 --
--- @param map (Map) The map to destroy
+-- @param map (Map) The map to scroll
 -- @param x (number) The x number of tiles to scroll
 -- @param y (number) The y number of tiles to scroll
 function M.scroll(map, x, y)
@@ -154,7 +154,7 @@ end
 
 --- Sets the space between each tiles of a map [ML 2+ API].
 --
--- @param map (Map) The map to destroy
+-- @param map (Map) The map
 -- @param x (number) The x space between tiles
 -- @param y (number) The y space between tiles
 function M.space(map, x, y)
@@ -162,7 +162,7 @@ function M.space(map, x, y)
 end
 
 --- Changes a tile value [ML 2+ API].
--- @param map (Map) The map to destroy
+-- @param map (Map) The map to set a new tile in
 -- @param x (number) The x coordinate of the tile to change in the map table
 -- @param y (number) The y coordinate of the tile to change in the map table
 -- @param tile (number) The new tile value
@@ -172,7 +172,7 @@ end
 
 --- Gets a tile value [ML 2+ API].
 --
--- @param map (Map) The map to destroy
+-- @param map (Map) The map to get a tile from
 -- @param x (number) The x coordinate of the tile to get
 -- @param y (number) The y coordinate of the tile to get
 --
