@@ -12,8 +12,6 @@
 --       when pressed Back), tiles-engine-evolution (for this one, some 
 --       ScrollMap methods are missing, see ML source/libs to see which ones)
 --       alternativ-keyboard is dog-slow, too
--- @todo Implement Stylus.released as it should be, i.e. it must be false most 
---       of the time
 -- @todo Activate mirrorH/V, in the same buggy way as ML
 -- @todo INI, Map, Mod, Sound, Sprite, ScrollMap: raise an error when a file is
 --       not found ? Check what ML does when it happens. I've already done this
