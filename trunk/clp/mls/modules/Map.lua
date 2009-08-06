@@ -177,7 +177,7 @@ end
 -- @param y (number) The y coordinate of the tile to get
 --
 -- @return (number)
-function M.getTile(map, x, y, tile)
+function M.getTile(map, x, y)
     return map._data[y][x]
 end
 
