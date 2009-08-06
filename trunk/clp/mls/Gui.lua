@@ -296,7 +296,7 @@ end
 --
 -- @param text (string)
 function M:displayScriptName(text)
-    self._scriptNameInfo:SetLabel(text)
+    self._scriptNameInfo:SetLabel(text or "<no script>")
     
     -- the line below is necessary otherwise the sizer does not re-center the 
     -- static text whenever its content changes
