@@ -197,6 +197,12 @@ end
 -- @param y1 (number) The y coordinate of the bottom right corner
 -- @param color (Color) The color of the rectangle
 function M.drawRect(screenOffset, x0, y0, x1, y1, color)
+    -- @note This is only to prevent "bad" code from crashing in the case where
+    -- it (unfortunately) doesn't crash in the real ML. If "color" has not been
+    -- created with Color.new() but is a number, it is valid in ML, since it
+    -- uses RGB15 format to store its colors. @see Color
+    --if type(color) == "number" then color = wx.wxColour(color, 0, 0) end
+    
     local offscreenDC = M._getOffscreenDC(screenOffset)
     
     M._pen:SetColour(color)
