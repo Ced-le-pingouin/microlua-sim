@@ -8,10 +8,10 @@
 -- @todo Some scripts with multiple start/stopDrawing() completely collapse, 
 --       probably due to frantic yield/resume of the coroutine (the yield is 
 --       in a stopDrawing() event handler)
--- @todo Some scripts don't work, such as libBarre (normal?), CodeMonkeyDS, 
---       Command-EZ, LED 1.2b (in files menu when pressed Back), tiles-engine-
---       evolution (for this one, some ScrollMap methods are missing, see ML 
---       source/libs to see what functions are missing)
+-- @todo Some scripts don't work, such as CodeMonkeyDS, LED 1.2b (in files menu
+--       when pressed Back), tiles-engine-evolution (for this one, some 
+--       ScrollMap methods are missing, see ML source/libs to see which ones)
+--       alternativ-keyboard is dog-slow, too
 -- @todo Check Stylus.released real behavior, in ML/uLibrary source it doesn't 
 --       seem to be the exact opposite of held (in ML, it is, for Keys), maybe
 --       it should be notified only once when the Stylus is released, not every
@@ -22,10 +22,13 @@
 -- @todo Have proper packaging for MacOS (as a real App)
 --
 -- @todo Choose which ML version is simulated (2.0/3.0) by (un)loading some 
---       modules and deleting some vars/constants (for ML 2). Keep in mind that
---       ML 2 had a different behaviour for Stylus.newPress. See unmodified 
---       StylusBox lib with Stylus.newPressinBox() working in ML 2 but not in 
---       ML 3 (DS-laby and PPC DS use this lib)
+--       modules and deleting some vars/constants (for ML 2).
+--       Maybe allow additional boolean "hack" for these cases:
+--           - ML 2 had a different behaviour for Stylus.newPress. See 
+--             unmodified StylusBox lib with Stylus.newPressinBox() working in 
+--             ML 2 but not in ML 3 (DS-laby and PPC DS use this lib)
+--           - Command-EZ / CommandButton (L49): screen.drawRect() will crash in
+--             MLS, see comments in that function for a working hack
 -- @todo Search in multiple locations for mls.ini
 -- @todo Allow window resizing with stretching of the "screens"
 --
@@ -350,7 +353,6 @@ function Mls.onFileOpen()
         }
         
         if file ~= "" then
-            Mls.gui:writeToConsole("\n\n")
             screen.clearOffscreenSurface()
             Mls.scriptManager:loadScript(file)
             Mls.scriptManager:startScript()
