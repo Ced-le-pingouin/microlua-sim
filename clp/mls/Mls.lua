@@ -12,10 +12,9 @@
 --       when pressed Back), tiles-engine-evolution (for this one, some 
 --       ScrollMap methods are missing, see ML source/libs to see which ones)
 --       alternativ-keyboard is dog-slow, too
--- @todo Check Stylus.released real behavior, in ML/uLibrary source it doesn't 
---       seem to be the exact opposite of held (in ML, it is, for Keys), maybe
---       it should be notified only once when the Stylus is released, not every
---       time the Stylus in not held ?
+-- @todo Implement Stylus.released as it should be, i.e. it must be false most 
+--       of the time
+-- @todo Activate mirrorH/V, in the same buggy way as ML
 -- @todo INI, Map, Mod, Sound, Sprite, ScrollMap: raise an error when a file is
 --       not found ? Check what ML does when it happens. I've already done this
 --       for Image.load()
@@ -27,6 +26,9 @@
 --           - ML 2 had a different behaviour for Stylus.newPress. See 
 --             unmodified StylusBox lib with Stylus.newPressinBox() working in 
 --             ML 2 but not in ML 3 (DS-laby and PPC DS use this lib)
+--             In ML2, newPress is always true, except when held is true. So it
+--             probably is "not held". In ML3, newPress occurs only once, when
+--             the stylus has just been pressed. After that it is false again
 --           - Command-EZ / CommandButton (L49): screen.drawRect() will crash in
 --             MLS, see comments in that function for a working hack
 -- @todo Search in multiple locations for mls.ini
