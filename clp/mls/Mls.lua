@@ -9,10 +9,13 @@
 --       probably due to frantic yield/resume of the coroutine (the yield is 
 --       in a stopDrawing() event handler)
 -- @todo Some scripts don't work, such as libBarre (normal?), CodeMonkeyDS, 
---       Command-EZ, LED 1.2b (in files menu whe, pressed Back), tiles-engine-
+--       Command-EZ, LED 1.2b (in files menu when pressed Back), tiles-engine-
 --       evolution (for this one, some ScrollMap methods are missing, see ML 
 --       source/libs to see what functions are missing)
--- @todo doubleclick ?
+-- @todo Check Stylus.released real behavior, in ML/uLibrary source it doesn't 
+--       seem to be the exact opposite of held (in ML, it is, for Keys), maybe
+--       it should be notified only once when the Stylus is released, not every
+--       time the Stylus in not held ?
 -- @todo INI, Map, Mod, Sound, Sprite, ScrollMap: raise an error when a file is
 --       not found ? Check what ML does when it happens. I've already done this
 --       for Image.load()
