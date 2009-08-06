@@ -134,8 +134,9 @@ function Mls:ctr(scriptPath)
     
     Mls.scriptManager:init()
     if scriptPath then
-        Mls.scriptManager:loadScript(scriptPath)
-        Mls.scriptManager:startScript()
+        if Mls.scriptManager:loadScript(scriptPath) then
+            Mls.scriptManager:startScript()
+        end
     end
 end
 
@@ -321,7 +322,9 @@ function Mls:onScriptStateChange(event, script, state)
     self.gui:displayScriptName(script)
     self.gui:displayScriptState(ScriptManager.getStateName(state))
     
-    if state == ScriptManager.SCRIPT_ERROR then
+    if state == ScriptManager.SCRIPT_NONE 
+       or state == ScriptManager.SCRIPT_ERROR
+    then
         color = Color.new(31, 0, 0)
     elseif state == ScriptManager.SCRIPT_PAUSED then
         color = Color.new(0, 20, 0)
@@ -330,7 +333,9 @@ function Mls:onScriptStateChange(event, script, state)
     end
     screen.displayInfoText(Mls.scriptManager.getStateName(state):upper(), color)
     
-    if state == ScriptManager.SCRIPT_ERROR then
+    if state == ScriptManager.SCRIPT_NONE
+       or state == ScriptManager.SCRIPT_ERROR
+    then
         self.gui:showOrHideConsole(true)
     end
 end
@@ -353,8 +358,9 @@ function Mls.onFileOpen()
         
         if file ~= "" then
             screen.clearOffscreenSurface()
-            Mls.scriptManager:loadScript(file)
-            Mls.scriptManager:startScript()
+            if Mls.scriptManager:loadScript(file) then
+                Mls.scriptManager:startScript()
+            end
         end
     end)
     
