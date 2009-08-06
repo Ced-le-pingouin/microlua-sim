@@ -255,7 +255,6 @@ function M:_onMainLoopEvent(event)
                 self:_setScriptState(M.SCRIPT_FINISHED)
             else
                 Mls.logger:error(debug.traceback(co, message), "script")
-                
                 self:_setScriptState(M.SCRIPT_ERROR)
             end
         end
@@ -291,6 +290,8 @@ end
 --- Loads a user script as a function.
 --
 -- @param scriptPath (string) The path of the script to load
+--
+-- @return (boolean) true if the script is loaded, false if there was a problem
 function M:loadScript(scriptPath)
     -- if there's already a script loaded (and maybe running), we must stop it
     if self._scriptState ~= M.SCRIPT_NONE then self:stopScript() end
@@ -298,9 +299,17 @@ function M:loadScript(scriptPath)
     Mls.logger:info("loading "..scriptPath, "script")
     
     -- if there was already a script loaded as a function, it will be deleted...
-    self._scriptFunction = assert(loadfile(scriptPath))
+    local message
+    self._scriptFunction, message = loadfile(scriptPath)
     -- ...but maybe we should reclaim memory of the old script function
     collectgarbage("collect")
+    -- if there was a parse error, we should abort right now
+    if not self._scriptFunction then
+        Mls.logger:error(debug.traceback(message), "script")
+        Mls.logger:error("Script "..scriptPath.." NOT LOADED", "script")
+        self:_setScriptState(M.SCRIPT_NONE)
+        return false
+    end
     
     -- sets script path as an additional path to find files (for dofile(), 
     -- Image.load()...)
@@ -311,6 +320,8 @@ function M:loadScript(scriptPath)
     self._scriptFile = scriptFile
     
     self:stopScript()
+    
+    return true
 end
 
 --- Stops a script.
@@ -405,6 +416,11 @@ end
 
 --- Restarts a script.
 function M:restartScript()
+    if self._scriptState == M.SCRIPT_NONE then
+        --Mls.logger:warn("can't restart: no script loaded", "script")
+        return
+    end
+    
     self:stopScript()
     self:startScript()
 end
