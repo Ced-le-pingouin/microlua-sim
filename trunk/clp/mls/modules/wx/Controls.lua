@@ -105,10 +105,10 @@ end
 -- states
 function M._clearBothStates()
     Stylus = {
-	    X = 0, Y = 0, held = false --, doubleClick = false
+	    X = 0, Y = 0, held = false, doubleClick = false
 	}
 	M._Stylus = {
-        X = 0, Y = 0, held = false
+        X = 0, Y = 0, held = false, doubleClick = false
     }
 	
 	Keys  = { newPress = {}, held = {}, released = {} }
@@ -126,6 +126,9 @@ function M._copyInternalStateToExternalState()
     Stylus.newPress = not Stylus.held and M._Stylus.held
     Stylus.held     = M._Stylus.held
     Stylus.released = not M._Stylus.held
+    Stylus.doubleClick = M._Stylus.doubleClick
+    -- no consecutive double clicks allowed, so we reset the "internal" one
+    M._Stylus.doubleClick = false
     
     if Stylus.newPress then
         Stylus.deltaX = 0
@@ -154,6 +157,7 @@ function M._bindEvents()
     M._receiver:Connect(wx.wxEVT_KEY_UP, M._onKeyUpEvent)
     
     M._receiver:Connect(wx.wxEVT_LEFT_DOWN, M._onMouseDownEvent)
+    M._receiver:Connect(wx.wxEVT_LEFT_DCLICK, M._onMouseDoubleClickEvent)
     M._receiver:Connect(wx.wxEVT_LEFT_UP, M._onMouseUpEvent)
     M._receiver:Connect(wx.wxEVT_MOTION, M._onMouseMoveEvent)
 end
@@ -217,6 +221,13 @@ function M._onMouseUpEvent(event)
     Mls.logger:debug("mouseUp", "controls")
     
     event:Skip()
+end
+
+--- Event handler used to detect stylus double click.
+--
+-- @param event (wxMouseEvent) The event object
+function M._onMouseDoubleClickEvent(event)
+    M._Stylus.doubleClick = true
 end
 
 --- Event handler used to detect stylus movement (when held).
