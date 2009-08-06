@@ -171,6 +171,22 @@ function M._printNoClip(screenOffset, font, x, y, text, color)
     offscreenDC:DrawBitmap(stringBitmap, x, y, true)
 end
 
+--- Renders a whole string to a bitmap then put it in a cache, so that a new
+--  request to display that same string with the same font would display the 
+--  bitmap at once, rather than printing each character again.
+--
+-- The minimum number of characters for a string to be cached is configured with
+-- CACHE_MIN_STRING_LEN.
+-- You can also set the maximum number of cached string for one font with 
+-- CACHE_MAX_STRINGS.
+--
+-- @param font (Font)
+-- @param text (string)
+-- @param color (Color)
+--
+-- @return (wxBitmap) The rendered bitmap representing the text
+--
+-- @see _printNoClip
 function M._printToCache(font, text, color)
     local textBitmap = wx.wxBitmap(M.getStringWidth(font, text), 
                                    M.getCharHeight(font), Mls.DEPTH)
@@ -232,7 +248,7 @@ end
 --
 -- @return (number)
 --
--- @todo Since I use lua string.len() and process *bytes* (NOT characters) to 
+-- @todo Since I use lua length operator and process *bytes* (NOT characters) to
 --       display characters, only ASCII texts will work correctly
 -- @todo Is this the correct use of addedSpace ?
 function M.getStringWidth(font, text)
