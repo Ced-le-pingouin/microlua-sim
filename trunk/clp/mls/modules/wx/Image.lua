@@ -189,22 +189,29 @@ end
 --- Mirrors the image horizontally [ML 2+ API].
 --
 -- @param image (Image) The image to mirror
---
--- @todo In ML2, this function doesn't do anything, is it still the case in ML3?
-function M.mirrorH(image)
-    --image._source = image._source:Mirror(true)
-    --image._changed = true
+-- @param mirrorState (boolean) This is a strange, "hidden" parameter in ML. It 
+--                              must be true for this function to have any 
+--                              effect on a "standard" image (and false on an 
+--                              already mirrored image?)
+function M.mirrorH(image, mirrorState)
+    if not mirrorState then return end
+    
+    image._source = image._source:Mirror(true)
+    image._changed = true
 end
 
 --- Mirrors the image vertically [ML 2+ API].
 --
 -- @param image (Image) The image to mirror
---
---
--- @todo In ML2, this function doesn't do anything, is it still the case in ML3?
-function M.mirrorV(image)
-    --image._source = image._source:Mirror(false)
-    --image._changed = true
+-- @param mirrorState (boolean) This is a strange, "hidden" parameter in ML. It 
+--                              must be true for this function to have any 
+--                              effect on a "standard" image (and false on an 
+--                              already mirrored image?)
+function M.mirrorV(image, mirrorState)
+    if not mirrorState then return end
+    
+    image._source = image._source:Mirror(false)
+    image._changed = true
 end
 
 --- Sets the tint of the image [ML 2+ API].
