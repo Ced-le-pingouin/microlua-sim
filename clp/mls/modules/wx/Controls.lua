@@ -105,10 +105,10 @@ end
 -- states
 function M._clearBothStates()
     Stylus = {
-	    X = 0, Y = 0, held = false, doubleClick = false
+	    X = 0, Y = 0, held = false, released = false, doubleClick = false
 	}
 	M._Stylus = {
-        X = 0, Y = 0, held = false, doubleClick = false
+        X = 0, Y = 0, held = false, released = false, doubleClick = false
     }
 	
 	Keys  = { newPress = {}, held = {}, released = {} }
@@ -125,10 +125,12 @@ end
 function M._copyInternalStateToExternalState()
     Stylus.newPress = not Stylus.held and M._Stylus.held
     Stylus.held     = M._Stylus.held
-    Stylus.released = not M._Stylus.held
+    Stylus.released = M._Stylus.released
     Stylus.doubleClick = M._Stylus.doubleClick
     -- no consecutive double clicks allowed, so we reset the "internal" one
     M._Stylus.doubleClick = false
+    -- ...and Stylus.released is only a one shot if true, so set it to false
+    M._Stylus.released = false
     
     if Stylus.newPress then
         Stylus.deltaX = 0
@@ -217,6 +219,7 @@ end
 -- @param event (wxMouseEvent) The event object
 function M._onMouseUpEvent(event)
     M._Stylus.held = false
+    M._Stylus.released = true
     
     Mls.logger:debug("mouseUp", "controls")
     
