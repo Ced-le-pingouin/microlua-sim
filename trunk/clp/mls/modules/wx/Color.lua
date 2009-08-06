@@ -41,6 +41,10 @@ end
 -- @return (Color) The created color. The real type is implementation 
 --                 dependent
 function M.new(r, g, b)
+    assert(r >= 0 and r <= 31, "Red mask must be between 0 and 31")
+    assert(g >= 0 and g <= 31, "Green mask must be between 0 and 31")
+    assert(b >= 0 and b <= 31, "Blue mask must be between 0 and 31")
+    
     r = (r == 0) and 0 or ((r + 1) * 8) - 1
     g = (g == 0) and 0 or ((g + 1) * 8) - 1
     b = (b == 0) and 0 or ((b + 1) * 8) - 1
