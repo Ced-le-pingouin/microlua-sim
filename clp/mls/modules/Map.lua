@@ -45,7 +45,6 @@ local M = Class.new()
 --       (see comments in ScrollMap for more information)
 function M.new(image, mapfile, width, height, tileWidth, tileHeight)
     local map = {}
-    local rowNum, colNum, row
     
     map._tilesImage  = image
     map._tileWidth   = tileWidth
@@ -59,8 +58,8 @@ function M.new(image, mapfile, width, height, tileWidth, tileHeight)
     map._data = {}
     local rowNum = 0
     for line in io.lines(mapfile) do
-        row = {}
-        colNum = 0
+        local row = {}
+        local colNum = 0
         for tileNum in line:gmatch("%d+") do
             row[colNum] = tileNum
             colNum = colNum + 1
