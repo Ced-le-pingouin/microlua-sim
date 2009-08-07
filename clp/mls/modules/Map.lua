@@ -61,14 +61,14 @@ function M.new(image, mapfile, width, height, tileWidth, tileHeight)
         local row = {}
         local colNum = 0
         for tileNum in line:gmatch("%d+") do
-            row[colNum] = tileNum
+            row[colNum] = tonumber(tileNum)
             colNum = colNum + 1
         end
-
+        
         map._data[rowNum] = row
         rowNum = rowNum + 1
     end
-
+    
     map._width  = width
     map._height = height
     
@@ -99,11 +99,9 @@ end
 -- @todo Pre-compute the x,y positions of a tile inside the tile sheet, put them
 --       them in a table, and use it in draw() for sourcex, sourcey
 function M.draw(screenOffset, map, x, y, width, height)
-    local row, col, posX, posY, tileNum, sourcex, sourcey
-    local firstRow, firstCol = map._scrollY, map._scrollX
-    local lastRow, lastCol
     local startPosX, startPosY = x, y
-
+    local firstRow, firstCol = map._scrollY, map._scrollX
+    
     if firstRow < 0 then
         startPosY = startPosY + (-firstRow * map._tileHeight)
         height = height - -firstRow
@@ -116,18 +114,19 @@ function M.draw(screenOffset, map, x, y, width, height)
         firstCol = 0
     end
     
-    lastRow = (firstRow + height - 1)
+    local lastRow = (firstRow + height - 1)
     if lastRow > (map._height - 1) then lastRow = (map._height - 1) end
-    lastCol = (firstCol + width - 1)
+    local lastCol = (firstCol + width - 1)
     if lastCol > (map._width - 1) then lastCol = (map._width - 1) end
     
-    posY = startPosY
+    local posY = startPosY
     for row = firstRow, lastRow do
-        posX = startPosX
+        local posX = startPosX
         for col = firstCol, lastCol do
-            tileNum = map._data[row][col]
-            sourcex = (tileNum % map._tilesPerRow) * map._tileWidth
-            sourcey = math.floor(tileNum / map._tilesPerRow) * map._tileHeight
+            local tileNum = map._data[row][col]
+            local sourcex = (tileNum % map._tilesPerRow) * map._tileWidth
+            local sourcey = math.floor(tileNum / map._tilesPerRow)
+                            * map._tileHeight
             
             screen.blit(screenOffset, posX, posY, map._tilesImage, 
                         sourcex, sourcey, 
