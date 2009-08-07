@@ -208,7 +208,7 @@ function M.drawRect(screenOffset, x0, y0, x1, y1, color)
     M._pen:SetColour(color)
     offscreenDC:SetPen(M._pen)
     offscreenDC:SetBrush(wx.wxTRANSPARENT_BRUSH)
-    offscreenDC:DrawRectangle(x0, y0 + screenOffset, x1 - x0 + 1, y1 - y0 + 1)
+    offscreenDC:DrawRectangle(x0, y0 + screenOffset, x1 - x0, y1 - y0)
 end
 
 --- Draws a filled rectangle on the screen [ML 2+ API].
@@ -226,7 +226,7 @@ function M.drawFillRect(screenOffset, x0, y0, x1, y1, color)
     offscreenDC:SetPen(M._pen)
     M._brush:SetColour(color)
     offscreenDC:SetBrush(M._brush)
-    offscreenDC:DrawRectangle(x0, y0 + screenOffset, x1 - x0 + 1, y1 - y0 + 1)
+    offscreenDC:DrawRectangle(x0, y0 + screenOffset, x1 - x0, y1 - y0)
 end
 
 --- Draws a gradient rectangle on the screen [ML 2+ API].
@@ -251,8 +251,8 @@ end
 --       (c1 = c2, c1 = c3...)
 function M.drawGradientRect(screenOffset, x0, y0, x1, y1, 
                             color1, color2, color3, color4)
-    local w = x1 - x0 + 1
-    local h = y1 - y0 + 1
+    local w = x1 - x0
+    local h = y1 - y0
     local offscreenDC = M._getOffscreenDC(screenOffset)
     
     offscreenDC:GradientFillLinear(wx.wxRect(x0, y0 + screenOffset, w, h),
@@ -273,7 +273,7 @@ function M.drawTextBox(screenOffset, x0, y0, x1, y1, text, color)
     y1 = screenOffset + y1
     
     local posY = y0
-    local width, height = x1 - x0 + 1, y1 - y0 + 1
+    local width, height = x1 - x0, y1 - y0
     local font = Font._defaultFont
     local fontHeight = Font.getCharHeight(font)
     
