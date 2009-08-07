@@ -10,10 +10,6 @@
 --       in a stopDrawing() event handler)
 -- @todo Some scripts don't work, such as CodeMonkeyDS, LED 1.2b (in files menu
 --       when pressed Back). alternativ-keyboard is dog-slow, too
--- @todo MicroDemineur doesn't show gray lines at the beginning. Why ?
--- @todo INI, Map, Mod, Sound, Sprite, ScrollMap: raise an error when a file is
---       not found ? Check what ML does when it happens. I've already done this
---       for Image.load()
 -- @todo Have a real exe with an embedded icon for Windows
 -- @todo Have proper packaging for MacOS (as a real App)
 --
@@ -28,6 +24,9 @@
 --             the stylus has just been pressed. After that it is false again
 --           - Command-EZ / CommandButton (L49): screen.drawRect() will crash in
 --             MLS, see comments in that function for a working hack
+-- @todo INI, Map, Mod, Sound, Sprite, ScrollMap: raise an error when a file is
+--       not found ? Check what ML does when it happens. I've already done this
+--       for Image.load()
 -- @todo Search in multiple locations for mls.ini
 -- @todo Allow window resizing with stretching of the "screens"
 --
