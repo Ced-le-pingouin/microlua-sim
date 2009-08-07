@@ -181,7 +181,7 @@ end
 
 --- Handles the actual keys detection.
 function M._processInput()
-    if Stylus.released then
+    if not Stylus.held then
         if M._keyPressed then
             M._processKey(unpack(M._keyPressed))
         end
