@@ -74,7 +74,7 @@ function M.new(image, mapfile, width, height, tileWidth, tileHeight)
             sourcey = math.floor(tileNum / map._tilesPerRow) * tileHeight
             
             scrollmapDC:Blit(posX, posY, tileWidth, tileHeight, tilesDC, 
-                             sourcex, sourcey, wx.wxCOPY, true)
+                             sourcex, sourcey, wx.wxCOPY, false)
             
             posX = posX + tileWidth
         end
@@ -84,7 +84,8 @@ function M.new(image, mapfile, width, height, tileWidth, tileHeight)
     scrollmap._map = map
     scrollmap._tilesBitmap = tilesBitmap
     scrollmap._tilesDC = tilesDC
-    scrollmap._DC = scrollmapDC
+    
+    scrollmap._tilesHaveChanged = true
     
     return scrollmap
 end
@@ -100,7 +101,6 @@ function M.destroy(scrollmap)
     scrollmap._tilesBitmap:delete()
     scrollmap._tilesBitmap = nil
     
-    scrollmap._DC:delete()
     scrollmap._bitmap:delete()
     scrollmap._bitmap = nil
 end
@@ -124,9 +124,14 @@ function M.draw(screenOffset, scrollmap)
     
     local offscreenDC = screen._getOffscreenDC(screenOffset)
     
-    -- to draw the scrollmap bitmap, we have to "release" any DC where it has 
-    -- been selected, else Windows won't draw the bitmap
-    scrollmap._DC:SelectObject(wx.wxNullBitmap)
+    -- if setTile() has been used, the mask of the new tile won't probably be
+    -- the same as the replaced tile, so we should re-create the mask of the
+    -- scrollmap
+    if scrollmap._tilesHaveChanged then
+        scrollmap._bitmap:SetMask(wx.wxMask(scrollmap._bitmap, Color.new(31, 0, 31)))
+        scrollmap._tilesHaveChanged = false
+    end
+    
     while posY < SCREEN_HEIGHT do
         while posX < SCREEN_WIDTH do
             offscreenDC:DrawBitmap(scrollmap._bitmap, posX, screenOffset + posY,
@@ -137,9 +142,6 @@ function M.draw(screenOffset, scrollmap)
         posY = posY + height
         posX = startPosX
     end
-    -- we then re-select the bitmap into a global DC (setTile modifies the DC
-    -- directly)    
-    scrollmap._DC:SelectObject(scrollmap._bitmap)
 end
 
 --- Scrolls a scrollmap [ML 2+ API].
@@ -165,8 +167,15 @@ function M.setTile(scrollmap, x, y, tile)
     local sourcex = (tile % map._tilesPerRow) * tileWidth
     local sourcey = math.floor(tile / map._tilesPerRow) * tileHeight
     
-    scrollmap._DC:Blit(posX, posY, tileWidth, tileHeight, scrollmap._tilesDC, 
-                       sourcex, sourcey, wx.wxCOPY, false)
+    local scrollmapDC = wx.wxMemoryDC()
+    scrollmapDC:SelectObject(scrollmap._bitmap)
+    
+    scrollmapDC:Blit(posX, posY, tileWidth, tileHeight, scrollmap._tilesDC, 
+                     sourcex, sourcey, wx.wxCOPY, false)
+    
+    scrollmapDC:SelectObject(wx.wxNullBitmap)
+    
+    scrollmap._tilesHaveChanged = true
 end
 
 --- Gets a tile value [ML 2+ API].
