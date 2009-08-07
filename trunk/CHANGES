@@ -16,6 +16,18 @@
       . Wifi (but no UDP sockets)
       . Sound (a stub)
   * bitmap fonts (read: MicroLua-correct), but slower (and latin-1 only)
+  * Stylus: doubleClick has been implemented, and released behaviour is now 
+    similar to the one in Micro Lua
+  * screen.mirrorH()/mirrorV(): they are now enabled, because we discovered 
+    that they really were enabled in ML, only they needed a second 
+    (undocumented) boolean parameter set to true to have any effect
+  * screen: functions drawing a rectangle now draw it correctly (they used to
+    draw rectangles one pixel shorter than they should have been)
+  * ScrollMap: getTile()/setTile() are now implemented, and scrollmap 
+    transparency is now respected
+  * enabled an internal hack that detects whether the StylusBox library is 
+    loading, and replace its newPressinBox() function with our own version, 
+    because the original one doesn't work in MLS (nor in ML3)
   * GUI and menus: you can load scripts from there, and you don't have to 
     provide the name of the initial script at the command line anymore
   * some key bindings allowing to change FPS/UPS, pause and restart scripts...
