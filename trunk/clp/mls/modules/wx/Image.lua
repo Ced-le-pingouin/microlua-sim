@@ -28,12 +28,11 @@ local Sys = require "clp.mls.Sys"
 
 local M = Class.new()
 
+M.MASK_COLOR = Color.MAGENTA
+
 function M:initModule()
     RAM  = 0
     VRAM = 1
-    
-    M._maskColor = wx.wxColour(255, 0, 255)
-    M._maskBrush = wx.wxBrush(M._maskColor, wx.wxSOLID)
 end
 
 --- Creates a new image in memory from an image file (PNG, JPG or GIF) [ML 2+ API].
@@ -65,9 +64,9 @@ function M.load(path, destination)
     -- magenta as the transparent color
     --   => we force a mask anyway
     if not image._source:HasMask() then
-        image._source:SetMaskColour(M._maskColor:Red(), 
-                                    M._maskColor:Green(),
-                                    M._maskColor:Blue())
+        image._source:SetMaskColour(M.MASK_COLOR:Red(), 
+                                    M.MASK_COLOR:Green(),
+                                    M.MASK_COLOR:Blue())
         image._source:SetMask(true)
     end
     
