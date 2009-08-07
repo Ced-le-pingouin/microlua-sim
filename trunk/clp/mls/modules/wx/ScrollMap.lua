@@ -124,6 +124,9 @@ function M.draw(screenOffset, scrollmap)
     
     local offscreenDC = screen._getOffscreenDC(screenOffset)
     
+    -- to draw the scrollmap bitmap, we have to "release" any DC where it has 
+    -- been selected, else Windows won't draw the bitmap
+    scrollmap._DC:SelectObject(wx.wxNullBitmap)
     while posY < SCREEN_HEIGHT do
         while posX < SCREEN_WIDTH do
             offscreenDC:DrawBitmap(scrollmap._bitmap, posX, screenOffset + posY,
@@ -134,6 +137,9 @@ function M.draw(screenOffset, scrollmap)
         posY = posY + height
         posX = startPosX
     end
+    -- we then re-select the bitmap into a global DC (setTile modifies the DC
+    -- directly)    
+    scrollmap._DC:SelectObject(scrollmap._bitmap)
 end
 
 --- Scrolls a scrollmap [ML 2+ API].
