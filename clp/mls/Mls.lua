@@ -9,12 +9,12 @@
 --       probably due to frantic yield/resume of the coroutine (the yield is 
 --       in a stopDrawing() event handler)
 -- @todo Some scripts don't work, such as CodeMonkeyDS, LED 1.2b (in files menu
---       when pressed Back), tiles-engine-evolution (for this one, some 
---       ScrollMap methods are missing, see ML source/libs to see which ones)
---       alternativ-keyboard is dog-slow, too
+--       when pressed Back). alternativ-keyboard is dog-slow, too
+-- @todo MicroDemineur doesn't show gray lines at the beginning. Why ?
 -- @todo INI, Map, Mod, Sound, Sprite, ScrollMap: raise an error when a file is
 --       not found ? Check what ML does when it happens. I've already done this
 --       for Image.load()
+-- @todo Have a real exe with an embedded icon for Windows
 -- @todo Have proper packaging for MacOS (as a real App)
 --
 -- @todo Choose which ML version is simulated (2.0/3.0) by (un)loading some 
@@ -33,7 +33,7 @@
 --
 -- @todo Have a test directory
 -- @todo Refactor/split some classes (split ScriptManager/Script? split 
---       Gui/Console? Sys?)
+--       Gui/Console? Sys? Map/ScrollMap ?)
 -- @todo Get key bindings from the ini file, too
 -- @todo Have menu items for every config option
 -- @todo Save config on exit
@@ -43,9 +43,9 @@
 -- @todo Delete calls to Logger in compiled version ?
 -- @todo Succeed in running LuaDoc on the source code
 -- @todo Make the compilation and packaging script work in Windows (Mac?)
--- @todo Test if it's ok to use genuine Lua from LuaBinaries for the three
---       platforms, and if compiled scripts and libs work with it
--- @todo Ability to change Font system (native <=> bitmap) on the fly
+-- @todo Would it be possible to compile some extensions myself against Lua AIO
+--       if I use their source (extensions compiled against genuine Lua won't 
+--       work when used with Lua AIO)
 --
 -- @todo Simulate real ML DS limits, e.g. on the number of Images that can be 
 --       loaded, count used memory in RAM/VRAM...
