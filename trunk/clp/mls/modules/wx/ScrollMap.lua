@@ -81,10 +81,10 @@ function M.new(image, mapfile, width, height, tileWidth, tileHeight)
         posY = posY + tileHeight
     end
     
-    scrollmapDC:delete()
-    tilesDC:delete()
-    tilesBitmap:delete()
-    Map.destroy(map)
+    scrollmap._map = map
+    scrollmap._tilesBitmap = tilesBitmap
+    scrollmap._tilesDC = tilesDC
+    scrollmap._DC = scrollmapDC
     
     return scrollmap
 end
@@ -93,6 +93,14 @@ end
 --
 -- @param scrollmap (ScrollMap) the scrollmap to destroy
 function M.destroy(scrollmap)
+    scrollmap._map:destroy()
+    
+    scrollmap._tilesDC:delete()
+    scrollmap._tilesDC = nil
+    scrollmap._tilesBitmap:delete()
+    scrollmap._tilesBitmap = nil
+    
+    scrollmap._DC:delete()
     scrollmap._bitmap:delete()
     scrollmap._bitmap = nil
 end
@@ -135,6 +143,35 @@ end
 -- @param y (number) The y scrolling in pixel
 function M.scroll(scrollmap, x, y)
     scrollmap._scrollX, scrollmap._scrollY = x, y
+end
+
+--- Changes a tile value [ML 2+ API].
+-- @param map (Map) The scrollmap to set a new tile in
+-- @param x (number) The x coordinate of the tile to change in the map table
+-- @param y (number) The y coordinate of the tile to change in the map table
+-- @param tile (number) The new tile value
+function M.setTile(scrollmap, x, y, tile)
+    scrollmap._map._data[y][x] = tile
+    
+    local map = scrollmap._map
+    local tileWidth, tileHeight = map._tileWidth, map._tileHeight
+    local posX, posY = x * tileWidth, y * tileHeight
+    local sourcex = (tile % map._tilesPerRow) * tileWidth
+    local sourcey = math.floor(tile / map._tilesPerRow) * tileHeight
+    
+    scrollmap._DC:Blit(posX, posY, tileWidth, tileHeight, scrollmap._tilesDC, 
+                       sourcex, sourcey, wx.wxCOPY, false)
+end
+
+--- Gets a tile value [ML 2+ API].
+--
+-- @param map (Map) The scrollmap to get a tile from
+-- @param x (number) The x coordinate of the tile to get
+-- @param y (number) The y coordinate of the tile to get
+--
+-- @return (number)
+function M.getTile(scrollmap, x, y)
+    return scrollmap._map._data[y][x]
 end
 
 return M
