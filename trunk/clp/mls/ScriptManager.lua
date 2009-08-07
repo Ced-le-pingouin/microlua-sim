@@ -520,10 +520,49 @@ end
 function M._dofile(file)
     Mls.logger:trace("using custom dofile() on "..file, "script")
     
+    -- file is loaded as a function
     local f, e = loadfile(Sys.getFile(file))
     if not f then error(e, 2) end
-    setfenv(f, getfenv(2))
-    return f()
+    
+    -- this function must not execute in global env, but in the one we set 
+    -- earlier
+    local funcEnv = getfenv(2)
+    setfenv(f, funcEnv)
+    
+    -- we "execute" the file before returning its result
+    local fResult = f()
+    -- @hack: for the old StylusBox lib, we must change one of its function
+    if file:lower():find("[/\\]?stylusbox.lua$") ~= nil then
+        if type(funcEnv.Stylus.newPressinBox) == "function" then
+            funcEnv.Stylus.newPressinBox = M.newPressinBox
+            setfenv(funcEnv.Stylus.newPressinBox, funcEnv)
+        end
+    end
+    
+    return fResult
+end
+
+--- Replacement for a function from the StylusBox library; this function checks
+--  if the stylus was clicked inside a given "box".
+--
+-- The original StylusBox lib was written for Micro Lua 2, so many programs that
+-- use it are broken in ML3 and MLS. Thus we replace the function with our own
+--
+-- @param Box (table) The table containing the four coordinates of the box, with
+--                    keys "x1", "y1", "x1", "y2"
+-- @param x (number) The x coordinate of the point to check whether it's inside 
+--                   the box
+-- @param y (number) The y coordinate of the point to check whether it's inside 
+--                   the box
+--
+-- @return (boolean)
+--
+-- @note This code is of course inspired by StylusBox itself, so all credits go
+--       to Killer01, the author of the library
+function M.newPressinBox(Box, x, y)
+    return Stylus.newPress 
+           and x > Box.x1 and x < Box.x2
+           and y > Box.y1 and y < Box.y2
 end
 
 return M
