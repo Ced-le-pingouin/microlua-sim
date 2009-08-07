@@ -128,7 +128,7 @@ function M.draw(screenOffset, scrollmap)
     -- the same as the replaced tile, so we should re-create the mask of the
     -- scrollmap
     if scrollmap._tilesHaveChanged then
-        scrollmap._bitmap:SetMask(wx.wxMask(scrollmap._bitmap, Color.new(31, 0, 31)))
+        scrollmap._bitmap:SetMask(wx.wxMask(scrollmap._bitmap, Color.MAGENTA))
         scrollmap._tilesHaveChanged = false
     end
     

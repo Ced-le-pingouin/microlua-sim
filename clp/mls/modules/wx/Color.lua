@@ -28,9 +28,8 @@ local Class = require "clp.Class"
 
 local M = Class.new()
 
-function M:initModule()
-    M.WHITE = wx.wxWHITE
-end
+M.WHITE = wx.wxWHITE
+M.MAGENTA = wx.wxColour(255, 0, 255)
 
 --- Creates a new color [ML 2+ API]
 --
