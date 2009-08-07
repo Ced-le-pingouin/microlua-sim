@@ -100,7 +100,7 @@ modifiez les sources et voulez tester vos changements. (puisque l'autre script
 de lancement ne démarre que la version compilée).
 
 Notez toutefois que la version "source" est plus brute de décoffrage, et qu'elle
-comporte les exécutables et scripts de lancements pour les trois systèmes 
+comporte les exécutables et scripts de lancement pour les trois systèmes 
 d'exploitation. Ces exécutables et scripts ne se trouvent donc pas par défaut 
 dans la racine de l'archive source; vous devrez, en fonction de votre système, 
 copier le contenu d'un sous-dossier d' "os_specific" dans la racine de MLS. Ces 
@@ -122,7 +122,7 @@ d'ouvrir un fichier script à exécuter.
 IMPORTANT: mls ou mls-src doit être lancé avec comme dossier courant, le dossier
 ou il se trouve. S'il est démarré à partir d'un autre dossier (par exemple s'il
 est dans PATH, vous pouvez le lancer de n'importe où), MLS ne trouvera pas 
-certains des ses fichiers (le fichier de configuation, et les images).
+certains de ses fichiers (le fichier de configuation, et les images).
 
 
 -------------
@@ -135,22 +135,22 @@ Dans cette version, les touches utilisées ne peuvent être modifiées. Les voic
 (dans le tableau, "CD" représente la croix directionnelle de la DS, et "PN" veut
 dire "pavé numérique")
 
-+-------------+-----------------------------+
-|     DS      |             PC              |
-+-------------+-----------------------------+
-| Haut (CD)   | I, Flèche haut ou 8 PN      |
-| Bas (CD)    | K, Flèche bas, 5 PN ou 2 PN |
-| Gauche (CD) | J, Flèche gauche ou 4 PN    |
-| Droite (CD) | L, Flèche droite ou 6 PN    |
-| L           | A ou R                      |
-| R           | Z ou T                      |
-| A           | D                           |
-| B           | X                           |
-| X           | E                           |
-| Y           | S                           |
-| Start       | Q ou F                      |
-| Select      | W ou V                      |
-+-------------+-----------------------------+
++-------------+---------------------------------+
+|     DS      |               PC                |
++-------------+---------------------------------+
+| Haut (CD)   | I, Flèche haut ou 8 (PN)        |
+| Bas (CD)    | K, Flèche bas, 5 (PN) ou 2 (PN) |
+| Gauche (CD) | J, Flèche gauche ou 4 (PN)      |
+| Droite (CD) | L, Flèche droite ou 6 (PN)      |
+| L           | A ou R                          |
+| R           | Z ou T                          |
+| A           | D                               |
+| B           | X                               |
+| X           | E                               |
+| Y           | S                               |
+| Start       | Q ou F                          |
+| Select      | W ou V                          |
++-------------+---------------------------------+
 
 A partir de la v0.4, des commandes indépendantes de la DS sont également 
 disponibles:
@@ -193,7 +193,7 @@ Veuillez noter que les FPS et UPS "cibles" ne seront pas respectés à la
 perfection, vu que mon système de temporisation est loin d'être parfait, et 
 qu'il dépend parfois de particularités de l'OS utilisé.
 
-Le niveau de log (touche C) est seulement présent pour des raisons de déboguage 
+Le niveau de log (touche F5) est seulement présent pour des raisons de déboguage
 et vous ne devriez pas trop y toucher, sauf si vous savez ce que vous faites.
 Autrement vous pourriez vous retrouver avec des tonnes de messages internes de 
 MLS qui envahissent la console, et cela pourrait même ralentir les scripts en 
@@ -268,8 +268,6 @@ Canvas
 
 Controls
 ~~~~~~~~
-- Je n'ai pas encore implémenté l'événement "doubleclick" du stylet.
-
 - Le comportement de deltax et deltay me semble parfois incorrect/étrange (voir 
   la démo "drapeau rouge et blanc" dans les exemples).
 
@@ -293,13 +291,6 @@ Font
   fonctionnement de la libraire wxWidgets, et ça signifie que vos fichiers 
   source Lua feraient mieux d'être encodés en UTF-8 s'ils utilisent des textes 
   contenant des caractères accentués ou spéciaux.
-
-Image
-~~~~~
-- Quelques comportements (bizarres) de ML en ce qui concerne les images ont été 
-  reproduits tels quels dans le simulateur, par ex. les méthodes mirrorH() et 
-  mirrorV() qui ne semblent pas avoir d'effet. Je dois vérifier si ML v3.0 a 
-  gardé ce comportement.
 
 INI
 ~~~
@@ -397,8 +388,8 @@ Les développeurs de Lua pour ce langage simple et puissant (http://www.lua.org/
 Risike pour Micro Lua DS (http://microlua.risike.com/)
 
 Killer01, Samy, Reylak, [TheDarkTiger], thermo_nono, Doc, Wolftousen, 
-snatcher-br, Quent42340, aurel2108, Grahack, et tous les fans de Micro Lua DS
-qui fournissent scripts persos et conseils sur les forums de Micro Lua DS
+snatcher-br, Quent42340, aurel2108, Grahack, BALROG et tous les fans de Micro 
+Lua DS qui fournissent scripts persos et conseils sur les forums de Micro Lua DS
 (http://microlua.xooit.fr/index.php)
 
 Dev-fr pour m'avoir fait prendre conscience que la scène homebrew DS se portait 
