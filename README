@@ -174,7 +174,7 @@ rate of the real ML, but the default value is 55.
 Please note that "target" FPS and UPS won't be perfectly achieved, since my 
 timing system is far from perfect, and depends on OS internals.
 
-The log level (C key) is only there for debugging purposes, and you should not
+The log level (F5 key) is only there for debugging purposes, and you should not
 play with this unless you know what you're doing. Otherwise the console might
 overflow with useless MLS internal messages, and maybe slow down the running 
 script. You have been warned :)
@@ -241,8 +241,6 @@ Canvas
 
 Controls
 ~~~~~~~~
-- I haven't implemented the stylus "doubleclick" yet.
-
 - The behaviour of deltax and deltay is sometimes strange (see the "flag" demo
   in Micro Lua examples).
 
@@ -263,12 +261,6 @@ Font
   characters). This is how the underlying lib wxWidgets seems to work, and 
   this means your Lua source files better be UTF-8 encoded if some strings 
   contain accented or special characters.
-
-Image
-~~~~~
-- Some (weird) behaviour found in Micro Lua has been reproduced in this 
-  simulator, e.g. mirrorH()/mirrorV() doing nothing. I still must check whether
-  ML v3.0 keeps this behaviour.
 
 INI
 ~~~
@@ -357,8 +349,8 @@ The Lua Team for this simple and poweful language (http://www.lua.org/)
 Risike for Micro Lua DS (http://microlua.risike.com/)
 
 Killer01, Samy, Reylak, [TheDarkTiger], thermo_nono, Doc, Wolftousen, 
-snatcher-br, Quent42340, aurel2108, Grahack, and all Micro Lua DS enthusiasts
-who put their projects and advices on the Micro Lua DS forums 
+snatcher-br, Quent42340, aurel2108, Grahack, BALROG and all Micro Lua DS 
+enthusiasts who put their projects and advices on the Micro Lua DS forums 
 (http://microlua.xooit.fr/index.php)
 
 Dev-fr for showing me the DS homebrew scene was alive and well 
