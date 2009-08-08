@@ -268,9 +268,9 @@ function Mls:onKeyDown(event, key)
     local sm = Mls.scriptManager
     
     if key == wx.WXK_P then
-        Mls.scriptManager:pauseOrResumeScript()
+        sm:pauseOrResumeScript()
     elseif key == wx.WXK_B then
-        Mls.scriptManager:restartScript()
+        sm:restartScript()
     elseif key == wx.WXK_C then
         Mls.gui:showOrHideConsole()
     elseif key == wx.WXK_DELETE or key == wx.WXK_NUMPAD_DELETE then
@@ -320,17 +320,6 @@ end
 function Mls:onScriptStateChange(event, script, state)
     self.gui:displayScriptName(script)
     self.gui:displayScriptState(ScriptManager.getStateName(state))
-    
-    if state == ScriptManager.SCRIPT_NONE 
-       or state == ScriptManager.SCRIPT_ERROR
-    then
-        color = Color.new(31, 0, 0)
-    elseif state == ScriptManager.SCRIPT_PAUSED then
-        color = Color.new(0, 20, 0)
-    else
-        color = Color.new(0, 0, 31)
-    end
-    screen.displayInfoText(Mls.scriptManager.getStateName(state):upper(), color)
     
     if state == ScriptManager.SCRIPT_NONE
        or state == ScriptManager.SCRIPT_ERROR
