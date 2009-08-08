@@ -65,7 +65,10 @@ function M:ctr(fps, ups, timing)
     -- main loop timing config --
     self._ups = ups
     
-    self._mainLoopTiming = timing or M.TIMING_TIMER
+    local defaultTiming = Sys.getOS() == "Macintosh"
+                          and M.TIMING_IDLE
+                           or M.TIMING_TIMER
+    self._mainLoopTiming = timing or defaultTiming
     
     self._totalMainLoopIterations = 0
     self._updatesInOneSec = 0
