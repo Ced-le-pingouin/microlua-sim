@@ -94,7 +94,7 @@ end
 --
 -- @param scrollmap (ScrollMap) the scrollmap to destroy
 function M.destroy(scrollmap)
-    scrollmap._map:destroy()
+    Map.destroy(scrollmap._map)
     
     scrollmap._tilesDC:delete()
     scrollmap._tilesDC = nil
