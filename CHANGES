@@ -35,6 +35,8 @@
   * all new console that displays the errors encountered in scripts, instead
     of violently exiting MLS. MLS log/debug messages also appear there
   * no more screen flickering in Windows (at least not on my side)
+  * the launcher file is now a (fake) .exe in Windows instead of a .bat, which 
+    allows us to embed an icon in it
   * the sim now reads some options from a config file
   * scripts and their additional files (images, libs...) don't have to sit in 
     MLS root anymore to be found
