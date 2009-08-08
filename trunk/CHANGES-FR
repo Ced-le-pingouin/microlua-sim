@@ -42,6 +42,8 @@
     au lieu de quitter MLS violemment. Les messages de log/debug de MLS sont 
     également affichés dedans
   * disparition des clignotements d'écran sous Windows (en tout cas chez moi)
+  * le fichier de lancement sous Windows passe d'un .bat à un (faux) .exe, ce 
+    qui permet de lui associer une icône
   * lecture de certaines options à partir d'un fichier de configuration
   * les scripts et leurs fichiers additionnels (images, libs...) ne doivent plus
     se trouver obligatoirement dans la racine de MLS pour être chargés 
