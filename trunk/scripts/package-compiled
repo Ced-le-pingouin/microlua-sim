@@ -49,6 +49,10 @@ for OS in linux win mac; do
     find $DEST_DIR -name '.svn' -type d -prune -exec rm -fR {} \;
     rm $DEST_DIR/mls-src* $DEST_DIR/mls.lua
     
+    # on Windows, the batch files have been converted to exe, so in the compiled
+    # archive we don't need them
+    rm $DEST_DIR/*.bat
+    
     # delete any previous archive with the same name
     rm -f $ARCHIVE_NAME
     # create the new archive
