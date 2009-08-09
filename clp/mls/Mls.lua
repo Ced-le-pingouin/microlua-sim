@@ -12,6 +12,9 @@
 -- @todo Some scripts don't work, such as CodeMonkeyDS, LED 1.2b (in files menu
 --       when pressed Back). alternativ-keyboard is dog-slow, too
 -- @todo Have proper packaging for MacOS (as a real App)
+-- @todo Try to minimize the use of SelectObject() in functions that are called
+--       many times per second, as SelectObject() seems to be really slow on 
+--       Mac OS X
 --
 -- @todo INI, Map, Mod, Sound, Sprite, ScrollMap: raise an error when a file is
 --       not found ? Check what ML does when it happens. I've already done this
