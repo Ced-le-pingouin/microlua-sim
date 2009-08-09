@@ -66,6 +66,9 @@ function M.new(image, mapfile, width, height, tileWidth, tileHeight)
     local scrollmapDC = wx.wxMemoryDC()
     scrollmapDC:SelectObject(scrollmap._bitmap)
     
+    scrollmapDC:SetBackground(Image.MASK_BRUSH)
+    scrollmapDC:Clear()
+    
     local posY = 0
     for row = 0, height - 1 do
         local posX = 0
