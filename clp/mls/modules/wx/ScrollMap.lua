@@ -62,6 +62,7 @@ function M.new(image, mapfile, width, height, tileWidth, tileHeight)
     local tilesBitmap = wx.wxBitmap(image._source, Mls.DEPTH)
     local tilesDC     = wx.wxMemoryDC()
     tilesDC:SelectObject(tilesBitmap)
+    
     local scrollmapDC = wx.wxMemoryDC()
     scrollmapDC:SelectObject(scrollmap._bitmap)
     
@@ -80,6 +81,8 @@ function M.new(image, mapfile, width, height, tileWidth, tileHeight)
         end
         posY = posY + tileHeight
     end
+    
+    scrollmapDC:delete()
     
     scrollmap._map = map
     scrollmap._tilesBitmap = tilesBitmap
