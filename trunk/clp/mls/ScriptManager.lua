@@ -120,7 +120,7 @@ function M:_initFpsSystem()
     
     if not self._useUpsAsFps then
         screen._surface:Connect(wx.wxEVT_TIMER, function (event)
-            self:_refreshScreen()
+            M._refreshScreen(self)
         end)
         self._frameUpdateTimer = wx.wxTimer(screen._surface)
     end
@@ -222,7 +222,7 @@ function M:onStopDrawing()
     self:_updateUps()
     
     if self._useUpsAsFps and not __DEBUG_NO_REFRESH then
-        self:_refreshScreen()
+        M:_refreshScreen()
     end
 
     if self._mainLoopTiming == M.TIMING_BUSY
