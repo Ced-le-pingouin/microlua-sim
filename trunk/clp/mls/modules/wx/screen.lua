@@ -357,6 +357,8 @@ function M.displayInfoText(text, color)
     M.print(SCREEN_UP, x + textXOffset + shadowOffset, 
             y + textYOffset + shadowOffset, text, shadowColor)
     M.print(SCREEN_UP, x + textXOffset, y + textYOffset, text, textColor)
+    
+    M.forceRepaint()
 end
 
 --- Forces the underlying GUI/GFX lib to immediately repaint the "screens".
