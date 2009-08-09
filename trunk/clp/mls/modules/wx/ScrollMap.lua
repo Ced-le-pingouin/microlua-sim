@@ -138,16 +138,23 @@ function M.draw(screenOffset, scrollmap)
         scrollmap._tilesHaveChanged = false
     end
     
+    local scrollmapDC = wx.wxMemoryDC()
+    scrollmapDC:SelectObjectAsSource(scrollmap._bitmap)
+    
     while posY < SCREEN_HEIGHT do
         while posX < SCREEN_WIDTH do
-            offscreenDC:DrawBitmap(scrollmap._bitmap, posX, screenOffset + posY,
-                                   true)
+            offscreenDC:Blit(posX, screenOffset + posY, width, height, scrollmapDC, 0, 0, 
+                             wx.wxCOPY, true)
+            --offscreenDC:DrawBitmap(scrollmap._bitmap, posX, screenOffset + posY,
+            --                       true)
             
             posX = posX + width
         end
         posY = posY + height
         posX = startPosX
     end
+    
+    scrollmapDC:delete()
 end
 
 --- Scrolls a scrollmap [ML 2+ API].
