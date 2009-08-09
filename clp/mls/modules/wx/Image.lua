@@ -29,6 +29,8 @@ local Sys = require "clp.mls.Sys"
 local M = Class.new()
 
 M.MASK_COLOR = Color.MAGENTA
+M.MASK_PEN = wx.wxPen(M.MASK_COLOR, 1, wx.wxSOLID)
+M.MASK_BRUSH = wx.wxBrush(M.MASK_COLOR, wx.wxSOLID)
 
 function M:initModule()
     RAM  = 0
