@@ -143,8 +143,8 @@ function M.draw(screenOffset, scrollmap)
     
     while posY < SCREEN_HEIGHT do
         while posX < SCREEN_WIDTH do
-            offscreenDC:Blit(posX, screenOffset + posY, width, height, scrollmapDC, 0, 0, 
-                             wx.wxCOPY, true)
+            offscreenDC:Blit(posX, screenOffset + posY, width, height, 
+                             scrollmapDC, 0, 0, wx.wxCOPY, true)
             --offscreenDC:DrawBitmap(scrollmap._bitmap, posX, screenOffset + posY,
             --                       true)
             
