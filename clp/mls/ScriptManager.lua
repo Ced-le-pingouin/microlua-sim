@@ -120,7 +120,7 @@ function M:_initFpsSystem()
     
     if not self._useUpsAsFps then
         screen._surface:Connect(wx.wxEVT_TIMER, function (event)
-            M._refreshScreen(self)
+            screen.forceRepaint()
         end)
         self._frameUpdateTimer = wx.wxTimer(screen._surface)
     end
@@ -222,7 +222,7 @@ function M:onStopDrawing()
     self:_updateUps()
     
     if self._useUpsAsFps and not __DEBUG_NO_REFRESH then
-        M:_refreshScreen()
+        screen.forceRepaint()
     end
 
     if self._mainLoopTiming == M.TIMING_BUSY
@@ -270,24 +270,6 @@ function M:_onMainLoopEvent(event)
         
         event:RequestMore()
     end
-end
-
-function M:_refreshScreen()
-    local state = self._scriptState
-    
-    if state ~= M.SCRIPT_RUNNING then
-        local color
-        if state == M.SCRIPT_NONE or state == M.SCRIPT_ERROR then
-            color = Color.new(31, 0, 0)
-        elseif state == M.SCRIPT_PAUSED then
-            color = Color.new(0, 20, 0)
-        else
-            color = Color.new(0, 0, 31)
-        end
-        screen.displayInfoText(M.getStateName(state):upper(), color)
-    end
-    
-    screen.forceRepaint()
 end
 
 --- Handles the counting of main loop iterations (= updates) and their rate/sec.
