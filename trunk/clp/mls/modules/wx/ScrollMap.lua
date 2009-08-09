@@ -183,7 +183,7 @@ function M.setTile(scrollmap, x, y, tile)
     scrollmapDC:Blit(posX, posY, tileWidth, tileHeight, scrollmap._tilesDC, 
                      sourcex, sourcey, wx.wxCOPY, false)
     
-    scrollmapDC:SelectObject(wx.wxNullBitmap)
+    scrollmapDC:delete()
     
     scrollmap._tilesHaveChanged = true
 end
