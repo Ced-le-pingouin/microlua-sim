@@ -176,6 +176,10 @@ function M.setTile(scrollmap, x, y, tile)
     local scrollmapDC = wx.wxMemoryDC()
     scrollmapDC:SelectObject(scrollmap._bitmap)
     
+    scrollmapDC:SetPen(Image.MASK_PEN)
+    scrollmapDC:SetBrush(Image.MASK_BRUSH)
+    scrollmapDC:DrawRectangle(posX, posY, tileWidth, tileHeight)
+    
     scrollmapDC:Blit(posX, posY, tileWidth, tileHeight, scrollmap._tilesDC, 
                      sourcex, sourcey, wx.wxCOPY, false)
     
