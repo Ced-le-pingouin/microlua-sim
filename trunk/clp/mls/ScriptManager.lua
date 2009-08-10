@@ -59,8 +59,7 @@ end
 -- @see init
 function M:ctr(fps, ups, timing)
     -- fps config --
-    self._useUpsAsFps = Sys.getOS() == "Macintosh"
-    self._fps = self._useUpsAsFps and ups or fps
+    self._fps = fps
     
     -- main loop timing config --
     self._ups = ups
@@ -95,11 +94,10 @@ function M:init()
     
     self:_initTimer()
     
-    self:_initFpsSystem()
     self:setTargetFps(self._fps)
+    self:setTargetUps(self._ups)
     
     self:_initUpsSystem()
-    self:setTargetUps(self._ups)
     
     Mls:attach(self, "stopDrawing", self.onStopDrawing)
     --Mls:attach(self, "controlsRead", self.onStopDrawing)
@@ -113,29 +111,17 @@ function M:_initTimer()
     self._nextSecond = Timer.ONE_SECOND
 end
 
---- Initializes the frames update system, forcing a screen object to repaint 
---  whenever it should.
-function M:_initFpsSystem()
-    Mls.logger:debug("initializing FPS system", "script")
-    
-    if not self._useUpsAsFps then
-        screen._surface:Connect(wx.wxEVT_TIMER, function (event)
-            screen.forceRepaint()
-        end)
-        self._frameUpdateTimer = wx.wxTimer(screen._surface)
-    end
-end
-
 --- Initializes the main loop system.
 -- Can be an "infinite" loop, the idle event, or a timer event
 function M:_initUpsSystem()
     Mls.logger:debug("initializing UPS system", "script")
     
     if self._mainLoopTiming == M.TIMING_TIMER then
-        Mls.gui:getWindow():Connect(wx.wxEVT_TIMER, function(event) self:_onMainLoopEvent(event) end)
+        Mls.gui:getWindow():Connect(wx.wxEVT_TIMER, function(event) self:_beginMainLoopIteration(event) end)
         self._mainLoopTimer = wx.wxTimer(Mls.gui:getWindow())
+        self._mainLoopTimer:Start(15)
     elseif self._mainLoopTiming == M.TIMING_IDLE then
-        Mls.gui:getWindow():Connect(wx.wxEVT_IDLE, function(event) self:_onMainLoopEvent(event) end)
+        Mls.gui:getWindow():Connect(wx.wxEVT_IDLE, function(event) self:_beginMainLoopIteration(event) end)
     end
     
     wx.wxYield()
@@ -155,11 +141,7 @@ function M:setTargetFps(fps)
         self._timeBetweenFrames = 0
     end
     
-    self._nextFrameUpdate = self._timeBetweenFrames
-    
-    if not __DEBUG_NO_REFRESH and not self._useUpsAsFps then
-        self._frameUpdateTimer:Start(self._timeBetweenFrames)
-    end
+    self._nextFrameUpdate = self._timer:time() + self._timeBetweenFrames
     
     Mls.logger:debug("setting target FPS to "..tostring(fps), "script")
 end
@@ -174,17 +156,12 @@ function M:setTargetUps(ups)
     
     if ups > 0 then
         self._timeBetweenMainLoopIterations = Timer.ONE_SECOND / ups
-    elseif self._mainMainLoopTiming == M.TIMING_TIMER then
-        self._timeBetweenMainLoopIterations = 15
-    else--if self._mainLoopTiming == M.TIMING_BUSY or self._mainLoopTiming == M.TIMING_IDLE then
+    else
         self._timeBetweenMainLoopIterations = 0
     end
     
-    if self._mainLoopTiming == M.TIMING_TIMER then
-        self._mainLoopTimer:Start(self._timeBetweenMainLoopIterations)
-    else--if self._mainLoopTiming == M.TIMING_BUSY or self._mainLoopTiming == M.TIMING_IDLE then
-        self._nextMainLoopIteration = self._timeBetweenMainLoopIterations
-    end
+    self._nextMainLoopIteration = self._timer:time()
+                                  + self._timeBetweenMainLoopIterations
     
     Mls.logger:debug("setting target UPS to "..tostring(ups), "script")
 end
@@ -217,26 +194,19 @@ end
 --
 -- @eventHandler
 function M:onStopDrawing()
-    Mls.logger:trace("waiting for next main loop update", "script")
+    local time = self._timer:time()
+    if time >= self._nextFrameUpdate then
+        screen.forceRepaint()
+        self._nextFrameUpdate = self._nextFrameUpdate + self._timeBetweenFrames
+    end
+    
+    self:_endMainLoopIteration()
+end
+
+function M:_endMainLoopIteration()
+    Mls.logger:trace("ending one loop iteration", "script")
     
     self:_updateUps()
-    
-    if self._useUpsAsFps and not __DEBUG_NO_REFRESH then
-        screen.forceRepaint()
-    end
-
-    if self._mainLoopTiming == M.TIMING_BUSY
-       or self._mainLoopTiming == M.TIMING_IDLE
-    then
-        while self._timer:time() < self._nextMainLoopIteration do
-            wx.wxYield()
-        end
-        
-        self._nextMainLoopIteration = self._timer:time()
-                                      + self._timeBetweenMainLoopIterations
-        
-        wx.wxYield()
-    end
     
     coroutine.yield()
 end
@@ -245,7 +215,16 @@ end
 --
 -- @param event (wxEvent) The event that caused the iteration. May be nil if the
 --                        main loop system is the "infinite" loop
-function M:_onMainLoopEvent(event)
+function M:_beginMainLoopIteration(event)
+    local time = self._timer:time()
+    if time < self._nextMainLoopIteration then
+        if self._mainLoopTiming == M.TIMING_IDLE then event:RequestMore() end
+        return
+    end
+    
+    self._nextMainLoopIteration = self._nextMainLoopIteration
+                                  + self._timeBetweenMainLoopIterations
+    
     local co = self._mainLoopCoroutine
     
     if self._scriptState == M.SCRIPT_RUNNING
@@ -261,14 +240,6 @@ function M:_onMainLoopEvent(event)
                 self:_setScriptState(M.SCRIPT_ERROR)
             end
         end
-    end
-    
-    if event and event:GetEventType() == wx.wxEVT_IDLE
-       and Sys.getOS() ~= "Unix"
-    then
-        Mls.logger:trace("requesting one more idle event", "script")
-        
-        event:RequestMore()
     end
 end
 
