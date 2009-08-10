@@ -99,7 +99,7 @@ function M:init()
     self:setTargetUps(self._ups)
     
     Mls:attach(self, "stopDrawing", self.onStopDrawing)
-    --Mls:attach(self, "controlsRead", self.onStopDrawing)
+    Mls:attach(self, "controlsRead", self._endMainLoopIteration)
 end
 
 function M:_initTimer()
@@ -204,7 +204,7 @@ function M:onStopDrawing()
         self._nextFrameUpdate = self._nextFrameUpdate + self._timeBetweenFrames
     end
     
-    self:_endMainLoopIteration()
+    --self:_endMainLoopIteration()
 end
 
 function M:_endMainLoopIteration()
