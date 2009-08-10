@@ -268,6 +268,7 @@ end
 --
 -- @eventHandler
 function Mls:onKeyDown(event, key)
+    local fpsAndUpsStep = 5
     local sm = Mls.scriptManager
     
     if key == wx.WXK_P then
@@ -279,13 +280,13 @@ function Mls:onKeyDown(event, key)
     elseif key == wx.WXK_DELETE or key == wx.WXK_NUMPAD_DELETE then
         Mls.gui:clearConsole()
     elseif key == wx.WXK_F1 then
-        sm:setTargetFps(sm:getTargetFps() - 1)
+        sm:setTargetFps(sm:getTargetFps() - fpsAndUpsStep)
     elseif key == wx.WXK_F2 then
-        sm:setTargetFps(sm:getTargetFps() + 1)
+        sm:setTargetFps(sm:getTargetFps() + fpsAndUpsStep)
     elseif key == wx.WXK_F3 then
-        sm:setTargetUps(sm:getTargetUps() - 1)
+        sm:setTargetUps(sm:getTargetUps() - fpsAndUpsStep)
     elseif key == wx.WXK_F4 then
-        sm:setTargetUps(sm:getTargetUps() + 1)
+        sm:setTargetUps(sm:getTargetUps() + fpsAndUpsStep)
     elseif key == wx.WXK_F5 then
         Mls.logger:incrementLevel(true)
     end
