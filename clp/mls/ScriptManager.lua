@@ -95,9 +95,8 @@ function M:init()
     self:_initTimer()
     
     self:setTargetFps(self._fps)
-    self:setTargetUps(self._ups)
-    
     self:_initUpsSystem()
+    self:setTargetUps(self._ups)
     
     Mls:attach(self, "stopDrawing", self.onStopDrawing)
     --Mls:attach(self, "controlsRead", self.onStopDrawing)
@@ -119,7 +118,6 @@ function M:_initUpsSystem()
     if self._mainLoopTiming == M.TIMING_TIMER then
         Mls.gui:getWindow():Connect(wx.wxEVT_TIMER, function(event) self:_beginMainLoopIteration(event) end)
         self._mainLoopTimer = wx.wxTimer(Mls.gui:getWindow())
-        self._mainLoopTimer:Start(15)
     elseif self._mainLoopTiming == M.TIMING_IDLE then
         Mls.gui:getWindow():Connect(wx.wxEVT_IDLE, function(event) self:_beginMainLoopIteration(event) end)
     end
@@ -158,6 +156,10 @@ function M:setTargetUps(ups)
         self._timeBetweenMainLoopIterations = Timer.ONE_SECOND / ups
     else
         self._timeBetweenMainLoopIterations = 0
+    end
+    
+    if self._mainLoopTiming == M.TIMING_TIMER then
+        self._mainLoopTimer:Start(self._timeBetweenMainLoopIterations)
     end
     
     self._nextMainLoopIteration = self._timer:time()
