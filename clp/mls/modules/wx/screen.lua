@@ -251,6 +251,10 @@ end
 --       (c1 = c2, c1 = c3...)
 function M.drawGradientRect(screenOffset, x0, y0, x1, y1, 
                             color1, color2, color3, color4)
+    -- @hack for calls that use numbers instead of Colors
+    if type(color1) == "number" then color1 = wx.wxColour(color1, 0, 0) end
+    if type(color2) == "number" then color2 = wx.wxColour(color2, 0, 0) end
+    
     local w = x1 - x0
     local h = y1 - y0
     local offscreenDC = M._getOffscreenDC(screenOffset)
