@@ -159,7 +159,9 @@ function M:setTargetUps(ups)
     end
     
     if self._mainLoopTiming == M.TIMING_TIMER then
-        self._mainLoopTimer:Start(self._timeBetweenMainLoopIterations)
+        local timerResolution = self._timeBetweenMainLoopIterations
+        if timerResolution <= 0 then timerResolution = 1 end
+        self._mainLoopTimer:Start(timerResolution)
     end
     
     self._nextMainLoopIteration = self._timer:time()
