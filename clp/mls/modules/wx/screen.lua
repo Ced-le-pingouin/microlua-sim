@@ -32,6 +32,8 @@ local Class = require "clp.Class"
 
 local M = Class.new()
 
+M.MAX_OFFSCREENS = 2
+
 --- Module initialization function.
 --
 -- @param surface (wxPanel) The surface representing the screens, to which the 
@@ -45,9 +47,12 @@ function M:initModule(surface)
     
     M._initVars()
     M._initTimer()
-    M._initOffscreenSurface()
-    M.clearOffscreenSurface()
+    M._initOffscreenSurfaces()
     M._bindEvents()
+end
+
+function M:resetModule()
+    M.clearAllOffscreenSurfaces()
 end
 
 --- Initializes global variables for the screen module.
@@ -64,18 +69,27 @@ function M._initTimer()
 end
 
 --- Initializes an offscreen surface for double buffering.
-function M._initOffscreenSurface()
+function M._initOffscreenSurfaces()
     Mls.logger:info("initializing offscreen surface", "screen")
     
-    M._offscreenSurface = wx.wxBitmap(SCREEN_WIDTH, M._height,
-                                      Mls.DEPTH)
-    if not M._offscreenSurface:Ok() then
-        error("Could not create offscreen surface!")
+    M._offscreenSurfaces = {}
+    M._offscreenDCs = {}
+    for i = 0, M.MAX_OFFSCREENS - 1 do
+        local surface, DC
+        surface = wx.wxBitmap(SCREEN_WIDTH, M._height, Mls.DEPTH)
+        if not surface:Ok() then
+            error("Could not create offscreen surface!")
+        end
+        
+        -- get DC for the offscreen bitmap globally, for the whole execution
+        DC = wx.wxMemoryDC()
+        DC:SelectObject(surface)
+        
+        M._offscreenSurfaces[i] = surface
+        M._offscreenDCs[i] = DC
     end
-    
-    -- get DC for the offscreen bitmap globally, for the whole execution
-    M.offscreenDC = wx.wxMemoryDC()
-    M.offscreenDC:SelectObject(M._offscreenSurface)
+    M._currentOffscreen = 0
+    M.clearAllOffscreenSurfaces()
     
     -- default pen will be solid 1px white, default brush solid white
     M._pen = wx.wxPen(wx.wxWHITE, 1, wx.wxSOLID)
@@ -105,6 +119,8 @@ function stopDrawing()
     Mls.logger:trace("stopDrawing called", "screen")
     
     Mls:notify("stopDrawing")
+    
+    M._switchOffscreen()
 end
 
 --- Refreshes the screen (replaces start- and stopDrawing()) [ML 3+ API].
@@ -326,11 +342,20 @@ function M.getUpdates()
     return M._totalFrames
 end
 
---- Clears the offscreen surface (with black).
+--- Clears the current offscreen surface (with black).
 function M.clearOffscreenSurface()
     local offscreenDC = M.offscreenDC
+    offscreenDC:DestroyClippingRegion()
     offscreenDC:SetBackground(wx.wxBLACK_BRUSH)
     offscreenDC:Clear()
+end
+
+--- Clears all offscreen surfaces.
+function M.clearAllOffscreenSurfaces()
+    for i = 1, M.MAX_OFFSCREENS do
+        M._switchOffscreen()
+        M.clearOffscreenSurface()
+    end
 end
 
 --- Displays a bar with some text on the upper screen.
@@ -352,6 +377,8 @@ function M.displayInfoText(text, color)
     local textXOffset = (w - Font.getStringWidth(Font._defaultFont, text)) / 2
     local textYOffset = (h - Font.getCharHeight(Font._defaultFont)) / 2
     
+    M._copyOffscreenFromPrevious()
+    
     -- draw the frame and its shadow
     M.drawFillRect(SCREEN_UP, x + shadowOffset, y + shadowOffset, 
                    x + w + shadowOffset, y + h + shadowOffset, shadowColor)
@@ -366,10 +393,19 @@ function M.displayInfoText(text, color)
 end
 
 --- Forces the underlying GUI/GFX lib to immediately repaint the "screens".
+--
 -- This should blit the offscreen surface to the "GUI surface"
-function M.forceRepaint()
+--
+-- @param showPrevious (boolean) If true, update the GUI with the previously 
+--                               rendered offscreen surface instead of the 
+--                               current one
+function M.forceRepaint(showPrevious)
+    if showPrevious then M._switchOffscreen() end
+    
     M._surface:Refresh(false)
     M._surface:Update()
+    
+    if showPrevious then M._switchOffscreen() end
 end
 
 --- Draws a point on the screen.
@@ -416,6 +452,21 @@ function M._getOffscreenDC(screenOffset)
     offscreenDC:SetClippingRegion(0, screenOffset, SCREEN_WIDTH, SCREEN_HEIGHT)
     
     return offscreenDC
+end
+
+--- Switches to the next available offscreen surface.
+function M._switchOffscreen()
+    M._currentOffscreen = (M._currentOffscreen + 1) % M.MAX_OFFSCREENS
+    M._offscreenSurface = M._offscreenSurfaces[M._currentOffscreen]
+    M.offscreenDC = M._offscreenDCs[M._currentOffscreen]
+end
+
+--- Copies the previously rendered offscreen surface to the current one.
+function M._copyOffscreenFromPrevious()
+    local previousOffscreenDC = M._offscreenDCs[(M._currentOffscreen - 1) 
+                                                % M.MAX_OFFSCREENS]
+    M.offscreenDC:Blit(0, 0, SCREEN_WIDTH, M._height, previousOffscreenDC, 0, 0,
+                       wx.wxCOPY, false)
 end
 
 --- Event handler used to repaint the screens.
