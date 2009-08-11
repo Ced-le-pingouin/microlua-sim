@@ -353,6 +353,11 @@ function M.drawTextBox(screenOffset, x0, y0, x1, y1, text, color)
     offscreenDC:DestroyClippingRegion()
 end
 
+--- Returns current FPS.
+function M.getFps()
+    return NB_FPS
+end
+
 --- Returns the total number of upates (= frames rendered) since the beginning.
 --
 -- @return (number)

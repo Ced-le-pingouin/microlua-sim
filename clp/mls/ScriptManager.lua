@@ -186,7 +186,12 @@ end
 --- @eventHandler
 function M:onControlsRead()
     self:_endMainLoopIteration()
-    self:_refreshScreen(true)
+    
+    -- for scripts that wait with Controls.read() without displaying anything, 
+    -- the code below will display correctly the RUNNING/PAUSED/... "bars"
+    if screen.getFps() == 0 then
+        self:_refreshScreen(true)
+    end
 end
 
 --- @eventHandler
