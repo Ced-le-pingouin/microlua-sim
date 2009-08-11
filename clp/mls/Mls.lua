@@ -5,6 +5,11 @@
 -- @name clp.mls.Mls
 -- @author Ced-le-pingouin <Ced.le.pingouin@gmail.com>
 --
+-- @todo The spr_depl script (maybe other?) sometimes crashes suddenly, often 
+--       after other scripts having been loaded before. I'm suspecting the many 
+--       Images needed for Font cache. Maybe some <module>:resetModule() should 
+--       dispose of resources (and thus keep track of the resources they load
+--       or create)
 -- @todo Some scripts don't work: CodeMonkeyDS, LED 1.2b (in files menu when
 --       ressed Back). alternativ-keyboard is dog-slow, too
 -- @todo CodeMonkeyDS doesn't work because of problems with module() and/or 
