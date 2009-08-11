@@ -10,6 +10,8 @@
 --       Images needed for Font cache. Maybe some <module>:resetModule() should 
 --       dispose of resources (and thus keep track of the resources they load
 --       or create)
+-- @todo Zoom and/or position of the image in Command-EZ 1.1 example are 
+--       incorrect
 -- @todo Some scripts are less responsive since the changes in timing (aloufs)
 -- @todo Some scripts don't work: CodeMonkeyDS, LED 1.2b (in files menu when
 --       pressed Back). alternativ-keyboard is dog-slow, too
@@ -91,7 +93,7 @@ local ScriptManager = require "clp.mls.ScriptManager"
 
 Mls = Class.new(Observable)
 
-Mls.VERSION = "0.4beta2"
+Mls.VERSION = "0.4beta3"
 
 --- Constructor.
 -- Creates and initializes the app main window, and the ML simulated modules
