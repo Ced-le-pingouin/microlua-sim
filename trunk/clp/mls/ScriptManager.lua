@@ -99,8 +99,8 @@ function M:init()
     self:setTargetUps(self._ups)
     self:_initUpsSystem()
     
+    Mls:attach(self, "controlsRead", self.onControlsRead)    
     Mls:attach(self, "stopDrawing", self.onStopDrawing)
-    Mls:attach(self, "controlsRead", self._endMainLoopIteration)
 end
 
 function M:_initTimer()
@@ -183,39 +183,15 @@ function M:getUpdates()
     return self._totalMainLoopIterations
 end
 
---- We fall back here after each loop iteration of a ML script.
---
--- The script could not be run without such "stops" because the GUI in wxWidgets
--- would stall on some OSes if a main script was looping infinitely.
--- Even with wxYield()s, Windows wouldn't even show GUI elements, and the 
--- process would have to be killed. Anyway, such a technique would result in 
--- a busy loop on all all platforms, so the CPU would be used at 100%
---
--- @eventHandler
+--- @eventHandler
+function M:onControlsRead()
+    self:_endMainLoopIteration()
+    --self:_refreshScreen()
+end
+
+--- @eventHandler
 function M:onStopDrawing()
-    local currentTime = self._timer:time()
-    local elapsedTime = currentTime - self._lastFrameUpdate
-    if elapsedTime >= self._timeBetweenFrames then
-        self._lastFrameUpdate = currentTime
-                                - (elapsedTime - self._timeBetweenFrames)
-        screen.forceRepaint()
-    end
-end
-
-function M:_resetLastUpdateTimes()
-    local currentTime = self._timer:time()
-    self._lastFrameUpdate = currentTime
-    self._lastMainLoopIteration = currentTime
-end
-
---- Stops the loaded script after each main loop iteration, to allow the GUI 
---  "thread" to run.
-function M:_endMainLoopIteration()
-    Mls.logger:trace("ending one loop iteration", "script")
-    
-    self:_updateUps()
-    
-    coroutine.yield()
+    self:_refreshScreen()
 end
 
 --- Runs one iteration of the main loop of the loaded script.
@@ -249,6 +225,42 @@ function M:_beginMainLoopIteration(event)
             end
         end
     end
+end
+
+--- Stops the loaded script after each main loop iteration, to allow the GUI 
+--  "thread" to run.
+--
+-- We fall back here after each loop iteration of a ML script.
+--
+-- The script could not be run without such "stops" because the GUI in wxWidgets
+-- would stall on some OSes if a main script was looping infinitely.
+-- Even with wxYield()s, Windows wouldn't even show GUI elements, and the 
+-- process would have to be killed. Anyway, such a technique would result in 
+-- a busy loop on all all platforms, so the CPU would be used at 100%
+function M:_endMainLoopIteration()
+    Mls.logger:trace("ending one loop iteration", "script")
+    
+    self:_updateUps()
+    
+    coroutine.yield()
+end
+
+--- Refreshes the screen at the specified FPS.
+function M:_refreshScreen()
+    local currentTime = self._timer:time()
+    local elapsedTime = currentTime - self._lastFrameUpdate
+    if elapsedTime >= self._timeBetweenFrames then
+        self._lastFrameUpdate = currentTime
+                                - (elapsedTime - self._timeBetweenFrames)
+        screen.forceRepaint()
+    end
+end
+
+
+function M:_resetLastUpdateTimes()
+    local currentTime = self._timer:time()
+    self._lastFrameUpdate = currentTime
+    self._lastMainLoopIteration = currentTime
 end
 
 --- Handles the counting of main loop iterations (= updates) and their rate/sec.
