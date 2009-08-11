@@ -141,7 +141,7 @@ function M:setTargetFps(fps)
         self._timeBetweenFrames = 0
     end
     
-    self._nextFrameUpdate = self._timer:time() + self._timeBetweenFrames
+    self:_resetLastUpdateTimes()
     
     Mls.logger:debug("setting target FPS to "..tostring(fps), "script")
 end
@@ -160,8 +160,7 @@ function M:setTargetUps(ups)
         self._timeBetweenMainLoopIterations = 0
     end
     
-    self._nextMainLoopIteration = self._timer:time()
-                                  + self._timeBetweenMainLoopIterations
+    self:_resetLastUpdateTimes()
     
     Mls.logger:debug("setting target UPS to "..tostring(ups), "script")
 end
@@ -194,15 +193,23 @@ end
 --
 -- @eventHandler
 function M:onStopDrawing()
-    local time = self._timer:time()
-    if time >= self._nextFrameUpdate then
+    local currentTime = self._timer:time()
+    local elapsedTime = currentTime - self._lastFrameUpdate
+    if elapsedTime >= self._timeBetweenFrames then
+        self._lastFrameUpdate = currentTime
+                                - (elapsedTime - self._timeBetweenFrames)
         screen.forceRepaint()
-        self._nextFrameUpdate = self._nextFrameUpdate + self._timeBetweenFrames
     end
-    
-    --self:_endMainLoopIteration()
 end
 
+function M:_resetLastUpdateTimes()
+    local currentTime = self._timer:time()
+    self._lastFrameUpdate = currentTime
+    self._lastMainLoopIteration = currentTime
+end
+
+--- Stops the loaded script after each main loop iteration, to allow the GUI 
+--  "thread" to run.
 function M:_endMainLoopIteration()
     Mls.logger:trace("ending one loop iteration", "script")
     
@@ -216,14 +223,15 @@ end
 -- @param event (wxEvent) The event that caused the iteration. May be nil if the
 --                        main loop system is the "infinite" loop
 function M:_beginMainLoopIteration(event)
-    local timeOver = self._timer:time() - self._nextMainLoopIteration
-    if timeOver < 0 then
+    local currentTime = self._timer:time()
+    local elapsedTime = currentTime - self._lastMainLoopIteration
+    if elapsedTime < self._timeBetweenMainLoopIterations then
         if self._mainLoopTiming == M.TIMING_IDLE then event:RequestMore() end
         return
     end
     
-    self._nextMainLoopIteration = self._nextMainLoopIteration
-                                  + self._timeBetweenMainLoopIterations
+    self._lastMainLoopIteration = 
+        currentTime - (elapsedTime % self._timeBetweenMainLoopIterations)
     
     local co = self._mainLoopCoroutine
     
@@ -327,11 +335,12 @@ function M:startScript()
     self._moduleManager:resetModules()
     self._mainLoopCoroutine = coroutine.create(self._scriptFunction)
     
+    self:_resetLastUpdateTimes()
     self:_setScriptState(M.SCRIPT_RUNNING)
     
 	if self._mainLoopTiming == M.TIMING_BUSY then
 	    while self._scriptState == M.SCRIPT_RUNNING do
-	       self:_onMainLoopEvent()
+	       self:_beginMainLoopIteration()
 	       wx.wxYield()
 	    end
 	end
@@ -355,6 +364,7 @@ function M:resumeScript()
         return
     end
     
+    self:_resetLastUpdateTimes()
     self:_setScriptState(M.SCRIPT_RUNNING)
     wx.wxYield()
 end
