@@ -12,6 +12,9 @@
 --       or create)
 -- @todo Zoom and/or position of the image in Command-EZ 1.1 example are 
 --       incorrect
+-- @todo In aloufs, the + and - buttons are always clicked twice !?
+-- @todo In UFO, under Linux, the click doesn't work well when L is held (screen
+--       goes black). Is this related to the "click twice" problem in aloufs ?
 -- @todo Some scripts are less responsive since the changes in timing (aloufs)
 -- @todo Some scripts don't work: CodeMonkeyDS, LED 1.2b (in files menu when
 --       pressed Back). alternativ-keyboard is dog-slow, too
