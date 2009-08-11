@@ -118,6 +118,9 @@ function Mls:ctr(scriptPath)
               :reserved("Welcome to the console. Script errors and log messages will be displayed here.")
               :resetLogFormat()
     
+    -- hacks
+    Mls.HACK_STYLUS = false
+    
     -- init various debug vars
     __DEBUG_NO_REFRESH = Mls.config:get("debug_no_refresh", false)
     __DEBUG_LIMIT_TIME = Mls.config:get("debug_limit_time", 0)
@@ -281,6 +284,9 @@ function Mls:onKeyDown(event, key)
         Mls.scriptManager:restartScript()
     elseif key == wx.WXK_C then
         Mls.gui:showOrHideConsole()
+    elseif key == wx.WXK_H then
+        Mls.HACK_STYLUS = not Mls.HACK_STYLUS
+        Mls.logger:info("Stylus.newPress HACK set to " .. tostring(Mls.HACK_STYLUS))
     elseif key == wx.WXK_DELETE or key == wx.WXK_NUMPAD_DELETE then
         Mls.gui:clearConsole()
     elseif key == wx.WXK_F1 then

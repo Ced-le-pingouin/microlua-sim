@@ -132,6 +132,11 @@ function M._copyInternalStateToExternalState()
     -- ...and Stylus.released is only a one shot if true, so set it to false
     M._Stylus.released = false
     
+    -- hack for StylusBox-like techniques
+    if Mls.HACK_STYLUS then
+        Stylus.newPress = not Stylus.held
+    end
+    
     if Stylus.newPress then
         Stylus.deltaX = 0
         Stylus.deltaY = 0
