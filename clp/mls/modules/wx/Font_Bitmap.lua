@@ -127,7 +127,12 @@ end
 -- @param y (number) The y coordinate to draw to
 -- @param text (string) The text to print
 -- @param color (Color) The color of the text
-function M.print(screenOffset, font, x, y, text, color)
+-- @param useColor (boolean) This is an INTERNAL parameter to reproduce a ML 
+--                           bug, where color is ignore when using Font.print, 
+--                           but used when using the print functions in screen
+function M.print(screenOffset, font, x, y, text, color, useColor)
+    if not useColor then color = nil end
+    
     local offscreenDC = screen._getOffscreenDC(screenOffset)
     
     M._printNoClip(screenOffset, font, x, screenOffset + y, text, color)

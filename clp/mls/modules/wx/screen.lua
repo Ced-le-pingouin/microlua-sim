@@ -142,7 +142,7 @@ end
 -- @param text (string) The text to print
 -- @param color (Color) A color of the text
 function M.print(screenOffset, x, y, text, color)
-	Font.print(screenOffset, Font._defaultFont, x, y, text, color)
+	Font.print(screenOffset, Font._defaultFont, x, y, text, color, true)
 end
 
 --- Prints a text on the screen [ML 2+ API].
@@ -154,7 +154,7 @@ end
 -- @param color (Color) The color of the text
 -- @param font (Font) A special font
 function M.printFont(screenOffset, x, y, text, color, font)
-    Font.print(screenOffset, font, x, y, text, color)
+    Font.print(screenOffset, font, x, y, text, color, true)
 end
 
 --- Blits an image on the screen [ML 2+ API].
