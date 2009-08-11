@@ -467,6 +467,8 @@ function M:_setFunctionEnvironmentToEmpty(func)
     -- already globally defined functions to *execute* inside the custom env !)
     for k, v in pairs(_G) do env[k] = v end
     env.dofile = M._dofile
+    env.module = M._module
+    env.require = M._require
     self:_changeMlsFunctionsEnvironment(env)
 
     --method2 (problem with keys ?)
@@ -549,6 +551,42 @@ function M._dofile(file)
     end
     
     return fResult
+end
+
+--- "Enironment-aware" module() replacement. module() usually stores modules 
+--  information in global tables, but since we set a closed environment on 
+--  the running script, it won't see the declared modules. So we have to 
+--  create a reference in our env to the module loaded by the original module()
+--  function. Then we delete the references in the standard global tables used
+--  by module(), so that the loaded module is only ref'ed there, and would be
+--  gc'ed when we destroy our custom env (well, I hope so :$)
+--
+-- This function only works in association with the "replacement" require()
+--
+-- @param name (string)
+-- @param ... (function)
+--
+-- @see _require
+function M._module(name, ...)
+    module(name, ...)
+    
+    local callerEnv = getfenv(2)
+    callerEnv[name] = _G[name]
+    _G[name] = nil
+    package.loaded[name] = nil
+end
+
+--- "Environment-aware" require() replacement to be used with the replacement 
+--  module() function.
+--
+-- @param modname (string)
+--
+-- @return (table)
+--
+-- @see _module
+function M._require(modname)
+    local callerEnv = getfenv(2)
+    return callerEnv[modname]
 end
 
 --- Replacement for a function from the StylusBox library; this function checks
