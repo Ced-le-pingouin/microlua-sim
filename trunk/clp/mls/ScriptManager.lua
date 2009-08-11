@@ -64,6 +64,7 @@ function M:ctr(fps, ups, timing)
     -- main loop timing config --
     self._ups = ups
     
+    self._timerResolution = 10
     local defaultTiming = Sys.getOS() == "Macintosh"
                           and M.TIMING_IDLE
                            or M.TIMING_TIMER
@@ -95,8 +96,8 @@ function M:init()
     self:_initTimer()
     
     self:setTargetFps(self._fps)
-    self:_initUpsSystem()
     self:setTargetUps(self._ups)
+    self:_initUpsSystem()
     
     Mls:attach(self, "stopDrawing", self.onStopDrawing)
     Mls:attach(self, "controlsRead", self._endMainLoopIteration)
@@ -118,6 +119,7 @@ function M:_initUpsSystem()
     if self._mainLoopTiming == M.TIMING_TIMER then
         Mls.gui:getWindow():Connect(wx.wxEVT_TIMER, function(event) self:_beginMainLoopIteration(event) end)
         self._mainLoopTimer = wx.wxTimer(Mls.gui:getWindow())
+        self._mainLoopTimer:Start(self._timerResolution)
     elseif self._mainLoopTiming == M.TIMING_IDLE then
         Mls.gui:getWindow():Connect(wx.wxEVT_IDLE, function(event) self:_beginMainLoopIteration(event) end)
     end
@@ -156,12 +158,6 @@ function M:setTargetUps(ups)
         self._timeBetweenMainLoopIterations = Timer.ONE_SECOND / ups
     else
         self._timeBetweenMainLoopIterations = 0
-    end
-    
-    if self._mainLoopTiming == M.TIMING_TIMER then
-        local timerResolution = self._timeBetweenMainLoopIterations
-        if timerResolution <= 0 then timerResolution = 1 end
-        self._mainLoopTimer:Start(timerResolution)
     end
     
     self._nextMainLoopIteration = self._timer:time()
@@ -220,8 +216,8 @@ end
 -- @param event (wxEvent) The event that caused the iteration. May be nil if the
 --                        main loop system is the "infinite" loop
 function M:_beginMainLoopIteration(event)
-    local time = self._timer:time()
-    if time < self._nextMainLoopIteration then
+    local timeOver = self._timer:time() - self._nextMainLoopIteration
+    if timeOver < 0 then
         if self._mainLoopTiming == M.TIMING_IDLE then event:RequestMore() end
         return
     end
