@@ -10,6 +10,7 @@
 --       Images needed for Font cache. Maybe some <module>:resetModule() should 
 --       dispose of resources (and thus keep track of the resources they load
 --       or create)
+-- @todo Some scripts are less responsive since the changes in timing (aloufs)
 -- @todo Some scripts don't work: CodeMonkeyDS, LED 1.2b (in files menu when
 --       pressed Back). alternativ-keyboard is dog-slow, too
 -- @todo CodeMonkeyDS doesn't work because of problems with module() and/or 
