@@ -534,6 +534,7 @@ function M._dofile(file)
     
     -- we "execute" the file before returning its result
     local fResult = f()
+    
     -- @hack: for the old StylusBox lib, we must change one of its function
     if file:lower():find("[/\\]?stylusbox.lua$") ~= nil then
         if type(funcEnv.Stylus.newPressinBox) == "function" then
@@ -563,7 +564,7 @@ end
 -- @note This code is of course inspired by StylusBox itself, so all credits go
 --       to Killer01, the author of the library
 function M.newPressinBox(Box, x, y)
-    return Stylus.newPress 
+    return Stylus.released 
            and x > Box.x1 and x < Box.x2
            and y > Box.y1 and y < Box.y2
 end
