@@ -186,7 +186,7 @@ end
 --- @eventHandler
 function M:onControlsRead()
     self:_endMainLoopIteration()
-    --self:_refreshScreen()
+    self:_refreshScreen(true)
 end
 
 --- @eventHandler
@@ -246,13 +246,20 @@ function M:_endMainLoopIteration()
 end
 
 --- Refreshes the screen at the specified FPS.
-function M:_refreshScreen()
+--
+-- @param showPrevious (boolean) If true, shows the previously rendered screen, 
+--                               not the current one. This is useful to show 
+--                               screens on Controls.read(), because if we show
+--                               the current screens, they may be in the middle
+--                               of drawing operations, partly or completely 
+--                               black
+function M:_refreshScreen(showPrevious)
     local currentTime = self._timer:time()
     local elapsedTime = currentTime - self._lastFrameUpdate
     if elapsedTime >= self._timeBetweenFrames then
         self._lastFrameUpdate = currentTime
                                 - (elapsedTime - self._timeBetweenFrames)
-        screen.forceRepaint()
+        screen.forceRepaint(showPrevious)
     end
 end
 
