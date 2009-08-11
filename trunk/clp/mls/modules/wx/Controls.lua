@@ -43,6 +43,7 @@ end
 --                           listen for input events
 function M:initModule(receiver)
     M._receiver = receiver or Mls.gui:getSurface()
+    M._stylusHack = false
     
     M._initKeyBindings()
     M._bindEvents()
@@ -61,6 +62,13 @@ function M.read()
     M._copyInternalStateToExternalState()
     
     Mls:notify("controlsRead")
+end
+
+function M.switchStylusHack()
+    M._stylusHack = not M._stylusHack
+    
+    Mls.logger:info("Stylus.newPress HACK set to "
+                    .. tostring(M._stylusHack):upper(), "controls")
 end
 
 --- Initializes computer keys <=> DS input bindings.
@@ -133,7 +141,7 @@ function M._copyInternalStateToExternalState()
     M._Stylus.released = false
     
     -- hack for StylusBox-like techniques
-    if Mls.HACK_STYLUS then
+    if M._stylusHack then
         Stylus.newPress = not Stylus.held
     end
     

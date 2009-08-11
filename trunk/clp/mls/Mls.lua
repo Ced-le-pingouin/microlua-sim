@@ -11,7 +11,7 @@
 --       dispose of resources (and thus keep track of the resources they load
 --       or create)
 -- @todo Some scripts don't work: CodeMonkeyDS, LED 1.2b (in files menu when
---       ressed Back). alternativ-keyboard is dog-slow, too
+--       pressed Back). alternativ-keyboard is dog-slow, too
 -- @todo CodeMonkeyDS doesn't work because of problems with module() and/or 
 --       require() in MLS (I'd never noticed this, since nobody uses them in the
 --       small scripts on the forums). The problem could be with _G
@@ -117,9 +117,6 @@ function Mls:ctr(scriptPath)
     Mls.logger:setLogFormat("%m")
               :reserved("Welcome to the console. Script errors and log messages will be displayed here.")
               :resetLogFormat()
-    
-    -- hacks
-    Mls.HACK_STYLUS = false
     
     -- init various debug vars
     __DEBUG_NO_REFRESH = Mls.config:get("debug_no_refresh", false)
@@ -285,8 +282,7 @@ function Mls:onKeyDown(event, key)
     elseif key == wx.WXK_C then
         Mls.gui:showOrHideConsole()
     elseif key == wx.WXK_H then
-        Mls.HACK_STYLUS = not Mls.HACK_STYLUS
-        Mls.logger:info("Stylus.newPress HACK set to " .. tostring(Mls.HACK_STYLUS))
+        Controls.switchStylusHack()
     elseif key == wx.WXK_DELETE or key == wx.WXK_NUMPAD_DELETE then
         Mls.gui:clearConsole()
     elseif key == wx.WXK_F1 then
