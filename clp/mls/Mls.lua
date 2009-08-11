@@ -360,7 +360,7 @@ function Mls.onFileOpen()
         }
         
         if file ~= "" then
-            screen.clearOffscreenSurface()
+            screen.clearAllOffscreenSurfaces()
             if Mls.scriptManager:loadScript(file) then
                 Mls.scriptManager:startScript()
             end
