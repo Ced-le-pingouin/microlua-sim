@@ -5,12 +5,11 @@
 -- @name clp.mls.Mls
 -- @author Ced-le-pingouin <Ced.le.pingouin@gmail.com>
 --
--- @todo Some scripts with multiple start/stopDrawing() completely collapse, 
---       probably due to frantic yield/resume of the coroutine (the yield is 
---       in a stopDrawing() event handler).
---       Examples of this are UFO Traj. Maker, sg-univers (and maybe others)
--- @todo Some scripts don't work, such as CodeMonkeyDS, LED 1.2b (in files menu
---       when pressed Back). alternativ-keyboard is dog-slow, too
+-- @todo Some scripts don't work: CodeMonkeyDS, LED 1.2b (in files menu when
+--       ressed Back). alternativ-keyboard is dog-slow, too
+-- @todo CodeMonkeyDS doesn't work because of problems with module() and/or 
+--       require() in MLS (I'd never noticed this, since nobody uses them in the
+--       small scripts on the forums). The problem could be with _G
 -- @todo Have proper packaging for MacOS (as a real App)
 -- @todo Try to minimize the use of SelectObject() in functions that are called
 --       many times per second, as SelectObject() seems to be really slow on 
