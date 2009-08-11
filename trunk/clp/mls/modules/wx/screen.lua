@@ -270,13 +270,31 @@ function M.drawGradientRect(screenOffset, x0, y0, x1, y1,
     -- @hack for calls that use numbers instead of Colors
     if type(color1) == "number" then color1 = wx.wxColour(color1, 0, 0) end
     if type(color2) == "number" then color2 = wx.wxColour(color2, 0, 0) end
+    if type(color3) == "number" then color3 = wx.wxColour(color3, 0, 0) end
+    if type(color4) == "number" then color4 = wx.wxColour(color4, 0, 0) end
+    --
+    
+    local c1, c2, direction
+    if not color1:op_eq(color2) then
+        c1, c2 = color1, color2
+        direction = wx.wxRIGHT
+    elseif not color1:op_eq(color3) then
+        c1, c2 = color1, color3
+        direction = wx.wxDOWN
+    elseif not color1:op_eq(color4) then
+        c1, c2 = color1, color4
+        direction = wx.wxRIGHT
+    else
+        c1, c2 = color1, color2
+        direction = wx.wxRIGHT
+    end
     
     local w = x1 - x0
     local h = y1 - y0
     local offscreenDC = M._getOffscreenDC(screenOffset)
     
     offscreenDC:GradientFillLinear(wx.wxRect(x0, y0 + screenOffset, w, h),
-                                   color1, color2, wx.wxRIGHT)
+                                   c1, c2, direction)
 end
 
 --- Draws a text box on the screen [ML 2+ API].
