@@ -64,11 +64,20 @@ function M.read()
     Mls:notify("controlsRead")
 end
 
-function M.switchStylusHack()
-    M._stylusHack = not M._stylusHack
+--- Enables or disables the "stylus hack", which causes Stylus.newPress to 
+--  behave like in ML 2.
+--
+-- @param (boolean) Whether to enable the hack or not
+function M.setStylusHack(enabled)
+    M._stylusHack = enabled
     
-    Mls.logger:info("Stylus.newPress HACK set to "
-                    .. tostring(M._stylusHack):upper(), "controls")
+    Mls.logger:info("Stylus.newPress HACK set to ".. tostring(enabled):upper(),
+                    "controls")
+end
+
+--- Switches the "stylus hack" between enabled and disabled states.
+function M.switchStylusHack()
+    M.setStylusHack(not M._stylusHack)
 end
 
 --- Initializes computer keys <=> DS input bindings.
