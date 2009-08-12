@@ -49,6 +49,8 @@ function M:initModule(surface)
     M._initTimer()
     M._initOffscreenSurfaces()
     M._bindEvents()
+    
+    M.setDrawGradientRectAccuracy(0)
 end
 
 function M:resetModule()
@@ -245,7 +247,11 @@ function M.drawFillRect(screenOffset, x0, y0, x1, y1, color)
     offscreenDC:DrawRectangle(x0, y0 + screenOffset, x1 - x0, y1 - y0)
 end
 
---- Draws a gradient rectangle on the screen [ML 2+ API].
+--- Draws a gradient rectangle on the screen [ML 2+ API][under the name 
+--  drawGradientRect].
+--
+-- This version of the function is fast but does not behave like the one in ML.
+-- (the gradient is either horizontal or vetical, and between 2 colors only)
 --
 -- @param screen (number) The screen where to draw (SCREEN_UP or SCREEN_DOWN)
 -- @param x0 (number) The x coordinate of the top left corner
@@ -256,8 +262,8 @@ end
 -- @param color2 (Color)
 -- @param color3 (Color)
 -- @param color4 (Color)
-function M.drawGradientRect(screenOffset, x0, y0, x1, y1, 
-                            color1, color2, color3, color4)
+function M.drawGradientRectSimple(screenOffset, x0, y0, x1, y1, 
+                                  color1, color2, color3, color4)
     -- @hack for calls that use numbers instead of Colors
     if type(color1) == "number" then color1 = wx.wxColour(color1, 0, 0) end
     if type(color2) == "number" then color2 = wx.wxColour(color2, 0, 0) end
@@ -288,7 +294,11 @@ function M.drawGradientRect(screenOffset, x0, y0, x1, y1,
                                    c1, c2, direction)
 end
 
---- Draws a gradient rectangle on the screen [ML 2+ API].
+--- Draws a gradient rectangle on the screen [ML 2+ API][under the name 
+--  drawGradientRect].
+--
+-- This version behaves more like the one in ML, but it is entirely software/Lua
+-- based, so it may be really slow.
 --
 -- @param screen (number) The screen where to draw (SCREEN_UP or SCREEN_DOWN)
 -- @param x0 (number) The x coordinate of the top left corner
@@ -299,8 +309,8 @@ end
 -- @param color2 (Color)
 -- @param color3 (Color)
 -- @param color4 (Color)
-function M.drawGradientRect2(screenOffset, x0, y0, x1, y1, 
-                             color1, color2, color3, color4)
+function M.drawGradientRectAdvanced(screenOffset, x0, y0, x1, y1, 
+                                    color1, color2, color3, color4)
     -- @hack for calls that use numbers instead of Colors
     if type(color1) == "number" then color1 = wx.wxColour(color1, 0, 0) end
     if type(color2) == "number" then color2 = wx.wxColour(color2, 0, 0) end
@@ -308,7 +318,11 @@ function M.drawGradientRect2(screenOffset, x0, y0, x1, y1,
     if type(color4) == "number" then color4 = wx.wxColour(color4, 0, 0) end
     --
     
-    local NUM_BLOCKS = 16
+    local offscreenDC = M.offscreenDC
+    offscreenDC:DestroyClippingRegion()
+    offscreenDC:SetClippingRegion(x0, y0 + screenOffset, x1 - x0, y1 - y0)
+    
+    local NUM_BLOCKS = M._drawGradientRectNumBlocks
     
     -- all the function code below this comment is taken from there:
     --     http://www.codeguru.com/forum/showthread.php?t=378905
@@ -317,27 +331,23 @@ function M.drawGradientRect2(screenOffset, x0, y0, x1, y1,
     end
     
     -- calculates size of single colour bands
-    local xStep = (x1 - x0) / NUM_BLOCKS + 1
-    local yStep = (y1 - y0) / NUM_BLOCKS + 1
-    --print(xStep, yStep)
+    local xStep = math.floor((x1 - x0) / NUM_BLOCKS) + 1
+    local yStep = math.floor((y1 - y0) / NUM_BLOCKS) + 1
+    
+    -- prevent function calls in the loop
+    local c1r, c1g, c1b = color1:Red(), color1:Green(), color1:Blue()
+    local c2r, c2g, c2b = color2:Red(), color2:Green(), color2:Blue()
+    local c3r, c3g, c3b = color3:Red(), color3:Green(), color3:Blue()
+    local c4r, c4g, c4b = color4:Red(), color4:Green(), color4:Blue()
     
     -- x loop starts
     local X = x0
     for iX = 0, NUM_BLOCKS - 1 do
         -- calculates end colours of the band in Y direction
         local RGBColor= {
-            {
-                IPOL(color1:Red(), color2:Red(), iX),
-                IPOL(color4:Red(), color3:Red(), iX)
-            },
-            {
-                IPOL(color1:Green(), color2:Green(), iX),
-                IPOL(color4:Green(), color3:Green(), iX)
-            },
-            {
-                IPOL(color1:Blue(), color2:Blue(), iX),
-                IPOL(color4:Blue(), color3:Blue(), iX)
-            },
+            { IPOL(c1r, c2r, iX), IPOL(c3r, c4r, iX) },
+            { IPOL(c1g, c2g, iX), IPOL(c3g, c4g, iX) },
+            { IPOL(c1b, c2b, iX), IPOL(c3b, c4b, iX) },
         }
         
         -- Y loop starts
@@ -351,17 +361,18 @@ function M.drawGradientRect2(screenOffset, x0, y0, x1, y1,
                 IPOL(RGBColor[3][1], RGBColor[3][2], iY)
             )
             
-            M.drawFillRect(screenOffset, X, Y, X + xStep + 1, Y + yStep + 1, color)
-            --print(X, Y, X + xStep, Y + yStep)
+            M._pen:SetColour(color)
+            offscreenDC:SetPen(M._pen)
+            M._brush:SetColour(color)
+            offscreenDC:SetBrush(M._brush)
+            offscreenDC:DrawRectangle(X, Y + screenOffset, xStep, yStep)
             
             -- updates Y value of the rectangle
             Y = Y + yStep
-            if Y > y1 then Y = y1 end
         end
         
         -- updates X value of the rectangle
         X = X + xStep
-        if X > x1 then X = x1 end
     end
 end
 
@@ -419,6 +430,24 @@ function M.drawTextBox(screenOffset, x0, y0, x1, y1, text, color)
     end
     
     offscreenDC:DestroyClippingRegion()
+end
+
+--- Sets the version of drawGradientRect that will be used, and in case it is 
+--  the newer/correct/slower one, choose how accurate/slow it will be.
+--
+-- @param accuracy (number) If 0, any call to drawGradientRect() will call the 
+--                          "simple" version. If > 1 (preferably > 2), the 
+--                          "advanced" version will be used, with the number of
+--                          "blocks" set to this number. The greater the number,
+--                          the more precise and nicer the result, but beware, 
+--                          this function is slow!
+function M.setDrawGradientRectAccuracy(accuracy)
+    if accuracy == 0 then
+        M.drawGradientRect = M.drawGradientRectSimple
+    else
+        M._drawGradientRectNumBlocks = accuracy
+        M.drawGradientRect = M.drawGradientRectAdvanced
+    end
 end
 
 --- Returns current FPS.

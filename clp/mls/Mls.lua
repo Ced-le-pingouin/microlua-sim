@@ -140,7 +140,11 @@ function Mls:ctr(scriptPath)
     
     Mls._initTimer()
     
+    -- configure the modules from the config file
     Controls.setStylusHack(Mls.config:get("stylus_hack", false))
+    screen.setDrawGradientRectAccuracy(
+        Mls.config:get("draw_gradient_rect_accuracy", 0)
+    )
     
     if __DEBUG_LIMIT_TIME > 0 then
         Mls:attach(self, "stopDrawing", self.onStopDrawing)
@@ -238,6 +242,7 @@ function Mls:getValidOptions()
         ups = { "number", 0 },
         bitmap_fonts = { "boolean" },
         stylus_hack = { "boolean" },
+        draw_gradient_rect_accuracy = { "number", 0, 256 },
         
         -- debug options below
         debug_log_level = { "number", Logger.TRACE, Logger.FATAL },
