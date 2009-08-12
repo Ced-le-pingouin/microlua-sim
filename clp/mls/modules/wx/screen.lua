@@ -256,15 +256,6 @@ end
 -- @param color2 (Color)
 -- @param color3 (Color)
 -- @param color4 (Color)
---
--- @todo This function is far from "Microlua-correct", mine uses a simple linear
---       left-to-right gradient with only the two first colors, but the ML one 
---       has the four colors at the corners, joining gradually to the center. 
---       How the hell do I do that!? I think interpolation's the right way, but
---       I'm not an expert.
---       A slightly better implementation for now could draw a vertical *or* 
---       horizontal gradient, depending on which of the two colours are the same
---       (c1 = c2, c1 = c3...)
 function M.drawGradientRect(screenOffset, x0, y0, x1, y1, 
                             color1, color2, color3, color4)
     -- @hack for calls that use numbers instead of Colors
@@ -295,6 +286,83 @@ function M.drawGradientRect(screenOffset, x0, y0, x1, y1,
     
     offscreenDC:GradientFillLinear(wx.wxRect(x0, y0 + screenOffset, w, h),
                                    c1, c2, direction)
+end
+
+--- Draws a gradient rectangle on the screen [ML 2+ API].
+--
+-- @param screen (number) The screen where to draw (SCREEN_UP or SCREEN_DOWN)
+-- @param x0 (number) The x coordinate of the top left corner
+-- @param y0 (number) The y coordinate of the top left corner
+-- @param x1 (number) The x coordinate of the bottom right corner
+-- @param y1 (number) The y coordinate of the bottom right corner
+-- @param color1 (Color)
+-- @param color2 (Color)
+-- @param color3 (Color)
+-- @param color4 (Color)
+function M.drawGradientRect2(screenOffset, x0, y0, x1, y1, 
+                             color1, color2, color3, color4)
+    -- @hack for calls that use numbers instead of Colors
+    if type(color1) == "number" then color1 = wx.wxColour(color1, 0, 0) end
+    if type(color2) == "number" then color2 = wx.wxColour(color2, 0, 0) end
+    if type(color3) == "number" then color3 = wx.wxColour(color3, 0, 0) end
+    if type(color4) == "number" then color4 = wx.wxColour(color4, 0, 0) end
+    --
+    
+    local NUM_BLOCKS = 16
+    
+    -- all the function code below this comment is taken from there:
+    --     http://www.codeguru.com/forum/showthread.php?t=378905
+    local IPOL = function(X0, X1, N)
+        return X0 + (X1 - X0) * N / NUM_BLOCKS
+    end
+    
+    -- calculates size of single colour bands
+    local xStep = (x1 - x0) / NUM_BLOCKS + 1
+    local yStep = (y1 - y0) / NUM_BLOCKS + 1
+    --print(xStep, yStep)
+    
+    -- x loop starts
+    local X = x0
+    for iX = 0, NUM_BLOCKS - 1 do
+        -- calculates end colours of the band in Y direction
+        local RGBColor= {
+            {
+                IPOL(color1:Red(), color2:Red(), iX),
+                IPOL(color4:Red(), color3:Red(), iX)
+            },
+            {
+                IPOL(color1:Green(), color2:Green(), iX),
+                IPOL(color4:Green(), color3:Green(), iX)
+            },
+            {
+                IPOL(color1:Blue(), color2:Blue(), iX),
+                IPOL(color4:Blue(), color3:Blue(), iX)
+            },
+        }
+        
+        -- Y loop starts
+        local Y = y0
+        for iY = 0, NUM_BLOCKS - 1 do
+            -- calculates the colour of the rectangular band
+            --print(
+            local color = wx.wxColour(
+                IPOL(RGBColor[1][1], RGBColor[1][2], iY),
+                IPOL(RGBColor[2][1], RGBColor[2][2], iY),
+                IPOL(RGBColor[3][1], RGBColor[3][2], iY)
+            )
+            
+            M.drawFillRect(screenOffset, X, Y, X + xStep + 1, Y + yStep + 1, color)
+            --print(X, Y, X + xStep, Y + yStep)
+            
+            -- updates Y value of the rectangle
+            Y = Y + yStep
+            if Y > y1 then Y = y1 end
+        end
+        
+        -- updates X value of the rectangle
+        X = X + xStep
+        if X > x1 then X = x1 end
+    end
 end
 
 --- Draws a text box on the screen [ML 2+ API].
