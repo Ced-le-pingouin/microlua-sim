@@ -27,6 +27,13 @@ ups = 55
 ;;
 bitmap_fonts = 1
 
+;; Enable "stylus hack", which causes Stylus.newPress to behave as in ML2, i.e.
+;; it is always true except when the stylus is held
+;;
+;;  0 = disable the hack (Stylus.newPress is only true *once* after a "click")
+;;  1 = enable the hack
+stylus_hack = 0
+
 ;; DEBUG OPTIONS !!! YOU SHOULD NOT ENABLE OR CHANGE THESE !!!
 ;debug_log_level = 4
 ;debug_main_loop_timing = 3

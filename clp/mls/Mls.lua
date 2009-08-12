@@ -140,6 +140,8 @@ function Mls:ctr(scriptPath)
     
     Mls._initTimer()
     
+    Controls.setStylusHack(Mls.config:get("stylus_hack", false))
+    
     if __DEBUG_LIMIT_TIME > 0 then
         Mls:attach(self, "stopDrawing", self.onStopDrawing)
     end
@@ -235,6 +237,7 @@ function Mls:getValidOptions()
         fps = { "number", 0 },
         ups = { "number", 0 },
         bitmap_fonts = { "boolean" },
+        stylus_hack = { "boolean" },
         
         -- debug options below
         debug_log_level = { "number", Logger.TRACE, Logger.FATAL },
