@@ -568,12 +568,24 @@ end
 --
 -- @see _require
 function M._module(name, ...)
-    module(name, ...)
-    
     local callerEnv = getfenv(2)
-    callerEnv[name] = _G[name]
-    _G[name] = nil
-    package.loaded[name] = nil
+    
+    local moduleEnv = {}
+    moduleEnv._NAME = name
+    moduleEnv._M = moduleEnv
+    --moduleEnv._PACKAGE =
+    
+    callerEnv[name] = moduleEnv
+    
+    for _, func in ipairs{...} do
+        if func == package.seeall then
+            setmetatable(moduleEnv, { __index = callerEnv })
+        else
+            func(moduleEnv)
+        end
+    end
+    
+    setfenv(2, moduleEnv)
 end
 
 --- "Environment-aware" require() replacement to be used with the replacement 
@@ -586,6 +598,13 @@ end
 -- @see _module
 function M._require(modname)
     local callerEnv = getfenv(2)
+    if modname == "oKeyboard" then
+        local modtable = callerEnv[modname]
+        print(modname, type(modtable), modtable.Load)
+        for k, v in pairs(modtable) do
+            print(k, v)
+        end
+    end
     return callerEnv[modname]
 end
 
