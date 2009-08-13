@@ -130,6 +130,10 @@ function Mls:ctr(scriptPath)
     
     -- ML modules manager
     local moduleManager = ModuleManager:new()
+    Mls.openGl = Mls.config:get("open_gl", false)
+    if Mls.openGl then
+        moduleManager:addPrefix("gl.", true)
+    end
     
     -- script manager
     local fps = Mls.config:get("fps", 60)
@@ -249,6 +253,7 @@ function Mls:getValidOptions()
         bitmap_fonts = { "boolean" },
         stylus_hack = { "boolean" },
         draw_gradient_rect_accuracy = { "number", 0, 256 },
+        open_gl = { "number" },
         
         -- debug options below
         debug_log_level = { "number", Logger.TRACE, Logger.FATAL },
