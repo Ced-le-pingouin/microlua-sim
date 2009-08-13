@@ -89,6 +89,7 @@ local Logger = require "clp.Logger"
 local Sys = require "clp.mls.Sys"
 local Config = require "clp.mls.Config"
 local Gui = require "clp.mls.Gui"
+local ModuleManager = require "clp.mls.ModuleManager"
 local ScriptManager = require "clp.mls.ScriptManager"
 
 Mls = Class.new(Observable)
@@ -113,40 +114,48 @@ function Mls:ctr(scriptPath)
     
     Mls.logger:setLevel(Mls.config:get("debug_log_level", Logger.WARN))
     
+    -- init vars and gui
     Mls._initVars()
     Mls.gui = Mls._initGui()
     
+    -- logger
     Mls.logger:setWriterFunction(Mls.gui:getConsoleWriter())
     Mls.logger:setLogFormat("%m")
               :reserved("Welcome to the console. Script errors and log messages will be displayed here.")
               :resetLogFormat()
     
-    -- init various debug vars
+    -- debug vars
     __DEBUG_NO_REFRESH = Mls.config:get("debug_no_refresh", false)
     __DEBUG_LIMIT_TIME = Mls.config:get("debug_limit_time", 0)
-    --
+    
+    -- ML modules manager
+    local moduleManager = ModuleManager:new()
+    
+    -- script manager
     local fps = Mls.config:get("fps", 60)
     local ups = Mls.config:get("ups", 55)
     local timing = Mls.config:get("debug_main_loop_timing", nil)
     
-    Mls.scriptManager = ScriptManager:new(fps, ups, timing)
+    Mls.scriptManager = ScriptManager:new(fps, ups, timing, moduleManager)
     
+    -- event handlers
     Mls:attach(self, "scriptStateChange", self.onScriptStateChange)
     Mls:attach(self, "upsUpdate", self.onUpsUpdate)
     Mls:attach(self, "keyDown", self.onKeyDown)
+    if __DEBUG_LIMIT_TIME > 0 then
+        Mls:attach(self, "stopDrawing", self.onStopDrawing)
+    end
     
+    -- timer
     Mls._initTimer()
     
-    -- configure the modules from the config file
+    -- hacks and config options
     Controls.setStylusHack(Mls.config:get("stylus_hack", false))
     screen.setDrawGradientRectAccuracy(
         Mls.config:get("draw_gradient_rect_accuracy", 0)
     )
     
-    if __DEBUG_LIMIT_TIME > 0 then
-        Mls:attach(self, "stopDrawing", self.onStopDrawing)
-    end
-    
+    -- an finally load the script given at the command line if needed
     Mls.scriptManager:init()
     if scriptPath then
         if Mls.scriptManager:loadScript(scriptPath) then
