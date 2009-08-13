@@ -44,6 +44,18 @@ function M:ctr(modules, prefixes)
     self._prefixes = prefixes or { "wx." }
 end
 
+--- Adds a prefix to the ones to be looked for when loading modules.
+--
+-- @param prefix (string) The prefix
+-- @param prepend (boolean) If true, the prefix will be prepended to the list of
+--                          already defined prefixes, otherwise it is added at 
+--                          the end of the list
+function M:addPrefix(prefix, prepend)
+    local pos = prepend and 1 or #self._prefixes + 1
+    
+    table.insert(self._prefixes, pos, prefix)
+end
+
 --- Loads and initializes simulated ML modules.
 --
 -- @param modules (table) The list of modules to be loaded
