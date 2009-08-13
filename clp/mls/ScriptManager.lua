@@ -32,7 +32,6 @@
 
 local Class = require "clp.Class"
 local Sys = require "clp.mls.Sys"
-local ModuleManager = require "clp.mls.ModuleManager"
 
 local M = Class.new()
 
@@ -55,9 +54,11 @@ end
 -- @param ups (number) The target ups = script main loop iteration rate
 -- @param timing (number) The method used for timing the loop iterations (one 
 --                        of the TIMING constants in this class)
+-- @param moduleManager (ModuleManager) A previously created module manager, 
+--                                      that can load and reset ML modules
 --
 -- @see init
-function M:ctr(fps, ups, timing)
+function M:ctr(fps, ups, timing, moduleManager)
     -- fps config --
     self._fps = fps
     
@@ -82,7 +83,8 @@ function M:ctr(fps, ups, timing)
     
     self:_setScriptState(M.SCRIPT_NONE)
     
-    self._moduleManager = ModuleManager:new()
+    -- load ML modules
+    self._moduleManager = moduleManager
     self._moduleManager:loadModules()
 end
 
