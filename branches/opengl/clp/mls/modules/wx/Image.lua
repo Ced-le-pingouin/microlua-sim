@@ -162,12 +162,13 @@ end
 function M.rotate(image, angle, centerx, centery)
     local newAngle = angle / 1.422222222
     
-    if newAngle == image._rotationAngle then return end
+    if newAngle ~= image._rotationAngle then
+        image._changed = true
+    end
     
     image._rotationAngle   = newAngle
     image._rotationCenterX = centerx or 0
     image._rotationCenterY = centery or 0
-    image._changed = true
 end
 
 --- Rotates the image around rotation center, using degrees [ML 2+ API].
@@ -179,12 +180,13 @@ end
 -- @param centery (number) The y coordinate of the new rotation center.
 --                         Optional, default is 0
 function M.rotateDegree(image, angle, centerx, centery)
-    if angle == image._rotationAngle then return end
+    if angle ~= image._rotationAngle then
+        image._changed = true
+    end
     
     image._rotationAngle   = angle
     image._rotationCenterX = centerx or 0
     image._rotationCenterY = centery or 0
-    image._changed = true
 end
 
 --- Mirrors the image horizontally [ML 2+ API].
@@ -298,11 +300,11 @@ function M._doScale(image)
     if image._scaledWidthRatio == 1 and image._scaledHeightRatio == 1 then
         return
     end
-
+    
     image._transformed:Rescale(image._scaledWidth, image._scaledHeight, 
                                wx.wxIMAGE_QUALITY_NORMAL)
-
-    image._offset.x = image._offset.x 
+    
+    image._offset.x = image._offset.x
                        - (image._transformed:GetWidth() - image._width) / 2
     image._offset.y = image._offset.y
                        - (image._transformed:GetHeight() - image._height) / 2
@@ -311,10 +313,22 @@ end
 --- Performs the actual rotation on an image.
 --
 -- @param image (Image)
-function M._doRotate(image)
-    if image._rotationAngle == 0 then return end
+function M._doRotate(image)    
+    if image._rotationAngle == 0 then
+        -- hey, don't ask me why, but if there's no centerx/centery set, and no
+        -- no rotation set, there will be NO offset adjustment if the image has
+        -- been scaled. IF there's any change in rotation centerx/y, EVEN if the
+        -- angle is ZERO (which means no rotation to me), there WILL be offset
+        -- adjustment. This is not Riske's decision, since it is all viisble in
+        -- uLib source, in the image/ulDrawImage.c file
+        if image._rotationCenterX == 0 and image._rotationCenterY == 0 then
+            image._offset.x, image._offset.y = 0, 0
+        end
+        
+        return
+    end
     
-    local rotationOffset = wx.wxPoint()    
+    local rotationOffset = wx.wxPoint()
     
     image._transformed = image._transformed:Rotate(
         math.rad(-image._rotationAngle),
