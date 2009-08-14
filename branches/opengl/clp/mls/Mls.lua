@@ -162,9 +162,7 @@ function Mls:ctr(scriptPath)
     -- an finally load the script given at the command line if needed
     Mls.scriptManager:init()
     if scriptPath then
-        if Mls.scriptManager:loadScript(scriptPath) then
-            Mls.scriptManager:startScript()
-        end
+        Mls.scriptManager:loadAndStartScript(scriptPath)
     end
 end
 
@@ -294,16 +292,21 @@ end
 -- @param event (string) The name of the event that caused the callback. 
 --                       Should be "keyDown" here
 -- @param key (number) The raw key code
+-- @param shift (boolean) true if the Shift key is pressed
 --
 -- @eventHandler
-function Mls:onKeyDown(event, key)
+function Mls:onKeyDown(event, key, shift)
     local fpsAndUpsStep = 5
     local sm = Mls.scriptManager
     
     if key == wx.WXK_P then
-        Mls.scriptManager:pauseOrResumeScript()
+        sm:pauseOrResumeScript()
     elseif key == wx.WXK_B then
-        Mls.scriptManager:restartScript()
+        if not shift then
+            sm:restartScript()
+        else
+            sm:reloadAndStartScript()
+        end
     elseif key == wx.WXK_C then
         Mls.gui:showOrHideConsole()
     elseif key == wx.WXK_H then
@@ -395,9 +398,7 @@ function Mls.onFileOpen()
         
         if file ~= "" then
             screen.clearAllOffscreenSurfaces()
-            if Mls.scriptManager:loadScript(file) then
-                Mls.scriptManager:startScript()
-            end
+            Mls.scriptManager:loadAndStartScript(file)
         end
     end)
     
