@@ -101,7 +101,7 @@ function M:init()
     self:setTargetUps(self._ups)
     self:_initUpsSystem()
     
-    Mls:attach(self, "controlsRead", self.onControlsRead)    
+    Mls:attach(self, "controlsRead", self.onControlsRead)
     Mls:attach(self, "stopDrawing", self.onStopDrawing)
 end
 
@@ -433,6 +433,28 @@ function M:restartScript()
     
     self:stopScript()
     self:startScript()
+end
+
+--- Loads a script from a file, then starts it.
+--
+-- @param (string) file The path of the script you want to load
+function M:loadAndStartScript(file)
+    if self:loadScript(file) then
+        self:startScript()
+    end
+end
+
+--- Reloads the current script from disk, then starts it
+function M:reloadAndStartScript()
+    if self._scriptState == M.SCRIPT_NONE then
+        --Mls.logger:warn("can't reload: no script loaded", "script")
+        return
+    end
+    
+    Mls.logger:info("reloading script from disk", "script")
+    
+    self:stopScript()
+    self:loadAndStartScript(self._scriptPath)
 end
 
 --- Returns the name of a given state.
