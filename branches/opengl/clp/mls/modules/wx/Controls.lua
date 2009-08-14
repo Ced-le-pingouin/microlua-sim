@@ -201,7 +201,7 @@ function M._onKeyDownEvent(event)
     
     Mls.logger:debug("keyDown: raw = "..key..", mapped to "..tostring(mappedKey), "controls")
     
-    Mls:notify("keyDown", key)
+    Mls:notify("keyDown", key, event:ShiftDown())
     
     event:Skip()
 end
