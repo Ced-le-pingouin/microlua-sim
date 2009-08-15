@@ -10,8 +10,6 @@
 --       Images needed for Font cache. Maybe some <module>:resetModule() should 
 --       dispose of resources (and thus keep track of the resources they load
 --       or create)
--- @todo Zoom and/or position of the image in Command-EZ 1.1 example are 
---       incorrect
 -- @todo In aloufs, the + and - buttons are always clicked twice !?
 -- @todo In UFO, under Linux, the click doesn't work well when L is held (screen
 --       goes black). Is this related to the "click twice" problem in aloufs ?
