@@ -461,8 +461,24 @@ function M.setDrawGradientRectAccuracy(accuracy)
     end
 end
 
+--- Sets the value that will be added when computing rectangles width/height.
+--
+-- The standard value shoud be 1 (width = x1 - x0 + 1), but some scripts won't
+-- display correctly when rectangle are displayed in MLS, so it should sometimes
+-- use 0 as an "additional" value
+--
+-- @param number (number)
 function M.setRectAdditionalLength(number)
     M._rectAdditionalLength = number or 1
+end
+
+--- Increments the additional value to be used when computing rectangles width 
+--  and height.
+--
+-- @see setRectAdditionalLength
+function M.incRectAdditionalLength()
+    -- right now the only possible values are 0 and 1 (hence the % 2)
+    M._rectAdditionalLength = (M._rectAdditionalLength + 1) % 2
 end
 
 --- Returns current FPS.
