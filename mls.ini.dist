@@ -41,7 +41,7 @@ stylus_hack = 0
 ;;  min: 0
 ;;  max: 1
 ;;
-rect_length = 1
+rect_length = 0
 
 ;; Choose wich function will be used and with what precision when 
 ;; drawGradientRect() is called
