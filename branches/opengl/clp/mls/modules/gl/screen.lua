@@ -2,7 +2,7 @@
 -- Micro Lua screen module simulation, based on OpenGL.
 --
 -- @class module
--- @name clp.mls.modules.wx.screen
+-- @name clp.mls.modules.gl.screen
 -- @author Ced-le-pingouin <Ced.le.pingouin@gmail.com>
 --
 -- @todo print()/printFont() (drawTextBox()?): ML doesn't understand "\n" and 
