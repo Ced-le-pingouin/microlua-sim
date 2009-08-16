@@ -233,8 +233,6 @@ function M.drawRect(screenOffset, x0, y0, x1, y1, color)
     x0, y0 = M.correctX(x0), M.correctY(y0)
     x1, y1 = M.correctX(x1), M.correctY(y1)
     
-    print(x1 - x0, y1 - y0)
-    
     M._pen:SetColour(color)
     offscreenDC:SetPen(M._pen)
     offscreenDC:SetBrush(wx.wxTRANSPARENT_BRUSH)
