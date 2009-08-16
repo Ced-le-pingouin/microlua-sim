@@ -113,6 +113,7 @@ function startDrawing()
     
     M.clearOffscreenSurface()
 end
+M.startDrawing = startDrawing
 
 --- All drawing instructions must be between startDrawing() and this [ML 2 API].
 --
@@ -126,12 +127,14 @@ function stopDrawing()
     
     M._switchOffscreen()
 end
+M.stopDrawing = stopDrawing
 
 --- Refreshes the screen (replaces start- and stopDrawing()) [ML 3+ API].
 function render()
     stopDrawing()
     startDrawing()
 end
+M.render = render
 
 --- Switches the screens [ML 2+ API].
 function M.switch()
