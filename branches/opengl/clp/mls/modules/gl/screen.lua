@@ -31,8 +31,9 @@ require "wx"
 require "luagl"
 require "luaglut"
 local Class = require "clp.Class"
+local screen_wx = require "clp.mls.modules.wx.screen"
 
-local M = Class.new()
+local M = Class.new(screen_wx)
 
 M.MAX_OFFSCREENS = 2
 
@@ -41,8 +42,7 @@ M.MAX_OFFSCREENS = 2
 -- @param surface (wxPanel) The surface representing the screens, to which the 
 --                          the offscreen surface will be blit
 function M:initModule(surface)
-    print("screen in Open GL version!!!")
-    
+    --[[
     M._surface = surface or Mls.gui:getSurface()
     M._height = M._surface:GetSize():GetHeight()
     
@@ -54,7 +54,14 @@ function M:initModule(surface)
     M._initOffscreenSurfaces()
     M._bindEvents()
     
+    M._drawGradientRectNumBlocks = 20
     M.setDrawGradientRectAccuracy(0)
+    M.setRectAdditionalLength(1)
+    --]]
+    
+    M.super().initModule(self, surface)
+    
+    print("screen in Open GL version!!!")
     
     -- SDL
     -- Initialize the SDL library
@@ -84,113 +91,16 @@ function M:initModule(surface)
     glLoadIdentity()
 end
 
-function M:resetModule()
-    M.clearAllOffscreenSurfaces()
-end
-
---- Initializes global variables for the screen module.
-function M._initVars()
-    NB_FPS         = 0
-    SCREEN_UP      = 0
-    SCREEN_DOWN    = SCREEN_HEIGHT
-end
-
-function M._initTimer()
-    M._timer = Timer.new()
-    M._timer:start()
-    M._nextSecond = Timer.ONE_SECOND
-end
-
---- Initializes an offscreen surface for double buffering.
-function M._initOffscreenSurfaces()
-    Mls.logger:info("initializing offscreen surface", "screen")
-    
-    M._offscreenSurfaces = {}
-    M._offscreenDCs = {}
-    for i = 0, M.MAX_OFFSCREENS - 1 do
-        local surface, DC
-        surface = wx.wxBitmap(SCREEN_WIDTH, M._height, Mls.DEPTH)
-        if not surface:Ok() then
-            error("Could not create offscreen surface!")
-        end
-        
-        -- get DC for the offscreen bitmap globally, for the whole execution
-        DC = wx.wxMemoryDC()
-        DC:SelectObject(surface)
-        
-        M._offscreenSurfaces[i] = surface
-        M._offscreenDCs[i] = DC
-    end
-    M._currentOffscreen = 0
-    M.clearAllOffscreenSurfaces()
-    
-    -- default pen will be solid 1px white, default brush solid white
-    M._pen = wx.wxPen(wx.wxWHITE, 1, wx.wxSOLID)
-    M._brush = wx.wxBrush(wx.wxWHITE, wx.wxSOLID)
-end
-
---- Binds functions to events needed to refresh screen.
-function M._bindEvents()
-    M._surface:Connect(wx.wxEVT_PAINT, M._onPaintEvent)
-end
-
---- All drawing instructions must be between this and stopDrawing() [ML 2 API].
---
--- @deprecated
-function startDrawing()
-    Mls.logger:trace("startDrawing called", "screen")
-    
-    M.clearOffscreenSurface()
-end
-
 --- All drawing instructions must be between startDrawing() and this [ML 2 API].
 --
 -- @eventSender
 --
 -- @deprecated
 function stopDrawing()
-    Mls.logger:trace("stopDrawing called", "screen")
-    
-    Mls:notify("stopDrawing")
-    
-    M._switchOffscreen()
+    M.super().stopDrawing()
     
     -- GL
     SDL.SDL_GL_SwapBuffers()
-end
-
---- Refreshes the screen (replaces start- and stopDrawing()) [ML 3+ API].
-function render()
-    stopDrawing()
-    startDrawing()
-end
-
---- Switches the screens [ML 2+ API].
-function M.switch()
-    SCREEN_UP, SCREEN_DOWN = SCREEN_DOWN, SCREEN_UP
-end
-
---- Prints a text on the screen [ML 2+ API].
---
--- @param screen (number) The screen where to draw (SCREEN_UP or SCREEN_DOWN)
--- @param x (number) The x coordinate where to draw
--- @param y (number) The y coordinate where to draw
--- @param text (string) The text to print
--- @param color (Color) A color of the text
-function M.print(screenOffset, x, y, text, color)
-	Font.print(screenOffset, Font._defaultFont, x, y, text, color, true)
-end
-
---- Prints a text on the screen [ML 2+ API].
---
--- @param screen (number) The screen where to draw (SCREEN_UP or SCREEN_DOWN)
--- @param x (number) The x coordinate where to draw
--- @param y (number) The y coordinate where to draw
--- @param text (string) The text to print
--- @param color (Color) The color of the text
--- @param font (Font) A special font
-function M.printFont(screenOffset, x, y, text, color, font)
-    Font.print(screenOffset, font, x, y, text, color, true)
 end
 
 --- Blits an image on the screen [ML 2+ API].
@@ -233,12 +143,7 @@ end
 -- @todo In wxWidgets, (x1,y1) is not included in a drawn line, see if Microlua
 --       behaves like that, and adjust arguments if it doesn't
 function M.drawLine(screenOffset, x0, y0, x1, y1, color)
-    local offscreenDC = M._getOffscreenDC(screenOffset)
-    
-    M._pen:SetColour(color)
-    offscreenDC:SetPen(M._pen)
-    offscreenDC:DrawLine(x0, y0 + screenOffset, x1, y1 + screenOffset)
-    --offscreenDC:DrawPoint(x1, y1 + screenOffset)
+    M.super().drawLine(screenOffset, x0, y0, x1, y1, color)
     
     -- GL
     glColor3d(color:Red() / 255, color:Green() / 255, color:Blue() / 255)
@@ -257,19 +162,7 @@ end
 -- @param y1 (number) The y coordinate of the bottom right corner
 -- @param color (Color) The color of the rectangle
 function M.drawRect(screenOffset, x0, y0, x1, y1, color)
-    -- @note This is only to prevent "bad" code from crashing in the case where
-    -- it (unfortunately) doesn't crash in the real ML. If "color" has not been
-    -- created with Color.new() but is a number, it is valid in ML, since it
-    -- uses RGB15 format to store its colors. @see Color
-    --if type(color) == "number" then color = wx.wxColour(color, 0, 0) end
-    
-    local offscreenDC = M._getOffscreenDC(screenOffset)
-    
-    M._pen:SetColour(color)
-    offscreenDC:SetPen(M._pen)
-    offscreenDC:SetBrush(wx.wxTRANSPARENT_BRUSH)
-    offscreenDC:DrawRectangle(x0, y0 + screenOffset, 
-                              (x1 - x0) + 1, (y1 - y0) + 1)
+    M.super().drawRect(screenOffset, x0, y0, x1, y1, color)
     
     -- GL
     glColor3d(color:Red() / 255, color:Green() / 255, color:Blue() / 255)
@@ -290,14 +183,7 @@ end
 -- @param y1 (number) The y coordinate of the bottom right corner
 -- @param color (Color) The color of the rectangle
 function M.drawFillRect(screenOffset, x0, y0, x1, y1, color)
-    local offscreenDC = M._getOffscreenDC(screenOffset)
-    
-    M._pen:SetColour(color)
-    offscreenDC:SetPen(M._pen)
-    M._brush:SetColour(color)
-    offscreenDC:SetBrush(M._brush)
-    offscreenDC:DrawRectangle(x0, y0 + screenOffset, 
-                              (x1 - x0) + 1, (y1 - y0) + 1)
+    M.super().drawRect(screenOffset, x0, y0, x1, y1, color)
     
     -- GL
     glColor3d(color:Red() / 255, color:Green() / 255, color:Blue() / 255)
@@ -309,11 +195,7 @@ function M.drawFillRect(screenOffset, x0, y0, x1, y1, color)
     glEnd()
 end
 
---- Draws a gradient rectangle on the screen [ML 2+ API][under the name 
---  drawGradientRect].
---
--- This version of the function is fast but does not behave like the one in ML.
--- (the gradient is either horizontal or vetical, and between 2 colors only)
+--- Draws a gradient rectangle on the screen [ML 2+ API].
 --
 -- @param screen (number) The screen where to draw (SCREEN_UP or SCREEN_DOWN)
 -- @param x0 (number) The x coordinate of the top left corner
@@ -324,39 +206,11 @@ end
 -- @param color2 (Color)
 -- @param color3 (Color)
 -- @param color4 (Color)
-function M.drawGradientRectSimple(screenOffset, x0, y0, x1, y1, 
-                                  color1, color2, color3, color4)
-    -- @hack for calls that use numbers instead of Colors
-    if type(color1) == "number" then color1 = wx.wxColour(color1, 0, 0) end
-    if type(color2) == "number" then color2 = wx.wxColour(color2, 0, 0) end
-    if type(color3) == "number" then color3 = wx.wxColour(color3, 0, 0) end
-    if type(color4) == "number" then color4 = wx.wxColour(color4, 0, 0) end
-    --
+function M.drawGradientRect(screenOffset, x0, y0, x1, y1, 
+                            color1, color2, color3, color4)
+    M.super().drawGradientRect(screenOffset, x0, y0, x1, y1, 
+                               color1, color2, color3, color4)
     
-    local c1, c2, direction
-    if not color1:op_eq(color2) then
-        c1, c2 = color1, color2
-        direction = wx.wxRIGHT
-    elseif not color1:op_eq(color3) then
-        c1, c2 = color1, color3
-        direction = wx.wxDOWN
-    elseif not color1:op_eq(color4) then
-        c1, c2 = color1, color4
-        direction = wx.wxRIGHT
-    else
-        c1, c2 = color1, color2
-        direction = wx.wxRIGHT
-    end
-    
-    local offscreenDC = M._getOffscreenDC(screenOffset)
-    
-    local w = (x1 - x0) + 1
-    local h = (y1 - y0) + 1
-    
-    offscreenDC:GradientFillLinear(wx.wxRect(x0, y0 + screenOffset, w, h),
-                                   c1, c2, direction)
-                                   
-    -- GL
     glBegin(GL_QUADS)
         glColor3d(color1:Red() / 255, color1:Green() / 255, color1:Blue() / 255)
         glVertex2d(x0, y0 + screenOffset)
@@ -370,90 +224,6 @@ function M.drawGradientRectSimple(screenOffset, x0, y0, x1, y1,
         glColor3d(color3:Red() / 255, color3:Green() / 255, color3:Blue() / 255)
         glVertex2d(x0, y1 + screenOffset)
     glEnd()
-end
-
---- Draws a gradient rectangle on the screen [ML 2+ API][under the name 
---  drawGradientRect].
---
--- This version behaves more like the one in ML, but it is entirely software/Lua
--- based, so it may be really slow.
---
--- @param screen (number) The screen where to draw (SCREEN_UP or SCREEN_DOWN)
--- @param x0 (number) The x coordinate of the top left corner
--- @param y0 (number) The y coordinate of the top left corner
--- @param x1 (number) The x coordinate of the bottom right corner
--- @param y1 (number) The y coordinate of the bottom right corner
--- @param color1 (Color)
--- @param color2 (Color)
--- @param color3 (Color)
--- @param color4 (Color)
-function M.drawGradientRectAdvanced(screenOffset, x0, y0, x1, y1, 
-                                    color1, color2, color3, color4)
-    -- @hack for calls that use numbers instead of Colors
-    if type(color1) == "number" then color1 = wx.wxColour(color1, 0, 0) end
-    if type(color2) == "number" then color2 = wx.wxColour(color2, 0, 0) end
-    if type(color3) == "number" then color3 = wx.wxColour(color3, 0, 0) end
-    if type(color4) == "number" then color4 = wx.wxColour(color4, 0, 0) end
-    --
-    
-    local w, h = (x1 - x0) + 1, (y1 - y0) + 1
-    
-    local offscreenDC = M.offscreenDC
-    offscreenDC:DestroyClippingRegion()
-    offscreenDC:SetClippingRegion(x0, y0 + screenOffset, w, h)
-    
-    local NUM_BLOCKS = M._drawGradientRectNumBlocks
-    
-    -- all the function code below this comment is taken from there:
-    --     http://www.codeguru.com/forum/showthread.php?t=378905
-    local IPOL = function(X0, X1, N)
-        return X0 + (X1 - X0) * N / NUM_BLOCKS
-    end
-    
-    -- calculates size of single colour bands
-    local xStep = math.floor(w / NUM_BLOCKS) + 1
-    local yStep = math.floor(h / NUM_BLOCKS) + 1
-    
-    -- prevent function calls in the loop
-    local c1r, c1g, c1b = color1:Red(), color1:Green(), color1:Blue()
-    local c2r, c2g, c2b = color2:Red(), color2:Green(), color2:Blue()
-    local c3r, c3g, c3b = color3:Red(), color3:Green(), color3:Blue()
-    local c4r, c4g, c4b = color4:Red(), color4:Green(), color4:Blue()
-    
-    -- x loop starts
-    local X = x0
-    for iX = 0, NUM_BLOCKS - 1 do
-        -- calculates end colours of the band in Y direction
-        local RGBColor= {
-            { IPOL(c1r, c2r, iX), IPOL(c3r, c4r, iX) },
-            { IPOL(c1g, c2g, iX), IPOL(c3g, c4g, iX) },
-            { IPOL(c1b, c2b, iX), IPOL(c3b, c4b, iX) },
-        }
-        
-        -- Y loop starts
-        local Y = y0
-        for iY = 0, NUM_BLOCKS - 1 do
-            -- calculates the colour of the rectangular band
-            --print(
-            local color = wx.wxColour(
-                IPOL(RGBColor[1][1], RGBColor[1][2], iY),
-                IPOL(RGBColor[2][1], RGBColor[2][2], iY),
-                IPOL(RGBColor[3][1], RGBColor[3][2], iY)
-            )
-            
-            M._pen:SetColour(color)
-            offscreenDC:SetPen(M._pen)
-            M._brush:SetColour(color)
-            offscreenDC:SetBrush(M._brush)
-            offscreenDC:DrawRectangle(X, Y + screenOffset, xStep, yStep)
-            
-            -- updates Y value of the rectangle
-            Y = Y + yStep
-        end
-        
-        -- updates X value of the rectangle
-        X = X + xStep
-    end
 end
 
 --- Draws a text box on the screen [ML 2+ API].
@@ -512,103 +282,12 @@ function M.drawTextBox(screenOffset, x0, y0, x1, y1, text, color)
     offscreenDC:DestroyClippingRegion()
 end
 
---- Sets the version of drawGradientRect that will be used, and in case it is 
---  the newer/correct/slower one, choose how accurate/slow it will be.
---
--- @param accuracy (number) If 0, any call to drawGradientRect() will call the 
---                          "simple" version. If > 1 (preferably > 2), the 
---                          "advanced" version will be used, with the number of
---                          "blocks" set to this number. The greater the number,
---                          the more precise and nicer the result, but beware, 
---                          this function is slow!
-function M.setDrawGradientRectAccuracy(accuracy)
-    if accuracy == 0 then
-        M.drawGradientRect = M.drawGradientRectSimple
-    else
-        M._drawGradientRectNumBlocks = accuracy
-        M.drawGradientRect = M.drawGradientRectAdvanced
-    end
-end
-
---- Returns current FPS.
-function M.getFps()
-    return NB_FPS
-end
-
---- Returns the total number of upates (= frames rendered) since the beginning.
---
--- @return (number)
-function M.getUpdates()
-    return M._totalFrames
-end
-
 --- Clears the current offscreen surface (with black).
 function M.clearOffscreenSurface()
-    local offscreenDC = M.offscreenDC
-    offscreenDC:DestroyClippingRegion()
-    offscreenDC:SetBackground(wx.wxBLACK_BRUSH)
-    offscreenDC:Clear()
+    M.super().clearOffscreenSurface()
     
     -- GL
     glClear(GL_COLOR_BUFFER_BIT + GL_DEPTH_BUFFER_BIT)
-end
-
---- Clears all offscreen surfaces.
-function M.clearAllOffscreenSurfaces()
-    for i = 1, M.MAX_OFFSCREENS do
-        M._switchOffscreen()
-        M.clearOffscreenSurface()
-    end
-end
-
---- Displays a bar with some text on the upper screen.
---
--- This is used by Mls to display the script state directly on the screen, in 
--- addition to the status bar
---
--- @param text (string)
--- @param color (Color) The color of the bar. The default is blue.
-function M.displayInfoText(text, color)
-    if not color then color = Color.new(0, 0, 31) end
-    
-    local textColor = Color.new(31, 31, 31)
-    local shadowColor = Color.new(0, 0, 0)
-    local shadowOffset = 1
-    
-    local w, h = SCREEN_WIDTH / 1.5, 12
-    local x, y = (SCREEN_WIDTH - w) / 2, (SCREEN_HEIGHT - h) / 2
-    local textXOffset = (w - Font.getStringWidth(Font._defaultFont, text)) / 2
-    local textYOffset = (h - Font.getCharHeight(Font._defaultFont)) / 2
-    
-    M._copyOffscreenFromPrevious()
-    
-    -- draw the frame and its shadow
-    M.drawFillRect(SCREEN_UP, x + shadowOffset, y + shadowOffset, 
-                   x + w + shadowOffset, y + h + shadowOffset, shadowColor)
-    M.drawFillRect(SCREEN_UP, x, y, x + w, y + h, color)
-    
-    -- draw text and its shadow
-    M.print(SCREEN_UP, x + textXOffset + shadowOffset, 
-            y + textYOffset + shadowOffset, text, shadowColor)
-    M.print(SCREEN_UP, x + textXOffset, y + textYOffset, text, textColor)
-    
-    M.forceRepaint()
-end
-
---- Forces the underlying GUI/GFX lib to immediately repaint the "screens".
---
--- This should blit the offscreen surface to the "GUI surface"
---
--- @param showPrevious (boolean) If true, update the GUI with the previously 
---                               rendered offscreen surface instead of the 
---                               current one
-function M.forceRepaint(showPrevious)
-    if showPrevious then M._switchOffscreen() end
-    
-    M._surface:Refresh(false)
-    M._surface:Update()
-    
-    if showPrevious then M._switchOffscreen() end
 end
 
 --- Draws a point on the screen.
@@ -620,81 +299,13 @@ end
 -- @param y (number) The y coordinate where to draw
 -- @param color (Color) The color of the point
 function M._drawPoint(screenOffset, x, y, color)
-    local offscreenDC = M._getOffscreenDC(screenOffset)
+    M.super()._drawPoint(screenOffset, x, y, color)
     
-    
-    
-    M._pen:SetColour(color)
-    offscreenDC:SetPen(M._pen)
-    offscreenDC:DrawPoint(x, y)
-end
-
---- Increments fps counter if needed.
-function M._updateFps()
-    M._framesInOneSec = M._framesInOneSec + 1
-    M._totalFrames = M._totalFrames + 1
-    
-    if M._timer:time() >= M._nextSecond then
-        Mls.logger:trace("updating FPS", "screen")
-        
-        NB_FPS = M._framesInOneSec
-        M._framesInOneSec = 0
-        M._nextSecond = M._timer:time() + Timer.ONE_SECOND
-    end
-end
-
---- Returns the device context (wxWidgets-specific) of the offscreen surface,
---  with clipping limiting further drawing operations to one screen.
---
--- @param screenOffset (number) The screen to limit drawing operations to 
---                              (SCREEN_UP or SCREEN_DOWN)
---
--- @return (wxMemoryDC)
-function M._getOffscreenDC(screenOffset)
-    local offscreenDC = M.offscreenDC
-    
-    offscreenDC:DestroyClippingRegion()
-    offscreenDC:SetClippingRegion(0, screenOffset, SCREEN_WIDTH, SCREEN_HEIGHT)
-    
-    return offscreenDC
-end
-
---- Switches to the next available offscreen surface.
-function M._switchOffscreen()
-    M._currentOffscreen = (M._currentOffscreen + 1) % M.MAX_OFFSCREENS
-    M._offscreenSurface = M._offscreenSurfaces[M._currentOffscreen]
-    M.offscreenDC = M._offscreenDCs[M._currentOffscreen]
-end
-
---- Copies the previously rendered offscreen surface to the current one.
-function M._copyOffscreenFromPrevious()
-    local previousOffscreenDC = M._offscreenDCs[(M._currentOffscreen - 1) 
-                                                % M.MAX_OFFSCREENS]
-    M.offscreenDC:Blit(0, 0, SCREEN_WIDTH, M._height, previousOffscreenDC, 0, 0,
-                       wx.wxCOPY, false)
-end
-
---- Event handler used to repaint the screens.
--- Also update the FPS counter if needed
---
--- @param (wxEvent) The event object
-function M._onPaintEvent(event)
-    Mls.logger:trace("blitting offscreen surface to GUI screens", "screen")
-    
-    local offscreenDC = M.offscreenDC
-    local destDC = wx.wxPaintDC(M._surface) -- ? wxAutoBufferedPaintDC
-    
-    offscreenDC:DestroyClippingRegion()
-    
-    destDC:Blit(0, 0, SCREEN_WIDTH, M._height, offscreenDC, 
-                0, 0)
---    offscreenDC:SelectObject(wx.wxNullBitmap)
---    destDC:DrawBitmap(M._offscreenSurface, 0, 0, false)
---    offscreenDC:SelectObject(M._offscreenSurface)
-     
-    destDC:delete()
-    
-    M._updateFps()
+    glcolor3d(color:Red() / 255, color:Green() / 255, color:Blue() / 255)
+    glBegin(GL_POINTS)
+        glColor3d()
+        glVertex2d(x, y + screenOffset)
+    glEnd()
 end
 
 return M
