@@ -29,6 +29,7 @@
 
 require "wx"
 local Class = require "clp.Class"
+local Math = require "clp.Math"
 
 local M = Class.new()
 
