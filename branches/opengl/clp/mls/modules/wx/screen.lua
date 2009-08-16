@@ -180,6 +180,8 @@ function M.blit(screenOffset, x, y, image, sourcex, sourcey, width, height)
         height = image._bitmap:GetHeight()
     end
     
+    x, y = M.correctX(x), M.correctY(y)
+    
     local offscreenDC = M._getOffscreenDC(screenOffset)
     
     offscreenDC:Blit(x + image._offset.x, screenOffset + y + image._offset.y, 
@@ -201,9 +203,13 @@ end
 function M.drawLine(screenOffset, x0, y0, x1, y1, color)
     local offscreenDC = M._getOffscreenDC(screenOffset)
     
+    x0, y0 = M.correctX(x0), M.correctY(y0)
+    x1, y1 = M.correctX(x1), M.correctY(y1)
+    
     M._pen:SetColour(color)
     offscreenDC:SetPen(M._pen)
     offscreenDC:DrawLine(x0, y0 + screenOffset, x1, y1 + screenOffset)
+    --offscreenDC:DrawPoint(x1, y1 + screenOffset)
 end
 
 --- Draws a rectangle on the screen [ML 2+ API].
@@ -223,10 +229,16 @@ function M.drawRect(screenOffset, x0, y0, x1, y1, color)
     
     local offscreenDC = M._getOffscreenDC(screenOffset)
     
+    x0, y0 = M.correctX(x0), M.correctY(y0)
+    x1, y1 = M.correctX(x1), M.correctY(y1)
+    
+    print(x1 - x0, y1 - y0)
+    
     M._pen:SetColour(color)
     offscreenDC:SetPen(M._pen)
     offscreenDC:SetBrush(wx.wxTRANSPARENT_BRUSH)
-    offscreenDC:DrawRectangle(x0, y0 + screenOffset, x1 - x0, y1 - y0)
+    offscreenDC:DrawRectangle(x0, y0 + screenOffset, 
+                              (x1 - x0) + 1, (y1 - y0) + 1)
 end
 
 --- Draws a filled rectangle on the screen [ML 2+ API].
@@ -240,11 +252,15 @@ end
 function M.drawFillRect(screenOffset, x0, y0, x1, y1, color)
     local offscreenDC = M._getOffscreenDC(screenOffset)
     
+    x0, y0 = M.correctX(x0), M.correctY(y0)
+    x1, y1 = M.correctX(x1), M.correctY(y1)
+    
     M._pen:SetColour(color)
     offscreenDC:SetPen(M._pen)
     M._brush:SetColour(color)
     offscreenDC:SetBrush(M._brush)
-    offscreenDC:DrawRectangle(x0, y0 + screenOffset, x1 - x0, y1 - y0)
+    offscreenDC:DrawRectangle(x0, y0 + screenOffset, 
+                              (x1 - x0) + 1, (y1 - y0) + 1)
 end
 
 --- Draws a gradient rectangle on the screen [ML 2+ API][under the name 
@@ -286,9 +302,13 @@ function M.drawGradientRectSimple(screenOffset, x0, y0, x1, y1,
         direction = wx.wxRIGHT
     end
     
-    local w = x1 - x0
-    local h = y1 - y0
     local offscreenDC = M._getOffscreenDC(screenOffset)
+    
+    x0, y0 = M.correctX(x0), M.correctY(y0)
+    x1, y1 = M.correctX(x1), M.correctY(y1)
+    
+    local w = (x1 - x0) + 1
+    local h = (y1 - y0) + 1
     
     offscreenDC:GradientFillLinear(wx.wxRect(x0, y0 + screenOffset, w, h),
                                    c1, c2, direction)
@@ -318,9 +338,14 @@ function M.drawGradientRectAdvanced(screenOffset, x0, y0, x1, y1,
     if type(color4) == "number" then color4 = wx.wxColour(color4, 0, 0) end
     --
     
+    x0, y0 = M.correctX(x0), M.correctY(y0)
+    x1, y1 = M.correctX(x1), M.correctY(y1)
+    
+    local w, h = (x1 - x0) + 1, (y1 - y0) + 1
+    
     local offscreenDC = M.offscreenDC
     offscreenDC:DestroyClippingRegion()
-    offscreenDC:SetClippingRegion(x0, y0 + screenOffset, x1 - x0, y1 - y0)
+    offscreenDC:SetClippingRegion(x0, y0 + screenOffset, w, h)
     
     local NUM_BLOCKS = M._drawGradientRectNumBlocks
     
@@ -331,8 +356,8 @@ function M.drawGradientRectAdvanced(screenOffset, x0, y0, x1, y1,
     end
     
     -- calculates size of single colour bands
-    local xStep = math.floor((x1 - x0) / NUM_BLOCKS) + 1
-    local yStep = math.floor((y1 - y0) / NUM_BLOCKS) + 1
+    local xStep = math.floor(w / NUM_BLOCKS) + 1
+    local yStep = math.floor(h / NUM_BLOCKS) + 1
     
     -- prevent function calls in the loop
     local c1r, c1g, c1b = color1:Red(), color1:Green(), color1:Blue()
@@ -390,7 +415,7 @@ function M.drawTextBox(screenOffset, x0, y0, x1, y1, text, color)
     y1 = screenOffset + y1
     
     local posY = y0
-    local width, height = x1 - x0, y1 - y0
+    local width, height = (x1 - x0) + 1, (y1 - y0) + 1
     local font = Font._defaultFont
     local fontHeight = Font.getCharHeight(font)
     
@@ -430,6 +455,14 @@ function M.drawTextBox(screenOffset, x0, y0, x1, y1, text, color)
     end
     
     offscreenDC:DestroyClippingRegion()
+end
+
+function M.correctX(x)
+    return Math.round( x * ( (SCREEN_WIDTH - 1) / SCREEN_WIDTH ) )
+end
+
+function M.correctY(y)
+    return Math.round( y * ( (M._height - 1) / M._height ) )
 end
 
 --- Sets the version of drawGradientRect that will be used, and in case it is 
@@ -538,6 +571,8 @@ end
 -- @param color (Color) The color of the point
 function M._drawPoint(screenOffset, x, y, color)
     local offscreenDC = M._getOffscreenDC(screenOffset)
+    
+    x, y = M.correctX(x), M.correctY(y)
     
     M._pen:SetColour(color)
     offscreenDC:SetPen(M._pen)
