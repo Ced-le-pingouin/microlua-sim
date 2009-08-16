@@ -249,7 +249,7 @@ function Mls:getValidOptions()
         bitmap_fonts = { "boolean" },
         stylus_hack = { "boolean" },
         draw_gradient_rect_accuracy = { "number", 0, 256 },
-        open_gl = { "number" },
+        open_gl = { "boolean" },
         
         -- debug options below
         debug_log_level = { "number", Logger.TRACE, Logger.FATAL },
