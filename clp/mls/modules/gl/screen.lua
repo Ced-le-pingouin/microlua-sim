@@ -31,7 +31,6 @@ require "wx"
 require "luagl"
 require "luaglut"
 local Class = require "clp.Class"
-local Math = require "clp.Math"
 
 local M = Class.new()
 
@@ -215,8 +214,6 @@ function M.blit(screenOffset, x, y, image, sourcex, sourcey, width, height)
         height = image._bitmap:GetHeight()
     end
     
-    x, y = M.correctX(x), M.correctY(y)
-    
     local offscreenDC = M._getOffscreenDC(screenOffset)
     
     offscreenDC:Blit(x + image._offset.x, screenOffset + y + image._offset.y, 
@@ -237,9 +234,6 @@ end
 --       behaves like that, and adjust arguments if it doesn't
 function M.drawLine(screenOffset, x0, y0, x1, y1, color)
     local offscreenDC = M._getOffscreenDC(screenOffset)
-    
-    x0, y0 = M.correctX(x0), M.correctY(y0)
-    x1, y1 = M.correctX(x1), M.correctY(y1)
     
     M._pen:SetColour(color)
     offscreenDC:SetPen(M._pen)
@@ -271,9 +265,6 @@ function M.drawRect(screenOffset, x0, y0, x1, y1, color)
     
     local offscreenDC = M._getOffscreenDC(screenOffset)
     
-    x0, y0 = M.correctX(x0), M.correctY(y0)
-    x1, y1 = M.correctX(x1), M.correctY(y1)
-    
     M._pen:SetColour(color)
     offscreenDC:SetPen(M._pen)
     offscreenDC:SetBrush(wx.wxTRANSPARENT_BRUSH)
@@ -300,9 +291,6 @@ end
 -- @param color (Color) The color of the rectangle
 function M.drawFillRect(screenOffset, x0, y0, x1, y1, color)
     local offscreenDC = M._getOffscreenDC(screenOffset)
-    
-    x0, y0 = M.correctX(x0), M.correctY(y0)
-    x1, y1 = M.correctX(x1), M.correctY(y1)
     
     M._pen:SetColour(color)
     offscreenDC:SetPen(M._pen)
@@ -362,9 +350,6 @@ function M.drawGradientRectSimple(screenOffset, x0, y0, x1, y1,
     
     local offscreenDC = M._getOffscreenDC(screenOffset)
     
-    x0, y0 = M.correctX(x0), M.correctY(y0)
-    x1, y1 = M.correctX(x1), M.correctY(y1)
-    
     local w = (x1 - x0) + 1
     local h = (y1 - y0) + 1
     
@@ -410,9 +395,6 @@ function M.drawGradientRectAdvanced(screenOffset, x0, y0, x1, y1,
     if type(color3) == "number" then color3 = wx.wxColour(color3, 0, 0) end
     if type(color4) == "number" then color4 = wx.wxColour(color4, 0, 0) end
     --
-    
-    x0, y0 = M.correctX(x0), M.correctY(y0)
-    x1, y1 = M.correctX(x1), M.correctY(y1)
     
     local w, h = (x1 - x0) + 1, (y1 - y0) + 1
     
@@ -528,14 +510,6 @@ function M.drawTextBox(screenOffset, x0, y0, x1, y1, text, color)
     end
     
     offscreenDC:DestroyClippingRegion()
-end
-
-function M.correctX(x)
-    return Math.round( x * ( (SCREEN_WIDTH - 1) / SCREEN_WIDTH ) )
-end
-
-function M.correctY(y)
-    return Math.round( y * ( (M._height - 1) / M._height ) )
 end
 
 --- Sets the version of drawGradientRect that will be used, and in case it is 
