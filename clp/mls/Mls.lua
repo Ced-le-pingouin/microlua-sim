@@ -156,6 +156,7 @@ function Mls:ctr(scriptPath)
     screen.setDrawGradientRectAccuracy(
         Mls.config:get("draw_gradient_rect_accuracy", 0)
     )
+    screen.setRectAdditionalLength(Mls.config:get("rect_length", 1))
     
     -- an finally load the script given at the command line if needed
     Mls.scriptManager:init()
@@ -250,6 +251,7 @@ function Mls:getValidOptions()
         stylus_hack = { "boolean" },
         draw_gradient_rect_accuracy = { "number", 0, 256 },
         open_gl = { "boolean" },
+        rect_length = { "number", 0, 1 },
         
         -- debug options below
         debug_log_level = { "number", Logger.TRACE, Logger.FATAL },
@@ -321,6 +323,8 @@ function Mls:onKeyDown(event, key, shift)
         sm:setTargetUps(sm:getTargetUps() + fpsAndUpsStep)
     elseif key == wx.WXK_F5 then
         Mls.logger:incrementLevel(true)
+    elseif key == wx.WXK_F6 then
+        screen.incRectAdditionalLength()
     end
 end
 
