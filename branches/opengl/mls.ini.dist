@@ -14,7 +14,7 @@ fps = 60
 ;; You may need to adjust this to make your script run at the same speed as on
 ;; the real Micro Lua DS
 ;;
-;;   min: 0 = unlimited
+;;  min: 0 = unlimited
 ;;
 ;; Please note that the achieved rate can vary (+- 5 fps) because of bad timings
 ;;
@@ -22,8 +22,8 @@ ups = 55
 
 ;; Use bitmap fonts (0 or 1)
 ;;
-;;  0 = no  = native OS font  => faster but no custom fonts are displayed
-;;  1 = yes = fonts = bitmaps => slower
+;;  0 = no  = native OS fonts  => faster but no custom fonts are displayed
+;;  1 = yes = bitmap fonts => slower
 ;;
 bitmap_fonts = 1
 
@@ -33,6 +33,15 @@ bitmap_fonts = 1
 ;;  0 = disable the hack (Stylus.newPress is only true *once* after a "click")
 ;;  1 = enable the hack
 stylus_hack = 0
+
+;; Set the value to use when computing rectangles width and height. Normally it
+;; should be 1, as in "width = x1 - x0 + 1", but some scripts won't display 
+;; correctly unless set to 0
+;;
+;;  min: 0
+;;  max: 1
+;;
+rect_length = 1
 
 ;; Choose wich function will be used and with what precision when 
 ;; drawGradientRect() is called
