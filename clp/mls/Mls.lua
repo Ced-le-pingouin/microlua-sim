@@ -322,9 +322,11 @@ function Mls:onKeyDown(event, key, shift)
     elseif key == wx.WXK_F4 then
         sm:setTargetUps(sm:getTargetUps() + fpsAndUpsStep)
     elseif key == wx.WXK_F5 then
-        Mls.logger:incrementLevel(true)
+        screen.switchDrawGradientRectAccuracy()
     elseif key == wx.WXK_F6 then
         screen.incRectAdditionalLength()
+    elseif key == wx.WXK_F12 then
+        Mls.logger:incrementLevel(true)
     end
 end
 
