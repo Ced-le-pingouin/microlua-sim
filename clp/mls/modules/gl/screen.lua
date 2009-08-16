@@ -69,12 +69,12 @@ function M:initModule(surface)
     SDL.SDL_GL_SetAttribute(SDL.SDL_GL_DOUBLEBUFFER, 1)
     
     -- GL
-    glViewport(0, 0, SCREEN_WIDTH, M._height)
     -- set internal resolution
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
     --gluPerspective(52, SCREEN_WIDTH / M._height, 1, 1000)
-    glOrtho(0, SCREEN_WIDTH, M._height, 0, 0, 1000)
+    glOrtho(0, SCREEN_WIDTH, M._height, 0, -2045, 1)
+    glViewport(0, 0, SCREEN_WIDTH - 1, M._height - 1)
     --glDisable(GL_DEPTH)
     
     -- init some OpenGL variables and states
