@@ -29,7 +29,6 @@
 
 require "wx"
 local Class = require "clp.Class"
-local Math = require "clp.Math"
 
 local M = Class.new()
 
@@ -52,6 +51,7 @@ function M:initModule(surface)
     M._bindEvents()
     
     M.setDrawGradientRectAccuracy(0)
+    M.setRectAdditionalLength(1)
 end
 
 function M:resetModule()
@@ -181,8 +181,6 @@ function M.blit(screenOffset, x, y, image, sourcex, sourcey, width, height)
         height = image._bitmap:GetHeight()
     end
     
-    x, y = M.correctX(x), M.correctY(y)
-    
     local offscreenDC = M._getOffscreenDC(screenOffset)
     
     offscreenDC:Blit(x + image._offset.x, screenOffset + y + image._offset.y, 
@@ -203,9 +201,6 @@ end
 --       behaves like that, and adjust arguments if it doesn't
 function M.drawLine(screenOffset, x0, y0, x1, y1, color)
     local offscreenDC = M._getOffscreenDC(screenOffset)
-    
-    x0, y0 = M.correctX(x0), M.correctY(y0)
-    x1, y1 = M.correctX(x1), M.correctY(y1)
     
     M._pen:SetColour(color)
     offscreenDC:SetPen(M._pen)
@@ -230,14 +225,12 @@ function M.drawRect(screenOffset, x0, y0, x1, y1, color)
     
     local offscreenDC = M._getOffscreenDC(screenOffset)
     
-    x0, y0 = M.correctX(x0), M.correctY(y0)
-    x1, y1 = M.correctX(x1), M.correctY(y1)
-    
     M._pen:SetColour(color)
     offscreenDC:SetPen(M._pen)
     offscreenDC:SetBrush(wx.wxTRANSPARENT_BRUSH)
     offscreenDC:DrawRectangle(x0, y0 + screenOffset, 
-                              (x1 - x0) + 1, (y1 - y0) + 1)
+                              (x1 - x0) + M._rectAdditionalLength,
+                              (y1 - y0) + M._rectAdditionalLength)
 end
 
 --- Draws a filled rectangle on the screen [ML 2+ API].
@@ -251,15 +244,13 @@ end
 function M.drawFillRect(screenOffset, x0, y0, x1, y1, color)
     local offscreenDC = M._getOffscreenDC(screenOffset)
     
-    x0, y0 = M.correctX(x0), M.correctY(y0)
-    x1, y1 = M.correctX(x1), M.correctY(y1)
-    
     M._pen:SetColour(color)
     offscreenDC:SetPen(M._pen)
     M._brush:SetColour(color)
     offscreenDC:SetBrush(M._brush)
     offscreenDC:DrawRectangle(x0, y0 + screenOffset, 
-                              (x1 - x0) + 1, (y1 - y0) + 1)
+                              (x1 - x0) + M._rectAdditionalLength,
+                              (y1 - y0) + M._rectAdditionalLength)
 end
 
 --- Draws a gradient rectangle on the screen [ML 2+ API][under the name 
@@ -303,11 +294,8 @@ function M.drawGradientRectSimple(screenOffset, x0, y0, x1, y1,
     
     local offscreenDC = M._getOffscreenDC(screenOffset)
     
-    x0, y0 = M.correctX(x0), M.correctY(y0)
-    x1, y1 = M.correctX(x1), M.correctY(y1)
-    
-    local w = (x1 - x0) + 1
-    local h = (y1 - y0) + 1
+    local w = (x1 - x0) + M._rectAdditionalLength
+    local h = (y1 - y0) + M._rectAdditionalLength
     
     offscreenDC:GradientFillLinear(wx.wxRect(x0, y0 + screenOffset, w, h),
                                    c1, c2, direction)
@@ -337,10 +325,8 @@ function M.drawGradientRectAdvanced(screenOffset, x0, y0, x1, y1,
     if type(color4) == "number" then color4 = wx.wxColour(color4, 0, 0) end
     --
     
-    x0, y0 = M.correctX(x0), M.correctY(y0)
-    x1, y1 = M.correctX(x1), M.correctY(y1)
-    
-    local w, h = (x1 - x0) + 1, (y1 - y0) + 1
+    local w = (x1 - x0) + M._rectAdditionalLength
+    local h = (y1 - y0) + M._rectAdditionalLength
     
     local offscreenDC = M.offscreenDC
     offscreenDC:DestroyClippingRegion()
@@ -414,7 +400,8 @@ function M.drawTextBox(screenOffset, x0, y0, x1, y1, text, color)
     y1 = screenOffset + y1
     
     local posY = y0
-    local width, height = (x1 - x0) + 1, (y1 - y0) + 1
+    local width = (x1 - x0) + M._rectAdditionalLength
+    local height = (y1 - y0) + M._rectAdditionalLength
     local font = Font._defaultFont
     local fontHeight = Font.getCharHeight(font)
     
@@ -456,14 +443,6 @@ function M.drawTextBox(screenOffset, x0, y0, x1, y1, text, color)
     offscreenDC:DestroyClippingRegion()
 end
 
-function M.correctX(x)
-    return Math.round( x * ( (SCREEN_WIDTH - 1) / SCREEN_WIDTH ) )
-end
-
-function M.correctY(y)
-    return Math.round( y * ( (M._height - 1) / M._height ) )
-end
-
 --- Sets the version of drawGradientRect that will be used, and in case it is 
 --  the newer/correct/slower one, choose how accurate/slow it will be.
 --
@@ -480,6 +459,10 @@ function M.setDrawGradientRectAccuracy(accuracy)
         M._drawGradientRectNumBlocks = accuracy
         M.drawGradientRect = M.drawGradientRectAdvanced
     end
+end
+
+function M.setRectAdditionalLength(number)
+    M._rectAdditionalLength = number or 1
 end
 
 --- Returns current FPS.
@@ -570,8 +553,6 @@ end
 -- @param color (Color) The color of the point
 function M._drawPoint(screenOffset, x, y, color)
     local offscreenDC = M._getOffscreenDC(screenOffset)
-    
-    x, y = M.correctX(x), M.correctY(y)
     
     M._pen:SetColour(color)
     offscreenDC:SetPen(M._pen)
