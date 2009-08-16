@@ -138,6 +138,8 @@ function M.draw(screenOffset, scrollmap)
         scrollmap._tilesHaveChanged = false
     end
     
+    posX, posY = screen.correctX(posX), screen.correctY(posY)
+    
     while posY < SCREEN_HEIGHT do
         while posX < SCREEN_WIDTH do
             offscreenDC:DrawBitmap(scrollmap._bitmap, posX, screenOffset + posY,

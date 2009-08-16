@@ -97,7 +97,7 @@ function M._printNoClip(screenOffset, font, x, y, text, color)
     
     offscreenDC:SetTextForeground(color)
     offscreenDC:SetFont(font)
-    offscreenDC:DrawText(text, x, y)
+    offscreenDC:DrawText(text, screen.correctX(x), screen.correctY(y))
 end
 
 --- Gets the pixel height of the characters of a font [ML 2+ API].

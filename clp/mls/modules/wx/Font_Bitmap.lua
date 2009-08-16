@@ -173,7 +173,8 @@ function M._printNoClip(screenOffset, font, x, y, text, color)
     textDC:Clear()
     textDC:delete()
     
-    offscreenDC:DrawBitmap(stringBitmap, x, y, true)
+    offscreenDC:DrawBitmap(stringBitmap, screen.correctX(x), screen.correctY(y),
+                           true)
 end
 
 --- Renders a whole string to a bitmap then put it in a cache, so that a new
