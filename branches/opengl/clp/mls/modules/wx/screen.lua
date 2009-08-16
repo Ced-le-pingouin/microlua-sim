@@ -50,6 +50,7 @@ function M:initModule(surface)
     M._initOffscreenSurfaces()
     M._bindEvents()
     
+    M._drawGradientRectNumBlocks = 20
     M.setDrawGradientRectAccuracy(0)
     M.setRectAdditionalLength(1)
 end
@@ -453,11 +454,25 @@ end
 --                          the more precise and nicer the result, but beware, 
 --                          this function is slow!
 function M.setDrawGradientRectAccuracy(accuracy)
+    Mls.logger:info("setting drawGradientRect() accuracy to "..accuracy, 
+                    "screen")
+    
     if accuracy == 0 then
         M.drawGradientRect = M.drawGradientRectSimple
     else
         M._drawGradientRectNumBlocks = accuracy
         M.drawGradientRect = M.drawGradientRectAdvanced
+    end
+end
+
+--- Switchs drawGradientRect() accuracy between simple and the advanced
+--
+-- @see setDrawGradientAccuracy
+function M.switchDrawGradientRectAccuracy()
+    if M.drawGradientRect == M.drawGradientRectSimple then
+        M.setDrawGradientRectAccuracy(M._drawGradientRectNumBlocks)
+    else
+        M.setDrawGradientRectAccuracy(0)
     end
 end
 
@@ -469,6 +484,9 @@ end
 --
 -- @param number (number)
 function M.setRectAdditionalLength(number)
+    Mls.logger:info("setting rectangles' length additional value to "..number, 
+                    "screen")
+    
     M._rectAdditionalLength = number or 1
 end
 
@@ -478,7 +496,7 @@ end
 -- @see setRectAdditionalLength
 function M.incRectAdditionalLength()
     -- right now the only possible values are 0 and 1 (hence the % 2)
-    M._rectAdditionalLength = (M._rectAdditionalLength + 1) % 2
+    M.setRectAdditionalLength((M._rectAdditionalLength + 1) % 2)
 end
 
 --- Returns current FPS.
