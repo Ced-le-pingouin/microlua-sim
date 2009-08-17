@@ -35,33 +35,12 @@ local screen_wx = require "clp.mls.modules.wx.screen"
 
 local M = Class.new(screen_wx)
 
-M.MAX_OFFSCREENS = 2
-
 --- Module initialization function.
 --
 -- @param surface (wxPanel) The surface representing the screens, to which the 
 --                          the offscreen surface will be blit
 function M:initModule(surface)
-    --[[
-    M._surface = surface or Mls.gui:getSurface()
-    M._height = M._surface:GetSize():GetHeight()
-    
-    M._framesInOneSec = 0
-    M._totalFrames = 0
-    
-    M._initVars()
-    M._initTimer()
-    M._initOffscreenSurfaces()
-    M._bindEvents()
-    
-    M._drawGradientRectNumBlocks = 20
-    M.setDrawGradientRectAccuracy(0)
-    M.setRectAdditionalLength(1)
-    --]]
-    
     M.super().initModule(self, surface)
-    
-    print("screen in Open GL version!!!")
     
     -- SDL
     -- Initialize the SDL library
@@ -78,8 +57,8 @@ function M:initModule(surface)
     -- GL
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
-    --gluPerspective(52, SCREEN_WIDTH / M._height, 1, 1000)
     glOrtho(0, SCREEN_WIDTH, M._height, 0, -2045, 1)
+    --glOrtho(0, SCREEN_WIDTH, 0, M._height, -2045, 1)
     glViewport(0, 0, SCREEN_WIDTH - 1, M._height - 1)
     
     -- init some OpenGL variables and states
@@ -88,18 +67,6 @@ function M:initModule(surface)
     
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
-end
-
---- All drawing instructions must be between startDrawing() and this [ML 2 API].
---
--- @eventSender
---
--- @deprecated
-function stopDrawing()
-    M.super().stopDrawing()
-    
-    -- GL
-    SDL.SDL_GL_SwapBuffers()
 end
 
 --- Blits an image on the screen [ML 2+ API].
@@ -113,32 +80,37 @@ end
 -- @param width (number) The width of the rectangle to draw
 -- @param height (number) The height of the rectangle to draw
 function M.blit(screenOffset, x, y, image, sourcex, sourcey, width, height)
-    M.super().blit(screenOffset, x, y, image, sourcex, sourcey, width, height)
-    
     if width == 0 or height == 0 then return end
     
-    if not sourcex then sourcex, sourcey = 0, 0 end
-    if not width then
-        width  = image._width
-        height = image._height
-    end
+    if not sourcex then sourcex = 0 end
+    if not sourcey then sourcey = 0 end
+    if not width then width  = image._width end
+    if not height then height = image._height end
     
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image._width, image._height, 0, 
-                 GL_RGB, GL_UNSIGNED_BYTE, image.rawData:ptr())
+    y = y + screenOffset
+    local x2 = x + width - 1
+    local y2 = y + height - 1
     
-    --glColor3d(255, 0, 0)
+    local sourcex2 = ( sourcex + width - 1 ) / image._width
+    local sourcey2 = ( M._height - ( sourcey + height - 1 ) ) / image._height
+    sourcex = sourcex / image._width
+    sourcey = (M._height - sourcey) / image._height
+    
+    --sourcey, sourcey2 = sourcey2, sourcey
+    
+    glBindTexture(GL_TEXTURE_2D, image._textureId[0])
     glBegin(GL_QUADS)
-        glTexCoord2d(0, 0)
-        glVertex2d(x, y + screenOffset)
+        glTexCoord2d(sourcex, sourcey)
+        glVertex2d(x, y)
         
-        glTexCoord2d(1, 0)
-        glVertex2d(x + width - 1, y + screenOffset)
+        glTexCoord2d(sourcex2, sourcey)
+        glVertex2d(x2, y)
         
-        glTexCoord2d(1, 1)
-        glVertex2d(x + width - 1, y + height - 1 + screenOffset)
+        glTexCoord2d(sourcex2, sourcey2)
+        glVertex2d(x2, y2)
         
-        glTexCoord2d(0, 1)
-        glVertex2d(x, y + height - 1 + screenOffset)
+        glTexCoord2d(sourcex, sourcey2)
+        glVertex2d(x, y2)
     glEnd()
 end
 
@@ -154,9 +126,6 @@ end
 -- @todo In wxWidgets, (x1,y1) is not included in a drawn line, see if Microlua
 --       behaves like that, and adjust arguments if it doesn't
 function M.drawLine(screenOffset, x0, y0, x1, y1, color)
-    M.super().drawLine(screenOffset, x0, y0, x1, y1, color)
-    
-    -- GL
     glColor3d(color:Red() / 255, color:Green() / 255, color:Blue() / 255)
     glBegin(GL_LINES)
         glVertex2d(x0, y0 + screenOffset)
@@ -173,9 +142,6 @@ end
 -- @param y1 (number) The y coordinate of the bottom right corner
 -- @param color (Color) The color of the rectangle
 function M.drawRect(screenOffset, x0, y0, x1, y1, color)
-    M.super().drawRect(screenOffset, x0, y0, x1, y1, color)
-    
-    -- GL
     glColor3d(color:Red() / 255, color:Green() / 255, color:Blue() / 255)
     glBegin(GL_LINE_LOOP)
         glVertex2d(x0, y0 + screenOffset)
@@ -194,9 +160,6 @@ end
 -- @param y1 (number) The y coordinate of the bottom right corner
 -- @param color (Color) The color of the rectangle
 function M.drawFillRect(screenOffset, x0, y0, x1, y1, color)
-    M.super().drawRect(screenOffset, x0, y0, x1, y1, color)
-    
-    -- GL
     glColor3d(color:Red() / 255, color:Green() / 255, color:Blue() / 255)
     glBegin(GL_QUADS)
         glVertex2d(x0, y0 + screenOffset)
@@ -219,9 +182,6 @@ end
 -- @param color4 (Color)
 function M.drawGradientRect(screenOffset, x0, y0, x1, y1, 
                             color1, color2, color3, color4)
-    M.super().drawGradientRect(screenOffset, x0, y0, x1, y1, 
-                               color1, color2, color3, color4)
-    
     glBegin(GL_QUADS)
         glColor3d(color1:Red() / 255, color1:Green() / 255, color1:Blue() / 255)
         glVertex2d(x0, y0 + screenOffset)
@@ -237,68 +197,13 @@ function M.drawGradientRect(screenOffset, x0, y0, x1, y1,
     glEnd()
 end
 
---- Draws a text box on the screen [ML 2+ API].
---
--- @param screen (number) The screen where to draw (SCREEN_UP or SCREEN_DOWN)
--- @param x0 (number) The x coordinate of the top left corner
--- @param y0 (number) The y coordinate of the top left corner
--- @param x1 (number) The x coordinate of the bottom right corner
--- @param y1 (number) The y coordinate of the bottom right corner
--- @param text (string) The text to print
--- @param color (Color) The color of the text box
-function M.drawTextBox(screenOffset, x0, y0, x1, y1, text, color)
-    y0 = screenOffset + y0
-    y1 = screenOffset + y1
-    
-    local posY = y0
-    local width, height = (x1 - x0) + 1, (y1 - y0) + 1
-    local font = Font._defaultFont
-    local fontHeight = Font.getCharHeight(font)
-    
-    local offscreenDC = M.offscreenDC
-    offscreenDC:DestroyClippingRegion()
-    offscreenDC:SetClippingRegion(x0, y0, width, height)
-    
-    if Font.getStringWidth(font, text) <= width then
-        Font._printNoClip(screenOffset, font, x0, posY, text, color)
-    else
-        local line = {}
-        local lineWidth = 0
-        local wordExtent
-        
-        for word in text:gmatch("%s*%S+%s*") do
-            wordExtent = Font.getStringWidth(font, word)
-            lineWidth = lineWidth + wordExtent
-            if lineWidth <= width then
-                table.insert(line, word)
-            else
-                Font._printNoClip(screenOffset, font, x0, posY, 
-                                  table.concat(line), color)
-                
-                line = { word }
-                lineWidth = wordExtent
-                
-                posY = posY + fontHeight
-                if posY > y1 then break end
-            end
-        end
-        
-        -- we still need this to print the last line
-        if posY <= y1 then
-            Font._printNoClip(screenOffset, font, x0, posY, table.concat(line), 
-                              color)
-        end
-    end
-    
-    offscreenDC:DestroyClippingRegion()
-end
-
 --- Clears the current offscreen surface (with black).
 function M.clearOffscreenSurface()
-    M.super().clearOffscreenSurface()
-    
-    -- GL
     glClear(GL_COLOR_BUFFER_BIT + GL_DEPTH_BUFFER_BIT)
+end
+
+function M._switchOffscreen()
+    SDL.SDL_GL_SwapBuffers()
 end
 
 --- Draws a point on the screen.
@@ -310,8 +215,6 @@ end
 -- @param y (number) The y coordinate where to draw
 -- @param color (Color) The color of the point
 function M._drawPoint(screenOffset, x, y, color)
-    M.super()._drawPoint(screenOffset, x, y, color)
-    
     glcolor3d(color:Red() / 255, color:Green() / 255, color:Blue() / 255)
     glBegin(GL_POINTS)
         glColor3d()
