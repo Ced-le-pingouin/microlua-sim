@@ -76,16 +76,15 @@ function M:initModule(surface)
     SDL.SDL_GL_SetAttribute(SDL.SDL_GL_DOUBLEBUFFER, 1)
     
     -- GL
-    -- set internal resolution
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
     --gluPerspective(52, SCREEN_WIDTH / M._height, 1, 1000)
     glOrtho(0, SCREEN_WIDTH, M._height, 0, -2045, 1)
     glViewport(0, 0, SCREEN_WIDTH - 1, M._height - 1)
-    --glDisable(GL_DEPTH)
     
     -- init some OpenGL variables and states
     glClearColor(0, 0, 0, 0)
+    glEnable(GL_TEXTURE_2D)
     
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
@@ -114,21 +113,33 @@ end
 -- @param width (number) The width of the rectangle to draw
 -- @param height (number) The height of the rectangle to draw
 function M.blit(screenOffset, x, y, image, sourcex, sourcey, width, height)
-    if width == 0 or height == 0 then return end
+    M.super().blit(screenOffset, x, y, image, sourcex, sourcey, width, height)
     
-    Image._doTransform(image)
+    if width == 0 or height == 0 then return end
     
     if not sourcex then sourcex, sourcey = 0, 0 end
     if not width then
-        width  = image._bitmap:GetWidth()
-        height = image._bitmap:GetHeight()
+        width  = image._width
+        height = image._height
     end
     
-    local offscreenDC = M._getOffscreenDC(screenOffset)
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image._width, image._height, 0, 
+                 GL_RGB, GL_UNSIGNED_BYTE, image.rawData:ptr())
     
-    offscreenDC:Blit(x + image._offset.x, screenOffset + y + image._offset.y, 
-                     width, height, image._DC, sourcex, sourcey, wx.wxCOPY, 
-                     true)
+    --glColor3d(255, 0, 0)
+    glBegin(GL_QUADS)
+        glTexCoord2d(0, 0)
+        glVertex2d(x, y + screenOffset)
+        
+        glTexCoord2d(1, 0)
+        glVertex2d(x + width - 1, y + screenOffset)
+        
+        glTexCoord2d(1, 1)
+        glVertex2d(x + width - 1, y + height - 1 + screenOffset)
+        
+        glTexCoord2d(0, 1)
+        glVertex2d(x, y + height - 1 + screenOffset)
+    glEnd()
 end
 
 --- Draws a line on the screen [ML 2+ API].
