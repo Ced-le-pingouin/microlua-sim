@@ -40,7 +40,7 @@ local M = Class.new(screen_wx)
 -- @param surface (wxPanel) The surface representing the screens, to which the 
 --                          the offscreen surface will be blit
 function M:initModule(surface)
-    M.super().initModule(self, surface)
+    M.parent().initModule(self, surface)
     
     -- SDL
     -- Initialize the SDL library
