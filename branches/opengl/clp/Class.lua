@@ -61,7 +61,8 @@ function M.new(...) -- only one arg accepted = parentClass
         setmetatable(newClass, { __index = parentClass })
     end
     
-    newClass.super = function () return parentClass end
+    newClass.__parent = parentClass
+    newClass.parent = function () return parentClass end
     
     newClass.new = function (self, ...)
         local object = {}
@@ -76,7 +77,9 @@ function M.new(...) -- only one arg accepted = parentClass
     
     newClass.new2 = newClass.new
     
+    newClass.__class = newClass
     newClass.class = function () return newClass end
+    
     newClass.instanceOf = M.instanceOf
     
     return newClass
