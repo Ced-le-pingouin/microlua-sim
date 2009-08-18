@@ -40,7 +40,7 @@ local M = Class.new(screen_wx)
 -- @param surface (wxPanel) The surface representing the screens, to which the 
 --                          the offscreen surface will be blit
 function M:initModule(surface)
-    M.parent().initModule(self, surface)
+    M.parent().initModule(M.parent(), surface)
     
     -- SDL
     -- Initialize the SDL library
@@ -80,7 +80,7 @@ end
 -- @param width (number) The width of the rectangle to draw
 -- @param height (number) The height of the rectangle to draw
 function M.blit(screenOffset, x, y, image, sourcex, sourcey, width, height)
-    M.parent().blit(screenOffset, x, y, image, sourcex, sourcey, width, height)
+    --M.parent().blit(screenOffset, x, y, image, sourcex, sourcey, width, height)
     
     if width == 0 or height == 0 then return end
     
@@ -100,6 +100,7 @@ function M.blit(screenOffset, x, y, image, sourcex, sourcey, width, height)
     
     --sourcey, sourcey2 = sourcey2, sourcey
     
+    glEnable(GL_TEXTURE_2D)
     glBindTexture(GL_TEXTURE_2D, image._textureId[0])
     glBegin(GL_QUADS)
         glTexCoord2d(sourcex, sourcey)
@@ -130,6 +131,7 @@ end
 function M.drawLine(screenOffset, x0, y0, x1, y1, color)
     M.parent().drawLine(screenOffset, x0, y0, x1, y1, color)
     
+    glDisable(GL_TEXTURE_2D)
     glColor3d(color:Red() / 255, color:Green() / 255, color:Blue() / 255)
     glBegin(GL_LINES)
         glVertex2d(x0, y0 + screenOffset)
@@ -148,6 +150,7 @@ end
 function M.drawRect(screenOffset, x0, y0, x1, y1, color)
     M.parent().drawRect(screenOffset, x0, y0, x1, y1, color)
     
+    glDisable(GL_TEXTURE_2D)
     glColor3d(color:Red() / 255, color:Green() / 255, color:Blue() / 255)
     glBegin(GL_LINE_LOOP)
         glVertex2d(x0, y0 + screenOffset)
@@ -168,6 +171,7 @@ end
 function M.drawFillRect(screenOffset, x0, y0, x1, y1, color)
     M.parent().drawFillRect(screenOffset, x0, y0, x1, y1, color)
     
+    glDisable(GL_TEXTURE_2D)
     glColor3d(color:Red() / 255, color:Green() / 255, color:Blue() / 255)
     glBegin(GL_QUADS)
         glVertex2d(x0, y0 + screenOffset)
@@ -193,6 +197,7 @@ function M.drawGradientRect(screenOffset, x0, y0, x1, y1,
     M.parent().drawGradientRect(screenOffset, x0, y0, x1, y1,
                                 color1, color2, color3, color4)
     
+    glDisable(GL_TEXTURE_2D)
     glBegin(GL_QUADS)
         glColor3d(color1:Red() / 255, color1:Green() / 255, color1:Blue() / 255)
         glVertex2d(x0, y0 + screenOffset)
