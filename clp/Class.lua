@@ -88,18 +88,19 @@ end
 --- Checks whether current object is an instance of a class or one of its 
 --  ancestors.
 --
--- @param class (table)
+-- @param ancestor (table)
 --
 -- @return (boolean)
-function M:instanceOf(class)
-    if type(class) == "table" and type(self) == "table" then
-        local parentClass = self
+function M:instanceOf(ancestor)
+    if type(ancestor) == "table" and type(self) == "table" then
+        local class = self.__class
         
-        while parentClass ~= nil and getmetatable(parentClass) ~= nil do
-            parentClass = getmetatable(parentClass).__index
-            if parentClass == class then
+        while class ~= nil do
+            local parent = rawget(class, "__parent")
+            if class == ancestor or parent == ancestor then
                 return true
             end
+            class = parent
         end
     end
     
