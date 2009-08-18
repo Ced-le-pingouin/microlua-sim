@@ -87,6 +87,12 @@ function M:loadModules(modules, prefixes)
             self._modules[module] = _G[module]
         end
         
+        if module == "screen" then
+            _G.startDrawing = screen.startDrawing
+            _G.stopDrawing = screen.stopDrawing
+            _G.render = screen.render
+        end
+        
         local loadedModule = _G[module]
         if loadedModule.initModule then
             Mls.logger:debug(module.." initializing", "module")
