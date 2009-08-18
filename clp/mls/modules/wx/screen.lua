@@ -56,7 +56,7 @@ function M:initModule(surface)
 end
 
 function M:resetModule()
-    M.clearAllOffscreenSurfaces()
+    M.static().clearAllOffscreenSurfaces()
 end
 
 --- Initializes global variables for the screen module.
@@ -108,33 +108,30 @@ end
 --- All drawing instructions must be between this and stopDrawing() [ML 2 API].
 --
 -- @deprecated
-function startDrawing()
+function M.startDrawing()
     Mls.logger:trace("startDrawing called", "screen")
     
-    M.clearOffscreenSurface()
+    M.static().clearOffscreenSurface()
 end
-M.startDrawing = startDrawing
 
 --- All drawing instructions must be between startDrawing() and this [ML 2 API].
 --
 -- @eventSender
 --
 -- @deprecated
-function stopDrawing()
+function M.stopDrawing()
     Mls.logger:trace("stopDrawing called", "screen")
     
     Mls:notify("stopDrawing")
     
-    M._switchOffscreen()
+    M.static()._switchOffscreen()
 end
-M.stopDrawing = stopDrawing
 
 --- Refreshes the screen (replaces start- and stopDrawing()) [ML 3+ API].
-function render()
-    stopDrawing()
-    startDrawing()
+function M.render()
+    M.static().stopDrawing()
+    M.static().startDrawing()
 end
-M.render = render
 
 --- Switches the screens [ML 2+ API].
 function M.switch()
@@ -525,8 +522,8 @@ end
 --- Clears all offscreen surfaces.
 function M.clearAllOffscreenSurfaces()
     for i = 1, M.MAX_OFFSCREENS do
-        M._switchOffscreen()
-        M.clearOffscreenSurface()
+        M.static()._switchOffscreen()
+        M.static().clearOffscreenSurface()
     end
 end
 
