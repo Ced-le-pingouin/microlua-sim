@@ -46,19 +46,7 @@ M.MASK_COLOR = Color.MAGENTA
 -- @todo In ML, does a non-existent image throw an error ? (applicable to other
 --       things, such as maps, sounds,...)
 function M.load(path, destination)
-    Mls.logger:debug("loading image "..path.."(dest ="..destination..")", "image")
-    
-    assert(type(destination) == "number", 
-           "Destination (RAM or VRAM) must be given when loading an image !")
-    
-    local image = {}
-    
-    local path, found = Sys.getFile(path)
-    if not found then error("Image '"..path.."' was not found!", 2) end
-    image._source  = wx.wxImage(path)
-    
-    image._width   = image._source:GetWidth()
-    image._height  = image._source:GetHeight()
+    local image = M.parent().load(path, destination)
     
     -- create texture raw data from image, create texture (id) from that data, 
     -- then set texture parameters, and delete image and raw data
@@ -73,22 +61,9 @@ function M.load(path, destination)
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL)
-    image._source:Destroy()
-    image._source = nil
+    --image._source:Destroy()
+    --image._source = nil
     image._textureData = nil
-    
-    image._tint = Color.WHITE
-    
-    image._rotationAngle = 0
-    image._rotationCenterX = 0
-    image._rotationCenterY = 0
-    image._offsetX, image._offsetY = 0, 0
-    
-    image._scaledWidth  = image._width
-    image._scaledHeight = image._height
-    image._scaledOffsetX, image._scaledOffsetY = 0, 0
-    image._scaledWidthRatio  = 1
-    image._scaledHeightRatio = 1
     
     return image
 end
@@ -97,33 +72,9 @@ end
 --
 -- @param image (Image)
 function M.destroy(image)
+    M.parent().destroy(image)
+    
     glDeleteTextures(1, image._textureId:ptr())
-end
-
---- Mirrors the image horizontally [ML 2+ API].
---
--- @param image (Image) The image to mirror
--- @param mirrorState (boolean) This is a strange, "hidden" parameter in ML. It 
---                              must be true for this function to have any 
---                              effect on a "standard" image (and false on an 
---                              already mirrored image?)
-function M.mirrorH(image, mirrorState)
-    if not mirrorState then return end
-    
-    image._mirrorH = true
-end
-
---- Mirrors the image vertically [ML 2+ API].
---
--- @param image (Image) The image to mirror
--- @param mirrorState (boolean) This is a strange, "hidden" parameter in ML. It 
---                              must be true for this function to have any 
---                              effect on a "standard" image (and false on an 
---                              already mirrored image?)
-function M.mirrorV(image, mirrorState)
-    if not mirrorState then return end
-    
-    image._mirrorV = true
 end
 
 --- Converts an image loaded by wxWidgets to an OpenGL texture
