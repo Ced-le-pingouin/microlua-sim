@@ -81,7 +81,7 @@ end
 -- @param width (number) The width of the rectangle to draw
 -- @param height (number) The height of the rectangle to draw
 function M.blit(screenOffset, x, y, image, sourcex, sourcey, width, height)
-    --M.parent().blit(screenOffset, x, y, image, sourcex, sourcey, width, height)
+    M.parent().blit(screenOffset, x, y, image, sourcex, sourcey, width, height)
     
     if width == 0 or height == 0 then return end
     

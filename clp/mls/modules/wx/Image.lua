@@ -75,7 +75,7 @@ function M.load(path, destination)
     image._width   = image._source:GetWidth()
     image._height  = image._source:GetHeight()
     
-    image._tint = wx.wxColour(255, 255, 255)
+    image._tint = Color.WHITE
     
     image._rotationAngle = 0
     image._rotationCenterX = 0
