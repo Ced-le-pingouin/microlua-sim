@@ -65,6 +65,8 @@ function M:initModule(surface)
     glClearColor(0, 0, 0, 0)
     glEnable(GL_TEXTURE_2D)
     glDisable(GL_DEPTH_TEST)
+    glEnable(GL_BLEND)
+    glBlendFunc(GL_ONE, GL_SRC_ALPHA)
     
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
@@ -95,11 +97,10 @@ function M.blit(screenOffset, x, y, image, sourcex, sourcey, width, height)
     local y2 = y + height - 1
     
     local sourcex2 = ( sourcex + width - 1 ) / image._width
-    local sourcey2 = ( M._height - ( sourcey + height - 1 ) ) / image._height
+    local sourcey2 = ( image._height - ( sourcey + height - 1 ) )
+                     / image._height
     sourcex = sourcex / image._width
-    sourcey = (M._height - sourcey) / image._height
-    
-    --sourcey, sourcey2 = sourcey2, sourcey
+    sourcey = (image._height - sourcey) / image._height
     
     glEnable(GL_TEXTURE_2D)
     glBindTexture(GL_TEXTURE_2D, image._textureId[0])
