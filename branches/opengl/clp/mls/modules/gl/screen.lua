@@ -96,11 +96,10 @@ function M.blit(screenOffset, x, y, image, sourcex, sourcey, width, height)
     local x2 = x + width - 1
     local y2 = y + height - 1
     
-    local sourcex2 = ( sourcex + width - 1 ) / image._width
-    local sourcey2 = ( image._height - ( sourcey + height - 1 ) )
-                     / image._height
+    local sourcex2 = ( sourcex + width  - 1 ) / image._width
+    local sourcey2 = ( sourcey + height - 1 ) / image._height
     sourcex = sourcex / image._width
-    sourcey = (image._height - sourcey) / image._height
+    sourcey = sourcey / image._height
     
     glEnable(GL_TEXTURE_2D)
     glBindTexture(GL_TEXTURE_2D, image._textureId[0])
