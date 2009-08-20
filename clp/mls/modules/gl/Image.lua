@@ -54,13 +54,13 @@ function M.load(path, destination)
     image._textureId = memarray("GLuint", 1)
     glGenTextures(1, image._textureId:ptr())
     glBindTexture(GL_TEXTURE_2D, image._textureId[0])
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image._width, image._height, 0, 
-                 GL_RGB, GL_UNSIGNED_BYTE, image._textureData:ptr())
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image._width, image._height, 0, 
+                 GL_RGBA, GL_UNSIGNED_BYTE, image._textureData:ptr())
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL)
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE)
     --image._source:Destroy()
     --image._source = nil
     image._textureData = nil
@@ -83,16 +83,21 @@ function M._convertToTextureData(image)
     local height = image:GetHeight()
     local imageBytes = image:GetData()
     
-    local data = memarray("uchar", #imageBytes)
+    local data = memarray("uchar", width * height * 4)
     local dst = 0
     for y = height - 1, 0, -1 do
         local src = (y * width * 3) + 1
         for x = 0, width - 1 do
             local r, g, b = imageBytes:byte(src, src + 2)
             data[dst], data[dst + 1], data[dst + 2] = r, g, b
+            if r == 255 and g == 0 and b == 255 then
+                data[dst + 3] = 0
+            else
+                data[dst + 3] = 255
+            end
             
             src = src + 3
-            dst = dst + 3
+            dst = dst + 4
         end
     end
     
