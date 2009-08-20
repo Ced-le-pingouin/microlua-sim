@@ -105,6 +105,9 @@ function M.blit(screenOffset, x, y, image, sourcex, sourcey, width, height)
     glEnable(GL_TEXTURE_2D)
     glBindTexture(GL_TEXTURE_2D, image._textureId[0])
     
+    local tint = image._tint
+    local r, g, b = tint:Red() / 255, tint:Green() / 255, tint:Blue() / 255
+    
     glPushMatrix()
         glTranslated(x, y, 0)
         
@@ -112,6 +115,9 @@ function M.blit(screenOffset, x, y, image, sourcex, sourcey, width, height)
             glRotated(image._rotationAngle, 0, 0, 1)
         end
         
+        --glScaled(image._scaledWidthRatio, image._scaledHeightRatio, 1)
+        
+        glColor3d(r, g, b)
         glBegin(GL_QUADS)
             glTexCoord2d(sourcex, sourcey)
             glVertex2d(0, 0)
