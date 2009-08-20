@@ -61,6 +61,14 @@ function M.load(path, destination)
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE)
+    -- since OpenGL textures have their 0,0 origin at the bottom left, we need
+    -- to flip the loaded texture around the Y axis, so we can use the ML 0,0 
+    -- origin that is at the TOP left
+    glMatrixMode(GL_TEXTURE)
+    glLoadIdentity()
+    glScaled(1, -1, 1)
+    glMatrixMode(GL_MODELVIEW)
+    --
     --image._source:Destroy()
     --image._source = nil
     image._textureData = nil
