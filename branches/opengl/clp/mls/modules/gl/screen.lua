@@ -57,7 +57,7 @@ function M:initModule(surface)
     -- GL
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
-    glOrtho(0, SCREEN_WIDTH - 1, M._height - 1, 0, -1, 1)
+    glOrtho(0, SCREEN_WIDTH, M._height, 0, -1, 1)
     glViewport(0, 0, SCREEN_WIDTH, M._height)
     
     -- init some OpenGL variables and states
