@@ -101,23 +101,31 @@ function M.blit(screenOffset, x, y, image, sourcex, sourcey, width, height)
     local sourcey2 = ( sourcey + height ) / maxY
     sourcex = sourcex / maxX
     sourcey = sourcey / maxY
-    --print(sourcex, sourcey, sourcex2, sourcey2)
     
     glEnable(GL_TEXTURE_2D)
     glBindTexture(GL_TEXTURE_2D, image._textureId[0])
-    glBegin(GL_QUADS)
-        glTexCoord2d(sourcex, sourcey)
-        glVertex2d(x, y)
+    
+    glPushMatrix()
+        glTranslated(x, y, 0)
         
-        glTexCoord2d(sourcex2, sourcey)
-        glVertex2d(x2, y)
+        if image._rotationAngle ~= 0 then
+            glRotated(image._rotationAngle, 0, 0, 1)
+        end
         
-        glTexCoord2d(sourcex2, sourcey2)
-        glVertex2d(x2, y2)
-        
-        glTexCoord2d(sourcex, sourcey2)
-        glVertex2d(x, y2)
-    glEnd()
+        glBegin(GL_QUADS)
+            glTexCoord2d(sourcex, sourcey)
+            glVertex2d(0, 0)
+            
+            glTexCoord2d(sourcex2, sourcey)
+            glVertex2d(width, 0)
+            
+            glTexCoord2d(sourcex2, sourcey2)
+            glVertex2d(width, height)
+            
+            glTexCoord2d(sourcex, sourcey2)
+            glVertex2d(0, height)
+        glEnd()
+    glPopMatrix()
 end
 
 --- Draws a line on the screen [ML 2+ API].
