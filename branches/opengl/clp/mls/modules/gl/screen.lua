@@ -108,9 +108,27 @@ function M.blit(screenOffset, x, y, image, sourcex, sourcey, width, height)
     local tint = image._tint
     local r, g, b = tint:Red() / 255, tint:Green() / 255, tint:Blue() / 255
     
+    -- WARNING: OpenGL transformations are applied in *reverse order*! So:
+    --  1. the modeling (color, vertex...) transforms are written at the end so
+    --     that they are applied first
+    --  2. the view transforms (rotation, translation, scaling) are written 
+    --     first so they're applied on the already done model, AND these view
+    --     transforms will be applied in reverse order to, so be careful which 
+    --     ones you write first! (don't forget to read them in reverse order 
+    --     when looking at the code, too :) )
+    --
+    -- (this fact is stated in the book Beginning OpenGL Game Programming, p70, 
+    --  Viewing Transformations)
     glPushMatrix()
-        glTranslated(x, y, 0)
+        --[[ 1. View transformations (in reverse ordre, remember!!!) ]]--
         
+        -- ...then, at the end, we translate the image to its final position on
+        -- the screen
+        glTranslated(x, y , 0)
+        
+        --glScaled(image._scaledWidthRatio, image._scaledHeightRatio, 1)
+        
+        -- after the mirrorings/rotations, we put the image back at 0,0...
         glTranslated(width / 2, 0, 0)
         glTranslated(0, height / 2, 0)
         
@@ -121,11 +139,12 @@ function M.blit(screenOffset, x, y, image, sourcex, sourcey, width, height)
         if image._mirrorH then glRotated(180, 0, 1, 0) end
         if image._mirrorV then glRotated(180, 1, 0, 0) end
         
+        -- we need to put the center of the image at 0,0 because we'll rotate
+        -- it around its center if we must mirrorH/mirrorV it
         glTranslated(0, -height / 2, 0)
         glTranslated(-width / 2, 0, 0)
         
-        --glScaled(image._scaledWidthRatio, image._scaledHeightRatio, 1)
-        
+        --[[ 2. Model transformations ]]--
         glColor3d(r, g, b)
         glBegin(GL_QUADS)
             glTexCoord2d(sourcex, sourcey)
