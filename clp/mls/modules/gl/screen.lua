@@ -111,9 +111,18 @@ function M.blit(screenOffset, x, y, image, sourcex, sourcey, width, height)
     glPushMatrix()
         glTranslated(x, y, 0)
         
+        glTranslated(width / 2, 0, 0)
+        glTranslated(0, height / 2, 0)
+        
         if image._rotationAngle ~= 0 then
             glRotated(image._rotationAngle, 0, 0, 1)
         end
+        
+        if image._mirrorH then glRotated(180, 0, 1, 0) end
+        if image._mirrorV then glRotated(180, 1, 0, 0) end
+        
+        glTranslated(0, -height / 2, 0)
+        glTranslated(-width / 2, 0, 0)
         
         --glScaled(image._scaledWidthRatio, image._scaledHeightRatio, 1)
         
