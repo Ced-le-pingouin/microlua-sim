@@ -69,6 +69,14 @@ function M:initModule(surface)
     
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
+    
+    -- set up a system to display a fake mouse pointer, since mouse events have
+    -- to happen in the wx window (for now), so we can't see where we are in the
+    -- OpenGL window
+    M._fakePointerX = -100
+    M._fakePointerY = -100
+    Mls:attach(self, "mouseMoveBothScreens", M.onMouseMoveBothScreens)
+    Mls:attach(self, "stopDrawing", M.onStopDrawing)
 end
 
 --- Blits an image on the screen [ML 2+ API].
@@ -263,6 +271,62 @@ function M.clearOffscreenSurface()
     M.parent().clearOffscreenSurface()
     
     glClear(GL_COLOR_BUFFER_BIT + GL_DEPTH_BUFFER_BIT)
+end
+
+--- Records the current x,y pointer position inside the wx Window, to reproduce
+--  a fake pointer in the GL window (gives a visual indication).
+--
+-- @param event (string) The name of the event that caused the callback. 
+--                       Should be "mouseMoveBothScreen" here
+-- @param x (number) The absolute x coordinate of the pointer
+-- @param y (number) The absolute y coordinate of the pointer
+--
+-- @eventHandler
+function M:onMouseMoveBothScreens(event, x, y)
+    M._fakePointerX, M._fakePointerY = x, y
+end
+
+--- Draws a fake pointer in the GL window, at the same position than the wx 
+--  pointer.
+--
+-- This is done on stopDrawing events.
+--
+-- @eventHandler
+function M:onStopDrawing()
+    local angle = 45
+    local w, h = 15, 20
+    local scales = {
+        { factor = 1, color = { 0, 0, 0 } },
+        { factor = 0.7, color = { 1, 1, 1 } },
+    }
+    
+    w = w / 2
+    
+    glDisable(GL_TEXTURE_2D)
+    
+    glPushMatrix()
+        for _, scale in ipairs(scales) do
+            glLoadIdentity()
+            
+            glTranslated(M._fakePointerX, M._fakePointerY, 0)
+            
+            glRotated(-angle, 0, 0, 1)
+            
+            glTranslated(0, h / 2, 0)
+            glScaled(scale.factor, scale.factor, 1)
+            glTranslated(0, -h / 2, 0)
+            
+            glBegin(GL_TRIANGLES)
+                glColor3d(unpack(scale.color))
+                
+                glVertex2d(0, 0)
+                glVertex2d(-w, h)
+                glVertex2d(w, h)
+            glEnd()
+        end
+    glPopMatrix()
+    
+    glEnable(GL_TEXTURE_2D)
 end
 
 function M._switchOffscreen()
