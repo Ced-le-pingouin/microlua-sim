@@ -265,6 +265,8 @@ function M._onMouseMoveEvent(event)
         
         Mls.logger:trace("mouseMove: x = "..x..", y = "..y, "controls")
     end
+    
+    Mls:notify("mouseMoveBothScreens", event:GetX(), event:GetY())
 end
 
 --- Returns horizontal position of the stylus.
