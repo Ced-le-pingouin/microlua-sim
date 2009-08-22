@@ -123,6 +123,8 @@ function M._convertToTextureData(image)
     local width = image:GetWidth()
     local height = image:GetHeight()
     local imageBytes = image:GetData()
+    local mr, mg, mb = image:GetMaskRed(), image:GetMaskGreen(), 
+                       image:GetMaskBlue()
     
     local data = memarray("uchar", width * height * 4)
     local dst = 0
@@ -131,7 +133,7 @@ function M._convertToTextureData(image)
         for x = 0, width - 1 do
             local r, g, b = imageBytes:byte(src, src + 2)
             data[dst], data[dst + 1], data[dst + 2] = r, g, b
-            if r == 255 and g == 0 and b == 255 then
+            if r == mr and g == mg and b == mb then
                 data[dst + 3] = 0
             else
                 data[dst + 3] = 255
