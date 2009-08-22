@@ -134,13 +134,15 @@ function M.blit(screenOffset, x, y, image, sourcex, sourcey, width, height)
         -- the screen
         glTranslated(x, y , 0)
         
-        --glScaled(image._scaledWidthRatio, image._scaledHeightRatio, 1)
+        glTranslated(image._rotationCenterX, image._rotationCenterY, 0)
         
         if image._rotationAngle ~= 0 then
-            glTranslated(image._rotationCenterX, image._rotationCenterY, 0)
             glRotated(image._rotationAngle, 0, 0, 1)
-            glTranslated(-image._rotationCenterX, -image._rotationCenterY, 0)
         end
+        
+        glScaled(image._scaledWidthRatio, image._scaledHeightRatio, 1)
+        
+        glTranslated(-image._rotationCenterX, -image._rotationCenterY, 0)
         
         -- after the mirrorings/rotations, we put the image back at 0,0...
         glTranslated(width / 2, height / 2, 0)
