@@ -98,10 +98,12 @@ end
 -- @param _scrollByPixel (boolean) INTERNAL MLS parameter: if true, the current
 --                                 x and y scroll values are considered pixels 
 --                                 instead of tiles
+-- @param _repeat (boolean) INTERNAL MLS parameter: if true, the map will be 
+--                          "infinitely" repeated so it fills the screen
 --
 -- @todo Pre-compute the x,y positions of a tile inside the tile sheet, put them
 --       them in a table, and use it in draw() for sourcex, sourcey
-function M.draw(screenOffset, map, x, y, width, height, _scrollByPixel)
+function M.draw(screenOffset, map, x, y, width, height, _scrollByPixel, _repeat)
     local scrollX, scrollY = map._scrollX, map._scrollY
     if _scrollByPixel then
         x = x - (scrollX % map._tileWidth)
@@ -111,6 +113,10 @@ function M.draw(screenOffset, map, x, y, width, height, _scrollByPixel)
     end
     
     scrollX, scrollY = math.floor(scrollX), math.floor(scrollY)
+    if _repeat then
+        scrollX = scrollX % map._width
+        scrollY = scrollY % map._height
+    end
     
     local startPosX, startPosY = x, y
     local firstRow, firstCol = scrollY, scrollX
@@ -133,9 +139,11 @@ function M.draw(screenOffset, map, x, y, width, height, _scrollByPixel)
     if lastCol > (map._width - 1) then lastCol = (map._width - 1) end
     
     local posY = startPosY
-    for row = firstRow, lastRow do
+    local row = firstRow
+    while row <= lastRow do
         local posX = startPosX
-        for col = firstCol, lastCol do
+        local col = firstCol
+        while col <= lastCol do
             local tileNum = map._data[row][col]
             local sourcex = (tileNum % map._tilesPerRow) * map._tileWidth
             local sourcey = math.floor(tileNum / map._tilesPerRow)
@@ -147,9 +155,15 @@ function M.draw(screenOffset, map, x, y, width, height, _scrollByPixel)
             
             posX = posX + map._tileWidth + map._spacingX
             if posX > SCREEN_WIDTH then break end
+            
+            col = col + 1
+            if _repeat and col > lastCol then col = 0 end
         end
         posY = posY + map._tileHeight + map._spacingY
         if posY > SCREEN_HEIGHT then break end
+        
+        row = row + 1
+        if _repeat and row > lastRow then row = 0 end
     end
 end
 
