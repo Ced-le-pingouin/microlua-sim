@@ -51,7 +51,6 @@ function M._printNoClip(screenOffset, font, x, y, text, color)
     if not color then color = Color.WHITE end
     
     local len = #text
-    local x, y = 0, 0
     local charsWidths, charHeight = font.charsWidths, font.charHeight
     local charsPos = font.charsPos
     local addedSpace = font.addedSpace
