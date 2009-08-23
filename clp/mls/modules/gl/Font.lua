@@ -43,6 +43,12 @@ function M.load(path)
     return font
 end
 
+function M.destroy(font)
+    M.parent().destroy(font)
+    
+    glDeleteTextures(1, font._textureId:ptr())
+end
+
 function M._printNoClip(screenOffset, font, x, y, text, color)
     M.parent()._printNoClip(screenOffset, font, x, y, text, color)
     
@@ -96,8 +102,6 @@ function M._printNoClip(screenOffset, font, x, y, text, color)
             if (x > SCREEN_WIDTH) then break end
         end
     glPopMatrix()
-    
-    glDisable(GL_TEXTURE_2D)
 end
 
 function M._initDefaultFont()
