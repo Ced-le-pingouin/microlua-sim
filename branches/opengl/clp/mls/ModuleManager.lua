@@ -33,9 +33,9 @@ local M = Class.new()
 function M:ctr(modules, prefixes)
     self._modules = modules or {
         -- MUST be loaded first because other modules depend on it!
-        "Timer", "Font", "screen",
+        "Timer", "Color", "Image", "Font", "screen",
         -- from here the order doesn't matter
-        "Canvas", "Color", "Controls", "DateTime", "Debug", "Image", "INI",
+        "Canvas", "Controls", "DateTime", "Debug", "INI",
         "Keyboard", "Map", "Mod", "Motion", "Rumble", "ScrollMap", "Sound",
         "Sprite", "System", "Wifi"
     }
@@ -138,7 +138,7 @@ function M:_loadModule(module, prefixes)
         
         loaded, result = pcall(require, "clp.mls.modules."..prefix..module)
         if loaded then break end
-        
+        print(result)
         Mls.logger:debug(module.." not found with prefix '"..prefix.."'", "module")
     end
     
