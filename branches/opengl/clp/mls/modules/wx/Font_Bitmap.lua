@@ -33,7 +33,7 @@ function M:initModule()
     M.NUM_CHARS = 256
     M.CACHE_MAX_STRINGS = 25
     M.CACHE_MIN_STRING_LEN = 1
-    M._initDefaultFont()
+    M.static()._initDefaultFont()
 end
 
 --- Creates a new font from a font file (oslib and µLibray format) [ML 2+ API].
@@ -135,7 +135,8 @@ function M.print(screenOffset, font, x, y, text, color, useColor)
     
     local offscreenDC = screen._getOffscreenDC(screenOffset)
     
-    M._printNoClip(screenOffset, font, x, screenOffset + y, text, color)
+    M.static()._printNoClip(screenOffset, font, x, screenOffset + y, text, 
+                            color)
 end
 
 --- Prints a text, without using clipping at screen limits.
@@ -155,7 +156,7 @@ end
 function M._printNoClip(screenOffset, font, x, y, text, color)
     if type(text) == "number" then text = tostring(text) end
     if #text == 0 then return end
-    if not color then color = wx.wxWHITE end
+    if not color then color = Color.WHITE end
     
     local offscreenDC = screen.offscreenDC
     local stringBitmap
@@ -691,7 +692,7 @@ function M._initDefaultFont()
         0x14, 0x0, 0x22, 0x22, 0x22, 0x3c, 0x20, 0x1c
     })
     
-    M._defaultFont = font
+    M.static()._defaultFont = font
 end
 
 return M
