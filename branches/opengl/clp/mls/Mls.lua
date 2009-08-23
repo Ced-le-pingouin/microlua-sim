@@ -36,6 +36,7 @@
 --             the stylus has just been pressed. After that it is false again
 --           - Command-EZ / CommandButton (L49): screen.drawRect() will crash in
 --             MLS, see comments in that function for a working hack
+-- @todo OpenGL: Win/MacOS, default font, flickering, clipping, ups/fps
 -- @todo Search in multiple locations for mls.ini
 -- @todo Allow window resizing with stretching of the "screens"
 --
