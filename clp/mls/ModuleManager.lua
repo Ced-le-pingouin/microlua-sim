@@ -138,7 +138,9 @@ function M:_loadModule(module, prefixes)
         
         loaded, result = pcall(require, "clp.mls.modules."..prefix..module)
         if loaded then break end
-        print(result)
+        
+        -- @todo: sometimes it's not that the module is not found, an error has
+        --        occured, so maybe we should display it
         Mls.logger:debug(module.." not found with prefix '"..prefix.."'", "module")
     end
     
