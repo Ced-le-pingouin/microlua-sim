@@ -1,8 +1,8 @@
 -------------------------------------------------------------------------------
--- Micro Lua Keyboard module simulation, based on wxWidgets.
+-- Micro Lua Keyboard module simulation.
 --
 -- @class module
--- @name clp.mls.modules.wx.Keyboard
+-- @name clp.mls.modules.Keyboard
 -- @author Ced-le-pingouin <Ced.le.pingouin@gmail.com>
 --
 -- @todo Is the shift key behaviour correct ?
@@ -25,7 +25,6 @@
 --  You should have received a copy of the GNU General Public License
 --  along with Micro Lua DS Simulator.  If not, see <http://www.gnu.org/licenses/>.
 
-require "wx"
 local Class = require "clp.Class"
 local Sys = require "clp.mls.Sys"
 
