@@ -25,7 +25,6 @@
 require "luagl"
 require "memarray"
 local Class = require "clp.Class"
-local Sys = require "clp.mls.Sys"
 local Image_wx = require "clp.mls.modules.wx.Image"
 
 local M = Class.new(Image_wx)
