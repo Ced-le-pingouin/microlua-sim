@@ -70,7 +70,7 @@ LIB_LIST="
     clp/mls/modules/Debug.lua
     clp/mls/modules/wx/Image.lua
     clp/mls/modules/INI.lua
-    clp/mls/modules/wx/Keyboard.lua
+    clp/mls/modules/Keyboard.lua
     clp/mls/modules/Map.lua
     clp/mls/modules/Mod.lua
     clp/mls/modules/Motion.lua
