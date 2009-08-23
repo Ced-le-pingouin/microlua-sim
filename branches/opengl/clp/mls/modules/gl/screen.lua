@@ -68,6 +68,15 @@ function M:initModule(surface)
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
     
+    -- predefine clip planes to restrict drawing operations to up or down screen
+    M._clipPlanes = {}
+    local cpUp = memarray("GLdouble", 4)
+    local cpDown = memarray("GLdouble", 4)
+    cpUp[0], cpUp[1], cpUp[2], cpUp[3] = 0, -1, 0, 191
+    cpDown[0], cpDown[1], cpDown[2], cpDown[3] = 0, 1, 0, -192
+    M._clipPlanes[SCREEN_UP] = cpUp
+    M._clipPlanes[SCREEN_DOWN] = cpDown
+    
     -- set up a system to display a fake mouse pointer, since mouse events have
     -- to happen in the wx window (for now), so we can't see where we are in the
     -- OpenGL window
@@ -88,7 +97,7 @@ end
 -- @param width (number) The width of the rectangle to draw
 -- @param height (number) The height of the rectangle to draw
 function M.blit(screenOffset, x, y, image, sourcex, sourcey, width, height)
-    M.parent().blit(screenOffset, x, y, image, sourcex, sourcey, width, height)
+    --M.parent().blit(screenOffset, x, y, image, sourcex, sourcey, width, height)
     
     if width == 0 or height == 0 then return end
     
@@ -322,6 +331,15 @@ function M:onStopDrawing()
     glPopMatrix()
     
     glEnable(GL_TEXTURE_2D)
+end
+
+function M.enableGlClipping(screenOffset)
+    glClipPlane(GL_CLIP_PLANE0, M._clipPlanes[screenOffset]:ptr())
+    glEnable(GL_CLIP_PLANE0)
+end
+
+function M.disableGlClipping()
+    glDisable(GL_CLIP_PLANE0)
 end
 
 function M._switchOffscreen()
