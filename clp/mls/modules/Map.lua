@@ -95,12 +95,25 @@ end
 -- @param y (number) The y coordinate where to draw the map
 -- @param width (number) The x number of tiles to draw
 -- @param height (number) The y number of tiles to draw
+-- @param _scrollByPixel (boolean) INTERNAL MLS parameter: if true, the current
+--                                 x and y scroll values are considered pixels 
+--                                 instead of tiles
 --
 -- @todo Pre-compute the x,y positions of a tile inside the tile sheet, put them
 --       them in a table, and use it in draw() for sourcex, sourcey
-function M.draw(screenOffset, map, x, y, width, height)
+function M.draw(screenOffset, map, x, y, width, height, _scrollByPixel)
+    local scrollX, scrollY = map._scrollX, map._scrollY
+    if _scrollByPixel then
+        x = x - (scrollX % map._tileWidth)
+        y = y - (scrollY % map._tileHeight)
+        scrollX = scrollX / map._tileWidth
+        scrollY = scrollY / map._tileHeight
+    end
+    
+    scrollX, scrollY = math.floor(scrollX), math.floor(scrollY)
+    
     local startPosX, startPosY = x, y
-    local firstRow, firstCol = map._scrollY, map._scrollX
+    local firstRow, firstCol = scrollY, scrollX
     
     if firstRow < 0 then
         startPosY = startPosY + (-firstRow * map._tileHeight)
@@ -146,8 +159,8 @@ end
 -- @param x (number) The x number of tiles to scroll
 -- @param y (number) The y number of tiles to scroll
 function M.scroll(map, x, y)
-    map._scrollX = math.floor(x)
-    map._scrollY = math.floor(y)
+    map._scrollX = x
+    map._scrollY = y
 end
 
 --- Sets the space between each tiles of a map [ML 2+ API].
