@@ -54,6 +54,7 @@ function M.new(image, mapfile, width, height, tileWidth, tileHeight)
     
     scrollmap._width  = width * tileWidth
     scrollmap._height = height * tileHeight
+    
     scrollmap._bitmap = wx.wxBitmap(scrollmap._width, scrollmap._height, 
                                     Mls.DEPTH)
     
@@ -87,9 +88,10 @@ function M.new(image, mapfile, width, height, tileWidth, tileHeight)
     
     scrollmapDC:delete()
     
-    scrollmap._map = map
     scrollmap._tilesBitmap = tilesBitmap
     scrollmap._tilesDC = tilesDC
+    
+    scrollmap._map = map
     
     scrollmap._tilesHaveChanged = true
     
