@@ -146,8 +146,8 @@ end
 -- @param x (number) The x number of tiles to scroll
 -- @param y (number) The y number of tiles to scroll
 function M.scroll(map, x, y)
-    map._scrollX = x 
-    map._scrollY = y
+    map._scrollX = math.floor(x)
+    map._scrollY = math.floor(y)
 end
 
 --- Sets the space between each tiles of a map [ML 2+ API].
