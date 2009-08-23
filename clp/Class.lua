@@ -98,8 +98,11 @@ function M.new(...) -- only one arg accepted = parentClass
     newClass.parent = function() return parentClass end
     newClass.instanceOf = M.instanceOf
     
-    newClass.new = M._newObjectInstance
-    newClass.new2 = newClass.new
+    -- for classes that already have an inherited new or new2 function, don't 
+    -- overwrite it, since we have two versions
+    newClass.new = newClass.new or M._newObjectInstance
+    newClass.new2 = newClass.new2 or M._newObjectInstance
+    
     newClass.static = function()
         return M._getActualClassUsingLateBinding(newClass)
     end
