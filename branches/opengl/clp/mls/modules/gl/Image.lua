@@ -47,30 +47,10 @@ M.MASK_COLOR = Color.MAGENTA
 function M.load(path, destination)
     local image = M.parent().load(path, destination)
     
-    -- create texture raw data from image, create texture (id) from that data, 
-    -- then set texture parameters, and delete image and raw data
-    image._textureData = M._convertToTextureData(image._source)
-    image._textureId = memarray("GLuint", 1)
-    glGenTextures(1, image._textureId:ptr())
-    glBindTexture(GL_TEXTURE_2D, image._textureId[0])
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image._width, image._height, 0, 
-                 GL_RGBA, GL_UNSIGNED_BYTE, image._textureData:ptr())
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE)
-    -- since OpenGL textures have their 0,0 origin at the bottom left, we need
-    -- to flip the loaded texture around the Y axis, so we can use the ML 0,0 
-    -- origin that is at the TOP left
-    glMatrixMode(GL_TEXTURE)
-    glLoadIdentity()
-    glScaled(1, -1, 1)
-    glMatrixMode(GL_MODELVIEW)
-    --
+    image._textureId = M.createTextureFromImage(image._source)
+    
     --image._source:Destroy()
     --image._source = nil
-    image._textureData = nil
     
     image._mirrorH = false
     image._mirrorV = false
@@ -117,8 +97,50 @@ function M.mirrorV(image, mirrorState)
     image._mirrorV = true
 end
 
---- Converts an image loaded by wxWidgets to an OpenGL texture
-function M._convertToTextureData(image)
+--- Creates an OpenGL texture from a wxImage, giving it an ID, binding it to it 
+--  and setting default parameters for it.
+--
+-- @param image (wxImage)
+--
+-- @return (memarray) The memory slot that contains the texture ID (created with
+--                    the memarray lib (from luaglut)
+function M.createTextureFromImage(image)
+    -- creates texture data in correct order, and a memory slot for texture ID
+    local textureData = M._convertWxImageDataToOpenGlTextureData(image)
+    local textureId = memarray("GLuint", 1)
+    
+    -- get a texture ID and bind that ID for further parameters setting
+    glGenTextures(1, textureId:ptr())
+    glBindTexture(GL_TEXTURE_2D, textureId[0])
+    
+    -- generic texture parameters to use in MLS
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image:GetWidth(), image:GetHeight(),
+                 0, GL_RGBA, GL_UNSIGNED_BYTE, textureData:ptr())
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE)
+    
+    -- since OpenGL textures have their 0,0 origin at the bottom left, we need
+    -- to flip the loaded texture around the Y axis, so we can use the ML 0,0 
+    -- origin that is at the TOP left
+    glMatrixMode(GL_TEXTURE)
+    glLoadIdentity()
+    glScaled(1, -1, 1)
+    glMatrixMode(GL_MODELVIEW)
+    
+    return textureId
+end
+
+--- Converts pixels from a wxImage to pixels suitable for an OpenGL texture 
+--  (because the order of pixels is not the same).
+--
+-- @param image (wxImage)
+--
+-- @return (memarray) The pixels in correct order to create an OpenGL texture 
+--                    from.
+function M._convertWxImageDataToOpenGlTextureData(image)
     local width = image:GetWidth()
     local height = image:GetHeight()
     local imageBytes = image:GetData()
