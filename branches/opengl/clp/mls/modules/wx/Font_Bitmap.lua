@@ -127,11 +127,11 @@ end
 -- @param y (number) The y coordinate to draw to
 -- @param text (string) The text to print
 -- @param color (Color) The color of the text
--- @param useColor (boolean) This is an INTERNAL parameter to reproduce a ML 
---                           bug, where color is ignore when using Font.print, 
---                           but used when using the print functions in screen
-function M.print(screenOffset, font, x, y, text, color, useColor)
-    if not useColor then color = nil end
+-- @param _useColor (boolean) This is an INTERNAL parameter to reproduce a ML 
+--                            bug, where color is ignore when using Font.print, 
+--                            but used when using the print functions in screen
+function M.print(screenOffset, font, x, y, text, color, _useColor)
+    if not _useColor then color = nil end
     
     local offscreenDC = screen._getOffscreenDC(screenOffset)
     
