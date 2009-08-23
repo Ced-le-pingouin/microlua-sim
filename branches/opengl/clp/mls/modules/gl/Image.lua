@@ -22,7 +22,7 @@
 --  You should have received a copy of the GNU General Public License
 --  along with Micro Lua DS Simulator.  If not, see <http://www.gnu.org/licenses/>.
 
-require "wx"
+require "luagl"
 require "memarray"
 local Class = require "clp.Class"
 local Sys = require "clp.mls.Sys"

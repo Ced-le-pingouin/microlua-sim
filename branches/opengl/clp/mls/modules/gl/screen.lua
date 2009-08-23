@@ -27,9 +27,8 @@
 --  You should have received a copy of the GNU General Public License
 --  along with Micro Lua DS Simulator.  If not, see <http://www.gnu.org/licenses/>.
 
-require "wx"
 require "luagl"
-require "luaglut"
+require "sdl"
 local Class = require "clp.Class"
 local screen_wx = require "clp.mls.modules.wx.screen"
 
@@ -44,7 +43,6 @@ function M:initModule(surface)
     
     -- SDL
     -- Initialize the SDL library
-    require "sdl"
     if SDL.SDL_Init(SDL.SDL_INIT_VIDEO) < 0 then
         error("Couldn't initialize SDL: "..SDL.SDL_GetError().."\n")
     end
@@ -178,9 +176,6 @@ end
 -- @param x1 (number) The x coordinate of the end point
 -- @param y1 (number) The y coordinate of the end point
 -- @param color (Color) The color of the line
---
--- @todo In wxWidgets, (x1,y1) is not included in a drawn line, see if Microlua
---       behaves like that, and adjust arguments if it doesn't
 function M.drawLine(screenOffset, x0, y0, x1, y1, color)
     M.parent().drawLine(screenOffset, x0, y0, x1, y1, color)
     
