@@ -16,7 +16,8 @@
 -- @todo Some scripts are less responsive since the changes in timing (aloufs)
 -- @todo Some scripts don't work: CodeMonkeyDS, LED 1.2b (in files menu when
 --       pressed Back). alternativ-keyboard is dog-slow, too
--- @todo make the script dir the current dir for INI.save()
+-- @todo Make the script directory the current one for INI.save()
+-- @todo check that drawTextBox() is correctly clipped (reported by Quent42340)
 -- @todo Have proper packaging for MacOS (as a real App)
 -- @todo Try to minimize the use of SelectObject() in functions that are called
 --       many times per second, as SelectObject() seems to be really slow on 
