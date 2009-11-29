@@ -54,6 +54,16 @@ rect_length = 0
 ;;  max: 256
 draw_gradient_rect_accuracy = 0
 
+;; Use OpenGL for drawing operations
+;;
+;; 0 = no
+;; 1 = yes
+;;
+;; WARNING: This is largely incomplete and in alpha state. Right now, it can 
+;;          only be enabled on Linux, needs the SDL lib to work, and creates
+;;          a second window to display OpenGL. The default font doesn't work,
+;;          either
+open_gl = 0
 
 ;; DEBUG OPTIONS !!! YOU SHOULD NOT ENABLE OR CHANGE THESE !!!
 ;debug_log_level = 4
