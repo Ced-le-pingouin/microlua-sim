@@ -22,8 +22,7 @@ Note: dans le texte ci-dessous, j'utilise parfois l'abbréviation ML pour parler
 ------------------------
 La description courte: un script Lua qui permet d'exécuter d'autres scripts
 écrits pour Micro Lua DS - donc qui utilisent le stylet, les deux écrans, les 
-timers etc. - directement sur un PC, sous Linux, Windows, et Mac OS X (pas trop 
-testé sur ce dernier).
+timers etc. - directement sur un ordinateur (sous Linux, Windows, et Mac OS X ).
 
 Si la version longue vous intéresse, vous pouvez continuer à lire :)
 
@@ -91,19 +90,19 @@ Le script principal mls.comp.lua, l'exécutable de Lua 5.1, quelques fichiers de
 librairies, quelques images, et un script "mls" pour lancer les scripts ML.
 
 Ca, c'est si vous utilisez la version "compilée" de MLS. A partir de la v0.4, 
-MLS est un logiciel libre, and vous pouvez avoir une version "source". Dans ce
+MLS est un logiciel libre, et vous pouvez avoir une version "source". Dans ce
 cas, vous aurez également une hiérarchie de classes/packages source, quelques 
 scripts de maintenance (seulement pour Linux actuellement), et un script de 
-lancement supllémentaire, "mls-src". Ce dernier démarre la version non compilée
+lancement supplémentaire, "mls-src". Ce dernier démarre la version non compilée
 de MLS, ce qui veut dire que c'est celui que vous devez utiliser si vous 
-modifiez les sources et voulez tester vos changements. (puisque l'autre script
+modifiez les sources et voulez tester vos changements (puisque l'autre script
 de lancement ne démarre que la version compilée).
 
 Notez toutefois que la version "source" est plus brute de décoffrage, et qu'elle
 comporte les exécutables et scripts de lancement pour les trois systèmes 
 d'exploitation. Ces exécutables et scripts ne se trouvent donc pas par défaut 
 dans la racine de l'archive source; vous devrez, en fonction de votre système, 
-copier le contenu d'un sous-dossier d' "os_specific" dans la racine de MLS. Ces 
+copier le contenu d'un sous-dossier de "os_specific" dans la racine de MLS. Ces 
 trois sous-dossiers sont, fort logiquement, "linux", "mac", et "win".
 
 Pour lancer votre script ML, tapez la commande suivante, lorsque vous vous 
@@ -120,7 +119,7 @@ graphique va de toute façon apparaître (avec un écran noir), et vous permettr
 d'ouvrir un fichier script à exécuter.
 
 IMPORTANT: mls ou mls-src doit être lancé avec comme dossier courant, le dossier
-ou il se trouve. S'il est démarré à partir d'un autre dossier (par exemple s'il
+où il se trouve. S'il est démarré à partir d'un autre dossier (par exemple s'il
 est dans PATH, vous pouvez le lancer de n'importe où), MLS ne trouvera pas 
 certains de ses fichiers (le fichier de configuation, et les images).
 
@@ -203,7 +202,7 @@ cours.
 ----------------------------
 [4] Fichier de configuration
 ----------------------------
-Un fichier de configuration nommé "mls.ini" est chargé s'il existe à partir du 
+Un fichier de configuration nommé "mls.ini" est chargé, s'il existe, à partir du
 dossier courant. Il vous permet de définir quelques options (fps, ups, système 
 de polices).
 
@@ -244,13 +243,13 @@ Général
 
 - Les versions Windows et Mac OS X sont considérées comme beta, étant donné que 
   je développe et teste surtout sous Linux, mon OS principal. Des tests on été 
-  faits sous Ubuntu 8.10 & 9.04, Windows XP, et Mac OS X 10.4 "Tiger", le tout 
-  en version 32 bits (je n'ai pas testé sous d'autres distribs Linux, ni sous 
+  faits sous Ubuntu 8.10 et +, Windows XP, et Mac OS X 10.4 "Tiger", le tout 
+  en version 32 bits. Je n'ai pas testé sous d'autres distribs Linux, ni sous 
   Windows Vista, ni sous Mac OS X Léopard. Aussi, mon Windows XP est en fait 
   virtualisé, donc je suppose que le résultat peut être différent sous un 
-  Windows XP natif).
+  Windows XP natif.
   
-  NOTE: j'ai récemment installé un Ubuntu 9.04 64-bit, et MLS semble bien 
+  NOTE: j'ai récemment installé un Ubuntu en 64-bit, et MLS semble bien 
         fonctionner, si ce n'est quelques messages d'avertissement concernant
         ELFCLASS.
   
@@ -366,9 +365,11 @@ Des balises @todo sont placées dans les commentaires.
 -----------
 [7] Contact
 -----------
-e-mail: Ced.le.pingouin@gmail.com
+E-mail: Ced.le.pingouin@gmail.com
 
-site web (téléchargement seulement):
+Google Code: http://code.google.com/p/microlua-sim/
+
+Site web (téléchargement seulement):
   http://www.cedlepingouin.com/mls/files/mls-0.4-linux.zip
   http://www.cedlepingouin.com/mls/files/mls-0.4-win.zip
   http://www.cedlepingouin.com/mls/files/mls-0.4-mac.zip
@@ -401,12 +402,16 @@ multi-plateformes wxWidgets
 
 Les développeurs de wxWidgets (http://www.wxwidgets.org/)
 
+Google Code pour permettre gratuitement l'hébergement de projets libres, avec 
+dépôt SCM Subversion ou Mercurial, wiki, bugtracker etc.
+(http://code.google.com/ et http://code.google.com/hosting/)
+
 
 Les artistes suivants pour faire une musique aussi géniale:
 
     Opeth, Danzig, The Gathering, Anathema, My Dying Bride, L7, Behemoth, 
-    The Old Dead Tree, Tool, Type O Negative, Backyard Babies, 
-    Hardcore Superstar, Ministry, Marilyn Manson, WASP, Mötley Crüe, 
-    Cradle of Filth, Dimmu Borgir, Satyricon, Emperor, Immortal, 
+    The Old Dead Tree, Septic Flesh, Tool, Type O Negative, Backyard Babies, 
+    Hardcore Superstar, Beautiful Creatures, Ministry, Marilyn Manson, WASP, 
+    Mötley Crüe, Cradle of Filth, Dimmu Borgir, Satyricon, Emperor, Immortal, 
     Theatre of Tragedy, Monster Magnet, Orphaned Land, Melechesh, Guns'n'Roses, 
     Nile, Nashville Pussy, Turbonegro, Zazie, Aaron, et plein d'autres...
