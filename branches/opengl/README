@@ -21,8 +21,7 @@ Note: I sometimes use ML for Micro Lua DS in the text below, or refer to my ML
 -----------------------
 The short description is: a Lua script that allows you to run other Lua scripts
 normally targeted at Micro Lua DS (i.e. using the stylus, the screens, 
-timers...), directly on your PC, under Linux, Windows, and Mac OS X (not 
-thoroughly tested).
+timers...), directly on your computer (Linux, Windows, and Mac OS X).
 
 If you're interested in the long story, keep reading. 
 
@@ -220,13 +219,13 @@ General
   sim (although without sound).
   
 - The Windows and Mac versions are considered beta, since I usually test on 
-  Linux, my main OS. Tests have been done on Ubuntu 8.10 & 9.04, Windows XP, and
-  Mac OS X 10.4 "Tiger", all in 32-bit version (not tested on other Linux 
-  distribs, Windows Vista or Mac OS X Leopard. Also, my WinXP is virtualized, 
-  so there may be differences in a native WinXP).
+  Linux, my main OS. Tests have been done on Ubuntu 8.10+, Windows XP, and
+  Mac OS X 10.4 "Tiger", all in 32-bit version. I haven't tested it on other 
+  Linux distribs, Windows Vista or Mac OS X Leopard. Also, my WinXP is 
+  virtualized, so there may be differences in a native WinXP.
   
-  NOTE: I recently installed a 64-bit Ubuntu 9.04, and MLS works fine with it, 
-        only with some ELFCLASS warnings.
+  NOTE: I recently installed a 64-bit Ubuntu, and MLS works fine with it, only 
+        with some ELFCLASS warnings.
   
 - I didn't try to reproduce the real Micro Lua limitations when loading images, 
   sounds, using RAM or VRAM. So be careful, some things you do in your programs
@@ -302,7 +301,7 @@ Sprite
 
 Wifi
 ~~~~
-- createUDPSocket() is not implemented (no UDP sockets in the lib use, sorry).
+- createUDPSocket() is not implemented (no UDP sockets in the lib I use, sorry).
 
 
 --------------
@@ -327,9 +326,11 @@ For more "TODO"'s, take a look at the source, especially clp/mls/Mls.lua.
 -----------
 [7] Contact
 -----------
-e-mail: Ced.le.pingouin@gmail.com
+E-mail: Ced.le.pingouin@gmail.com
 
-website (download only):
+Google Code: http://code.google.com/p/microlua-sim/
+
+Website (download only):
   http://www.cedlepingouin.com/mls/files/mls-0.4-linux.zip
   http://www.cedlepingouin.com/mls/files/mls-0.4-win.zip
   http://www.cedlepingouin.com/mls/files/mls-0.4-mac.zip
@@ -361,12 +362,16 @@ wxLua makers for bringing cross-platform wxWidgets to Lua
 
 wxWidgets makers (http://www.wxwidgets.org/)
 
+Google Code for allowing free (as in "free beer") hosting of free (as in 
+freedom) projects, with Subversion and Mercurial SCM, wiki, bugtracking...
+(http://code.google.com/ and http://code.google.com/hosting/)
+
 
 The following bands for making such great music to listen to:
 
     Opeth, Danzig, The Gathering, Anathema, My Dying Bride, L7, Behemoth, 
-    The Old Dead Tree, Tool, Type O Negative, Backyard Babies, 
-    Hardcore Superstar, Ministry, Marilyn Manson, WASP, Mötley Crüe, 
-    Cradle of Filth, Dimmu Borgir, Satyricon, Emperor, Immortal, 
+    The Old Dead Tree, Septic Flesh, Tool, Type O Negative, Backyard Babies, 
+    Hardcore Superstar, Beautiful Creatures, Ministry, Marilyn Manson, WASP, 
+    Mötley Crüe, Cradle of Filth, Dimmu Borgir, Satyricon, Emperor, Immortal, 
     Theatre of Tragedy, Monster Magnet, Orphaned Land, Melechesh, Guns'n'Roses, 
     Nile, Nashville Pussy, Turbonegro, Zazie, Aaron, and countless others...
