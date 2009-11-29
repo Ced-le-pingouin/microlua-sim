@@ -52,7 +52,7 @@ function M.new(...) -- only one arg accepted = parentClass
             error("parent class passed to Class.new is not a valid object/table", 2)
         end
     elseif numArgs > 1 then
-        error("multiple heritage not supported (too many args passed to Class.new)", 2)
+        error("multiple inheritance not supported (too many args passed to Class.new)", 2)
     end
     -----
     
