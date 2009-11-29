@@ -3,6 +3,7 @@
   ! Micro Lua Simulator is now licenced under GPL v3. This means you get the 
     source, and you can modify it, BUT you have to provide the modified source
     whenever you decide to re-distribute your work
+  ! OpenGL support. In alpha state for now. Linux only. Disabled by default
   * compatible with the new Micro Lua version, 3.0:
     - Image.scale() works as it should, i.e. it doesn't reset itself after a 
       blit()
@@ -16,21 +17,31 @@
       . Wifi (but no UDP sockets)
       . Sound (a stub)
   * bitmap fonts (read: MicroLua-correct), but slower (and latin-1 only)
-  * Stylus: doubleClick has been implemented, and released behaviour is now 
-    similar to the one in Micro Lua
+  * Font.print(): in ML, the color argument is ignored (bug). This behaviour is
+    now reproduced by MLS
+  * Image.blit(): MLS reproduces the "weird" behaviour of ML when a rotation is
+    set on the image (offset or not when displaying)
+  * Stylus: doubleClick has been implemented, released behaviour is now 
+    similar to the one in Micro Lua, and newPress can behave as in ML2 or ML3
   * screen.mirrorH()/mirrorV(): they are now enabled, because we discovered 
     that they really were enabled in ML, only they needed a second 
     (undocumented) boolean parameter set to true to have any effect
+  * screen.drawGradientRect() accuracy can now be adjusted
   * screen: functions drawing a rectangle now draw it correctly (they used to
-    draw rectangles one pixel shorter than they should have been)
+    draw rectangles one pixel shorter than they should have been).
+    If not, there's an config option and a shortcut key to switch "length modes"
   * ScrollMap: getTile()/setTile() are now implemented, and scrollmap 
     transparency is now respected
   * enabled an internal hack that detects whether the StylusBox library is 
     loading, and replace its newPressinBox() function with our own version, 
     because the original one doesn't work in MLS (nor in ML3)
+  * module() and require() should work better in loaded scripts
+  * timing handling has been changed (but I'm not quite happy with it right now
+    :( )
   * GUI and menus: you can load scripts from there, and you don't have to 
     provide the name of the initial script at the command line anymore
-  * some key bindings allowing to change FPS/UPS, pause and restart scripts...
+  * some key bindings allowing to change FPS/UPS, pause and restart/reload
+    scripts...
   * also added the keypad numbers for up/down/left/right moves
   * all new console that displays the errors encountered in scripts, instead
     of violently exiting MLS. MLS log/debug messages also appear there
