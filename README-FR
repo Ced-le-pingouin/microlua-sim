@@ -154,21 +154,25 @@ dire "pavé numérique")
 A partir de la v0.4, des commandes indépendantes de la DS sont également 
 disponibles:
  
-+-----------+---------------------------+
-|  Touche   |          Action           |
-+-----------+---------------------------+
-|  Ctrl+O   | Ouvre un script           |
-|     P     | Met le script en pause    |
-|     B     | Redémarre le script       |
-|     C     | Affiche/cache la console  |
-|     DEL   | Vide la console           |
-|     F1    | Diminue les FPS           |
-|     F2    | Augmente les FPS          |
-|     F3    | Diminue les UPS           |
-|     F4    | Augmente les UPS          |
-|     F5    | Augmente le niveau de log |
-|  Ctrl+Q   | Quit MLS                  |
-+-----------+---------------------------+
++----------+-----------------------------------+
+|  Touche  |              Action               |
++----------+-----------------------------------+
+| Ctrl+O   | Ouvre un script                   |
+| P        | Met le script en pause            |
+| B        | Redémarre le script               |
+| Shift+B  | Recharge le script (du disque)    |
+| C        | Affiche/cache la console          |
+| DEL      | Vide la console                   |
+| F1       | Diminue les FPS                   |
+| F2       | Augmente les FPS                  |
+| F3       | Diminue les UPS                   |
+| F4       | Augmente les UPS                  |
+| F5       | drawGradientRect() simple/avancé  |
+| F6       | Ajuste la longueur des rectangles |
+| H        | Hack Stylus.newPress (ML3/ML2)    |
+| F12      | Augmente le niveau de log         |
+| Ctrl+Q   | Quitte MLS                        |
++----------+-----------------------------------+
 
 La touche Ctrl est remplacée par la touche Commande (="Pomme") sous Mac OS X.
 

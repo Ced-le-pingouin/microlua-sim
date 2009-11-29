@@ -138,21 +138,25 @@ In this version, the buttons<>keys bindings cannot be changed. They are:
 Starting with v0.4, additional keys and combinations not related to the DS are 
 available:
 
-+-----------+--------------------+
-|    Key    |       Action       |
-+-----------+--------------------+
-|  Ctrl+O   | Open a script      |
-|     P     | Pause script       |
-|     B     | Restart script     |
-|     C     | Show/hide console  |
-|     DEL   | Clear console      |
-|     F1    | Decrease FPS       |
-|     F2    | Increase FPS       |
-|     F3    | Decrease UPS       |
-|     F4    | Increase UPS       |
-|     F5    | Increase log level |
-|  Ctrl+Q   | Quit MLS           |
-+-----------+--------------------+
++----------+------------------------------------+
+|    Key   |               Action               |
++----------+------------------------------------+
+| Ctrl+O   | Open a script                      |
+| P        | Pause script                       |
+| B        | Restart script                     |
+| Shift+B  | Reload script (from disk)          |
+| C        | Show/hide console                  |
+| DEL      | Clear console                      |
+| F1       | Decrease FPS                       |
+| F2       | Increase FPS                       |
+| F3       | Decrease UPS                       |
+| F4       | Increase UPS                       |
+| F5       | Simple/advanced drawGradientRect() |
+| F6       | Adjust rectangles length           |
+| H        | Stylus.newPress hack (ML3/ML2)     |
+| F12      | Increase log level                 |
+| Ctrl+Q   | Quit MLS                           |
++----------+------------------------------------+
 
 The Ctrl key is replaced by Cmd (="apple") on Mac OS X.
 
