@@ -47,10 +47,10 @@ rect_length = 0
 ;; drawGradientRect() is called
 ;;
 ;;  min: 0 = use the simple version, not ML-correct but fast (2-color gradient)
-;;  2-256 = use the advanced version, slow (4-color gradient). The number 
-;;          defines the amount of "blocks" of color will compose the final 
-;;          rectangle. The higher the number, the slower the function. Anything
-;;          above 24 is not recommended
+;;  2-256  = use the advanced version, slower (4-color gradient). Defines the
+;;           number of "color blocks" that will compose the final rectangle.
+;;           The higher the number, the slower the function. Any value above
+;;           24 is not recommended
 ;;  max: 256
 draw_gradient_rect_accuracy = 0
 
