@@ -493,6 +493,7 @@ function M:_setFunctionEnvironmentToEmpty(func)
     env.dofile = M._dofile
     env.module = M._module
     env.require = M._require
+    env._G = env
     self:_changeMlsFunctionsEnvironment(env)
 
     --method2 (problem with keys ?)
