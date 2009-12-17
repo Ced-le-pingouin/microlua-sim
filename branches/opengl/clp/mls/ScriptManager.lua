@@ -509,14 +509,12 @@ end
 -- Since Mls and its "modules" are *created* in the beginning in the 
 -- *global* environment, even when they're called from a custom env, they create
 -- and change variables in their own env, i.e. the global one, not in any 
--- custom env they're called from. So if we need these functions to set "global"
--- vars in a custom env, we need to switch their env (ex: if NB_FPS is changed
+-- custom env they're called from. So if we want these functions to set "global"
+-- vars in a custom env, we have to switch their env (ex: if NB_FPS is changed
 -- in the global env, it'll not be seen by external scripts, which execute in 
 -- a custom env)
 --
 -- @param env (table) The custom environment to copy global variables to
---
--- @todo Put functionsToChange outside this function, and make it recursive
 function M:_changeMlsFunctionsEnvironment(env)
     local functionsToChange = {
         -- global functions
@@ -530,16 +528,27 @@ function M:_changeMlsFunctionsEnvironment(env)
     }
     
     for _, funcName in ipairs(functionsToChange) do
-        local obj = _G[funcName]
-        if type(obj) == "function" then
-            setfenv(obj, env)
-        elseif type(obj) == "table" then
-            for methodName, method in pairs(obj) do
-                if type(method) == "function" then
-                    setfenv(method, env)
-                end
+        self:_changeFunctionsEnvironment(_G[funcName], env)
+    end
+end
+
+--- Sets a custom environment table for a function or all the methods of a 
+--  Class.
+--
+-- @param obj (funcion|Class) The function or class (= its methods) that will
+--                            have their environment replaced
+-- @param env (table)
+function M:_changeFunctionsEnvironment(obj, env)
+    if type(obj) == "function" then
+        setfenv(obj, env)
+    elseif type(obj) == "table" and obj.__class then
+        for methodName, method in pairs(obj) do
+            if type(method) == "function" then
+                setfenv(method, env)
             end
         end
+        
+        self:_changeFunctionsEnvironment(obj.__parent, env)
     end
 end
 
