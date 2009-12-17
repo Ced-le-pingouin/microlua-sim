@@ -28,6 +28,7 @@
 --  along with Micro Lua DS Simulator.  If not, see <http://www.gnu.org/licenses/>.
 
 require "luagl"
+require "memarray"
 require "sdl"
 local Class = require "clp.Class"
 local screen_wx = require "clp.mls.modules.wx.screen"
