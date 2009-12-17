@@ -575,6 +575,8 @@ function M.forceRepaint(showPrevious)
     M._surface:Update()
     
     if showPrevious then M._switchOffscreen() end
+    
+    M._updateFps()
 end
 
 --- Draws a point on the screen.
@@ -657,8 +659,6 @@ function M._onPaintEvent(event)
 --    offscreenDC:SelectObject(M._offscreenSurface)
      
     destDC:delete()
-    
-    M._updateFps()
 end
 
 return M
