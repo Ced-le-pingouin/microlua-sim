@@ -75,8 +75,6 @@ end
 --                              effect on a "standard" image (and false on an 
 --                              already mirrored image?)
 function M.mirrorH(image, mirrorState)
-    M.parent().mirrorH(image, mirrorState)
-    
     if not mirrorState then return end
     
     image._mirrorH = true
@@ -90,8 +88,6 @@ end
 --                              effect on a "standard" image (and false on an 
 --                              already mirrored image?)
 function M.mirrorV(image, mirrorState)
-    M.parent().mirrorV(image, mirrorState)
-    
     if not mirrorState then return end
     
     image._mirrorV = true

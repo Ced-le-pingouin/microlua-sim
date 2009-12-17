@@ -98,8 +98,6 @@ end
 -- @param width (number) The width of the rectangle to draw
 -- @param height (number) The height of the rectangle to draw
 function M.blit(screenOffset, x, y, image, sourcex, sourcey, width, height)
-    --M.parent().blit(screenOffset, x, y, image, sourcex, sourcey, width, height)
-    
     if width == 0 or height == 0 then return end
     
     if not sourcex then sourcex = 0 end
@@ -187,8 +185,6 @@ end
 -- @param y1 (number) The y coordinate of the end point
 -- @param color (Color) The color of the line
 function M.drawLine(screenOffset, x0, y0, x1, y1, color)
-    M.parent().drawLine(screenOffset, x0, y0, x1, y1, color)
-    
     glDisable(GL_TEXTURE_2D)
     glColor3d(color:Red() / 255, color:Green() / 255, color:Blue() / 255)
     glBegin(GL_LINES)
@@ -206,8 +202,6 @@ end
 -- @param y1 (number) The y coordinate of the bottom right corner
 -- @param color (Color) The color of the rectangle
 function M.drawRect(screenOffset, x0, y0, x1, y1, color)
-    M.parent().drawRect(screenOffset, x0, y0, x1, y1, color)
-    
     glDisable(GL_TEXTURE_2D)
     glColor3d(color:Red() / 255, color:Green() / 255, color:Blue() / 255)
     glBegin(GL_LINE_LOOP)
@@ -227,8 +221,6 @@ end
 -- @param y1 (number) The y coordinate of the bottom right corner
 -- @param color (Color) The color of the rectangle
 function M.drawFillRect(screenOffset, x0, y0, x1, y1, color)
-    M.parent().drawFillRect(screenOffset, x0, y0, x1, y1, color)
-    
     glDisable(GL_TEXTURE_2D)
     glColor3d(color:Red() / 255, color:Green() / 255, color:Blue() / 255)
     glBegin(GL_QUADS)
@@ -252,9 +244,6 @@ end
 -- @param color4 (Color)
 function M.drawGradientRect(screenOffset, x0, y0, x1, y1, 
                             color1, color2, color3, color4)
-    M.parent().drawGradientRect(screenOffset, x0, y0, x1, y1,
-                                color1, color2, color3, color4)
-    
     glDisable(GL_TEXTURE_2D)
     glBegin(GL_QUADS)
         glColor3d(color1:Red() / 255, color1:Green() / 255, color1:Blue() / 255)
@@ -273,8 +262,6 @@ end
 
 --- Clears the current offscreen surface (with black).
 function M.clearOffscreenSurface()
-    M.parent().clearOffscreenSurface()
-    
     glClear(GL_COLOR_BUFFER_BIT + GL_DEPTH_BUFFER_BIT)
 end
 
@@ -343,10 +330,10 @@ function M.disableGlClipping()
     glDisable(GL_CLIP_PLANE0)
 end
 
-function M._switchOffscreen()
-    M.parent()._switchOffscreen()
-    
+function M.forceRepaint(showPrevious)
     SDL.SDL_GL_SwapBuffers()
+    
+    M._updateFps()
 end
 
 --- Draws a point on the screen.
@@ -358,8 +345,6 @@ end
 -- @param y (number) The y coordinate where to draw
 -- @param color (Color) The color of the point
 function M._drawPoint(screenOffset, x, y, color)
-    M.parent()._drawPoint(screenOffset, x, y, color)
-    
     glcolor3d(color:Red() / 255, color:Green() / 255, color:Blue() / 255)
     glBegin(GL_POINTS)
         glColor3d()
