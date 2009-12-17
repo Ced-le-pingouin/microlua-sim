@@ -60,11 +60,11 @@ LIB_LIST="
     clp/mls/ScriptManager.lua
     clp/mls/ModuleManager.lua
     clp/mls/modules/wx/Timer.lua
+    clp/mls/modules/wx/screen.lua
     clp/mls/modules/wx/Color.lua
     clp/mls/modules/wx/Image.lua
     clp/mls/modules/wx/Font_Native.lua
     clp/mls/modules/wx/Font_Bitmap.lua
-    clp/mls/modules/wx/screen.lua
     clp/mls/modules/Canvas.lua
     clp/mls/modules/wx/Controls.lua
     clp/mls/modules/DateTime.lua
