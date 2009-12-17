@@ -33,7 +33,7 @@ local M = Class.new()
 function M:ctr(modules, prefixes)
     self._modules = modules or {
         -- MUST be loaded first because other modules depend on it!
-        "Timer", "Color", "Image", "Font", "screen",
+        "Timer", "screen", "Color", "Image", "Font",
         -- from here the order doesn't matter
         "Canvas", "Controls", "DateTime", "Debug", "INI",
         "Keyboard", "Map", "Mod", "Motion", "Rumble", "ScrollMap", "Sound",
