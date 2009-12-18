@@ -352,4 +352,14 @@ function M._drawPoint(screenOffset, x, y, color)
     glEnd()
 end
 
+--- Copies the previously rendered offscreen surface to the current one.
+function M._copyOffscreenFromPrevious()
+    -- we're drawing to the back buffer right now, so "previous" means front
+    glReadBuffer(GL_FRONT)
+    -- warning: we set up coords system to be "y-inverted", so y-bottom = height
+    glRasterPos2d(0, M._height)
+    -- copy pixels from front to current (=back)
+    glCopyPixels(0, 0, SCREEN_WIDTH, M._height, GL_COLOR)
+end
+
 return M

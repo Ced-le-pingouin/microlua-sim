@@ -546,7 +546,7 @@ function M.displayInfoText(text, color)
     local textXOffset = (w - Font.getStringWidth(Font._defaultFont, text)) / 2
     local textYOffset = (h - Font.getCharHeight(Font._defaultFont)) / 2
     
-    M._copyOffscreenFromPrevious()
+    M.static()._copyOffscreenFromPrevious()
     
     -- draw the frame and its shadow
     M.static().drawFillRect(SCREEN_UP, x + shadowOffset, y + shadowOffset, 
