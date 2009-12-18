@@ -571,14 +571,14 @@ end
 --                               rendered offscreen surface instead of the 
 --                               current one
 function M.forceRepaint(showPrevious)
-    if showPrevious then M._switchOffscreen() end
+    if showPrevious then M.static()._switchOffscreen() end
     
     M._surface:Refresh(false)
     M._surface:Update()
     
-    if showPrevious then M._switchOffscreen() end
+    if showPrevious then M.static()._switchOffscreen() end
     
-    M._updateFps()
+    M.static()._updateFps()
 end
 
 --- Draws a point on the screen.
