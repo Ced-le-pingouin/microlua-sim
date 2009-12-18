@@ -549,16 +549,18 @@ function M.displayInfoText(text, color)
     M._copyOffscreenFromPrevious()
     
     -- draw the frame and its shadow
-    M.drawFillRect(SCREEN_UP, x + shadowOffset, y + shadowOffset, 
-                   x + w + shadowOffset, y + h + shadowOffset, shadowColor)
-    M.drawFillRect(SCREEN_UP, x, y, x + w, y + h, color)
+    M.static().drawFillRect(SCREEN_UP, x + shadowOffset, y + shadowOffset, 
+                            x + w + shadowOffset, y + h + shadowOffset, 
+                            shadowColor)
+    M.static().drawFillRect(SCREEN_UP, x, y, x + w, y + h, color)
     
     -- draw text and its shadow
-    M.print(SCREEN_UP, x + textXOffset + shadowOffset, 
-            y + textYOffset + shadowOffset, text, shadowColor)
-    M.print(SCREEN_UP, x + textXOffset, y + textYOffset, text, textColor)
+    M.static().print(SCREEN_UP, x + textXOffset + shadowOffset, 
+                     y + textYOffset + shadowOffset, text, shadowColor)
+    M.static().print(SCREEN_UP, x + textXOffset, y + textYOffset, text, 
+                     textColor)
     
-    M.forceRepaint()
+    M.static().forceRepaint()
 end
 
 --- Forces the underlying GUI/GFX lib to immediately repaint the "screens".
