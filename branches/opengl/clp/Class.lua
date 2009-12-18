@@ -67,7 +67,7 @@ function M.new(...) -- only one arg accepted = parentClass
     if parentClass then
         setmetatable(newClass, { __index = parentClass })
         
-        for _, parentVm in ipairs(parentClass.__virtualMethods) do
+        for _, parentVm in pairs(parentClass.__virtualMethods) do
             local vm = { 
                 originalClass = parentVm.originalClass,
                 callingClass = newClass,
@@ -75,7 +75,7 @@ function M.new(...) -- only one arg accepted = parentClass
             }
             setmetatable(vm, { __call = M._callAncestorMethodUsingLateBinding })
             
-            table.insert(newClass.__virtualMethods, vm)
+            newClass.__virtualMethods[name] = vm
             newClass[name] = vm
         end
         
@@ -88,7 +88,7 @@ function M.new(...) -- only one arg accepted = parentClass
                 }
                 setmetatable(vm, { __call = M._callAncestorMethodUsingLateBinding })
                 
-                table.insert(newClass.__virtualMethods, vm)
+                newClass.__virtualMethods[name] = vm
                 newClass[name] = vm
             end
         end
@@ -96,6 +96,7 @@ function M.new(...) -- only one arg accepted = parentClass
     
     newClass.class = function() return newClass end
     newClass.parent = function() return parentClass end
+    newClass.super = function() return newClass.__virtualMethods end
     newClass.instanceOf = M.instanceOf
     
     -- for classes that already have an inherited new or new2 function, don't 
