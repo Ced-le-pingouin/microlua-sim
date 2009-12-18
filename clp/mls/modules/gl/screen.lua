@@ -330,9 +330,29 @@ function M.disableGlClipping()
     glDisable(GL_CLIP_PLANE0)
 end
 
-function M.forceRepaint(showPrevious)
-    SDL.SDL_GL_SwapBuffers()
+--- Displays a bar with some text on the upper screen.
+--
+-- This is used by Mls to display the script state directly on the screen, in 
+-- addition to the status bar
+--
+-- @param text (string)
+-- @param color (Color) The color of the bar. The default is blue.
+function M.displayInfoText(text, color)
+    M.super().displayInfoText(text, color)
     
+    -- in OpenGL mode, forceRepaint() does nothing, so we have to switch buffers
+    -- again to show the info text that's been drawn
+    M._switchOffscreen()
+end
+
+--- Forces the underlying GUI/GFX lib to immediately repaint the "screens".
+--
+-- This should blit the offscreen surface to the "GUI surface"
+--
+-- @param showPrevious (boolean) If true, update the GUI with the previously 
+--                               rendered offscreen surface instead of the 
+--                               current one
+function M.forceRepaint(showPrevious)
     M._updateFps()
 end
 
@@ -350,6 +370,11 @@ function M._drawPoint(screenOffset, x, y, color)
         glColor3d()
         glVertex2d(x, y + screenOffset)
     glEnd()
+end
+
+--- Switches to the next available offscreen surface.
+function M._switchOffscreen()
+    SDL.SDL_GL_SwapBuffers()
 end
 
 --- Copies the previously rendered offscreen surface to the current one.
