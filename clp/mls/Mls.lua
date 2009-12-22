@@ -375,7 +375,8 @@ function Mls:onScriptStateChange(event, script, state)
         then
             color = Color.new(31, 0, 0)
         elseif state == ScriptManager.SCRIPT_PAUSED then
-            color = Color.new(0, 20, 0)
+            -- "paused" banner = color of OpenGL logo in OpenGL, green otherwise
+            color = Mls.openGl and Color.new(11, 17, 21) or Color.new(0, 20, 0)
         else
             color = Color.new(0, 0, 31)
         end
