@@ -236,7 +236,14 @@ function M:getWindow()
     return self._window
 end
 
---- @return (wxPanel)
+--- Changes what the GUI views as the "screen surface".
+--
+-- @param (wxPanel|wxGLCanvas)
+function M:setSurface(surface)
+    self._surface = surface
+end
+
+--- @return (wxPanel|wxGLCanvas)
 function M:getSurface()
     return self._surface
 end
