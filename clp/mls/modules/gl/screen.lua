@@ -29,7 +29,11 @@
 
 require "luagl"
 require "memarray"
-require "sdl"
+require "wx"
+-- in case wxGLCanvas is not available, we'll use SDL for OpenGL, but we don't
+-- want an error if the SDL lib isn't there => we use pcall
+pcall(require, "sdl")
+
 local Class = require "clp.Class"
 local screen_wx = require "clp.mls.modules.wx.screen"
 
@@ -42,22 +46,30 @@ local M = Class.new(screen_wx)
 function M:initModule(surface)
     M.parent().initModule(M.parent(), surface)
     
-    -- SDL
-    -- Initialize the SDL library
-    if SDL.SDL_Init(SDL.SDL_INIT_VIDEO) < 0 then
-        error("Couldn't initialize SDL: "..SDL.SDL_GetError().."\n")
+    if wx.wxGLCanvas then
+        M._glCanvas = wx.wxGLCanvas(
+            Mls.gui:getSurface(), wx.wxID_ANY, 
+            { wx.WX_GL_DOUBLEBUFFER, wx.WX_GL_RGBA }, 
+            wx.wxPoint(0, 0), wx.wxSize(SCREEN_WIDTH, M._height)
+        )
+    
+        M._glContext = wx.wxGLContext(M._glCanvas)
+        
+        M._glCanvas:SetCurrent(M._glContext)
+    elseif SDL then
+        -- Initialize the SDL library
+        if SDL.SDL_Init(SDL.SDL_INIT_VIDEO) < 0 then
+            error("Couldn't initialize SDL: "..SDL.SDL_GetError().."\n")
+        end
+        local screen = SDL.SDL_SetVideoMode(SCREEN_WIDTH, M._height, 0, SDL.SDL_OPENGL)
+        if not screen then
+            error("Couldn't set 640x480 video mode: "..SDL.SDL_GetError().."\n")
+        end
+        SDL.SDL_GL_SetAttribute(SDL.SDL_GL_DOUBLEBUFFER, 1)
     end
-    local screen = SDL.SDL_SetVideoMode(SCREEN_WIDTH, M._height, 0, SDL.SDL_OPENGL)
-    if not screen then
-        error("Couldn't set 640x480 video mode: "..SDL.SDL_GetError().."\n")
-    end
-    SDL.SDL_GL_SetAttribute(SDL.SDL_GL_DOUBLEBUFFER, 1)
     
     -- GL
-    glMatrixMode(GL_PROJECTION)
-    glLoadIdentity()
-    glOrtho(0, SCREEN_WIDTH, M._height, 0, -1, 1)
-    glViewport(0, 0, SCREEN_WIDTH, M._height)
+    M._initGLView()
     
     -- init some OpenGL variables and states
     glClearColor(0, 0, 0, 0)
@@ -87,6 +99,13 @@ function M:initModule(surface)
     Mls:attach(self, "stopDrawing", M.onStopDrawing)
 end
 
+function M._initGLView()
+    glMatrixMode(GL_PROJECTION)
+    glLoadIdentity()
+    glOrtho(0, SCREEN_WIDTH, M._height, 0, -1, 1)
+    glViewport(0, 0, SCREEN_WIDTH, M._height)
+end
+
 --- Blits an image on the screen [ML 2+ API].
 --
 -- @param screen (number) The screen where to draw (SCREEN_UP or SCREEN_DOWN)
@@ -104,6 +123,9 @@ function M.blit(screenOffset, x, y, image, sourcex, sourcey, width, height)
     if not sourcey then sourcey = 0 end
     if not width then width  = image._width end
     if not height then height = image._height end
+    
+    -- @todo remove this later, I use it to know whether OpenGL is used or not
+    --M.drawFillRect(screenOffset, x, y, x + 20, y + 20, Color.new(31,0,0))
     
     y = y + screenOffset
     local x2 = x + width
@@ -374,7 +396,13 @@ end
 
 --- Switches to the next available offscreen surface.
 function M._switchOffscreen()
-    SDL.SDL_GL_SwapBuffers()
+    if SDL then
+        SDL.SDL_GL_SwapBuffers()
+    elseif M._glCanvas then
+        --M._initGLView()
+        --glFlush()
+        M._glCanvas:SwapBuffers()
+    end
 end
 
 --- Copies the previously rendered offscreen surface to the current one.
