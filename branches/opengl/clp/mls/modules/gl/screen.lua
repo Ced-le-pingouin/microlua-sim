@@ -39,7 +39,7 @@ local screen_wx = require "clp.mls.modules.wx.screen"
 
 local M = Class.new(screen_wx)
 
-M._RATIO = 1
+M._RATIO = 2
 
 --- Module initialization function.
 --
@@ -51,9 +51,9 @@ function M:initModule(surface)
     
     if wx.wxGLCanvas then
         M._glCanvas = wx.wxGLCanvas(
-            surface, wx.wxID_ANY, 
+            Mls.gui:getWindow(), wx.wxID_ANY, 
             { wx.WX_GL_DOUBLEBUFFER, wx.WX_GL_RGBA }, 
-            wx.wxPoint(0, 0), wx.wxSize(SCREEN_WIDTH, M._height)
+            wx.wxPoint(0, 0), wx.wxSize(SCREEN_WIDTH * M._RATIO, M._height * M._RATIO)
         )
         
         M._glContext = wx.wxGLContext(M._glCanvas)
