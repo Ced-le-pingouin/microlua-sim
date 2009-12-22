@@ -53,7 +53,7 @@ function M:initModule(surface)
             { wx.WX_GL_DOUBLEBUFFER, wx.WX_GL_RGBA }, 
             wx.wxPoint(0, 0), wx.wxSize(SCREEN_WIDTH, M._height)
         )
-    
+        
         M._glContext = wx.wxGLContext(M._glCanvas)
         
         M._glCanvas:SetCurrent(M._glContext)
@@ -62,11 +62,12 @@ function M:initModule(surface)
     elseif SDL then
         -- Initialize the SDL library
         if SDL.SDL_Init(SDL.SDL_INIT_VIDEO) < 0 then
-            error("Couldn't initialize SDL: "..SDL.SDL_GetError().."\n")
+            error("SDL: initialization failed: "..SDL.SDL_GetError().."\n")
         end
-        local screen = SDL.SDL_SetVideoMode(SCREEN_WIDTH, M._height, 0, SDL.SDL_OPENGL)
+        local screen = SDL.SDL_SetVideoMode(SCREEN_WIDTH, M._height, 0, 
+                                            SDL.SDL_OPENGL)
         if not screen then
-            error("Couldn't set 640x480 video mode: "..SDL.SDL_GetError().."\n")
+            error("SDL: OpenGL init failed"..SDL.SDL_GetError().."\n")
         end
         SDL.SDL_GL_SetAttribute(SDL.SDL_GL_DOUBLEBUFFER, 1)
     end
