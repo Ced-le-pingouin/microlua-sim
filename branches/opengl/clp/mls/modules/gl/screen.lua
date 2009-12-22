@@ -96,10 +96,12 @@ function M:initModule(surface)
     -- set up a system to display a fake mouse pointer, since mouse events have
     -- to happen in the wx window (for now), so we can't see where we are in the
     -- OpenGL window
-    M._fakePointerX = -100
-    M._fakePointerY = -100
-    Mls:attach(self, "mouseMoveBothScreens", M.onMouseMoveBothScreens)
-    Mls:attach(self, "stopDrawing", M.onStopDrawing)
+    if SDL then
+        M._fakePointerX = -100
+        M._fakePointerY = -100
+        Mls:attach(self, "mouseMoveBothScreens", M.onMouseMoveBothScreens)
+        Mls:attach(self, "stopDrawing", M.onStopDrawing)
+    end
 end
 
 function M._initGLView()
