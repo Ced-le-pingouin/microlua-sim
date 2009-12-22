@@ -161,11 +161,14 @@ function Mls:ctr(scriptPath)
     )
     screen.setRectAdditionalLength(Mls.config:get("rect_length", 1))
     
-    -- an finally load the script given at the command line if needed
+    -- and finally load the script given at the command line if needed
     Mls.scriptManager:init()
     if scriptPath then
         Mls.scriptManager:loadAndStartScript(scriptPath)
     end
+    
+    -- in case some module has changed GUI components, we re-set the focus
+    Mls.gui:focus()
 end
 
 --- Initializes ML global and internal variables.
