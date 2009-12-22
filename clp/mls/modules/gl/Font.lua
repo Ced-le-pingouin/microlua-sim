@@ -30,11 +30,6 @@ local Font_wx = require "clp.mls.modules.wx.Font_Bitmap"
 
 local M = Class.new(Font_wx)
 
---- Creates a new font from a font file (oslib and µLibray format) [ML 2+ API].
---
--- @param path (string) The path of the file to load
---
--- @return (Font) The loaded font. This is library/implementation dependent
 function M.load(path)
     local font = M.parent().load(path)
     
@@ -47,6 +42,14 @@ function M.destroy(font)
     M.parent().destroy(font)
     
     glDeleteTextures(1, font._textureId:ptr())
+end
+
+function M.print(screenOffset, font, x, y, text, color, _useColor)
+    if not _useColor then color = nil end
+    
+    screen.enableGlClipping(screenOffset)
+    
+    M._printNoClip(screenOffset, font, x, screenOffset + y, text, color)
 end
 
 function M._printNoClip(screenOffset, font, x, y, text, color)
