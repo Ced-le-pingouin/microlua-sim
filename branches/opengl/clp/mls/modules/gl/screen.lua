@@ -39,6 +39,8 @@ local screen_wx = require "clp.mls.modules.wx.screen"
 
 local M = Class.new(screen_wx)
 
+M._RATIO = 1
+
 --- Module initialization function.
 --
 -- @param surface (wxPanel) The surface representing the screens, to which the 
@@ -64,8 +66,9 @@ function M:initModule(surface)
         if SDL.SDL_Init(SDL.SDL_INIT_VIDEO) < 0 then
             error("SDL: initialization failed: "..SDL.SDL_GetError().."\n")
         end
-        local screen = SDL.SDL_SetVideoMode(SCREEN_WIDTH, M._height, 0, 
-                                            SDL.SDL_OPENGL)
+        local screen = SDL.SDL_SetVideoMode(
+            SCREEN_WIDTH * M._RATIO, M._height * M._RATIO, 0, SDL.SDL_OPENGL
+        )
         if not screen then
             error("SDL: OpenGL init failed"..SDL.SDL_GetError().."\n")
         end
@@ -109,7 +112,7 @@ function M._initGLView()
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
     glOrtho(0, SCREEN_WIDTH, M._height, 0, -1, 1)
-    glViewport(0, 0, SCREEN_WIDTH, M._height)
+    glViewport(0, 0, SCREEN_WIDTH * M._RATIO, M._height * M._RATIO)
 end
 
 --- Blits an image on the screen [ML 2+ API].
@@ -431,7 +434,7 @@ function M._copyOffscreenFromPrevious()
     -- warning: we set up coords system to be "y-inverted", so y-bottom = height
     glRasterPos2d(0, M._height)
     -- copy pixels from front to current (=back)
-    glCopyPixels(0, 0, SCREEN_WIDTH, M._height, GL_COLOR)
+    glCopyPixels(0, 0, SCREEN_WIDTH * M._RATIO, M._height * M._RATIO, GL_COLOR)
 end
 
 return M
