@@ -129,9 +129,6 @@ function M.blit(screenOffset, x, y, image, sourcex, sourcey, width, height)
     if not width then width  = image._width end
     if not height then height = image._height end
     
-    -- @todo remove this later, I use it to know whether OpenGL is used or not
-    --M.drawFillRect(screenOffset, x, y, x + 20, y + 20, Color.new(31,0,0))
-    
     y = y + screenOffset
     local x2 = x + width
     local y2 = y + height
