@@ -44,11 +44,12 @@ local M = Class.new(screen_wx)
 -- @param surface (wxPanel) The surface representing the screens, to which the 
 --                          the offscreen surface will be blit
 function M:initModule(surface)
+    local surface = surface or Mls.gui:getSurface()
     M.parent().initModule(M.parent(), surface)
     
     if wx.wxGLCanvas then
         M._glCanvas = wx.wxGLCanvas(
-            Mls.gui:getSurface(), wx.wxID_ANY, 
+            surface, wx.wxID_ANY, 
             { wx.WX_GL_DOUBLEBUFFER, wx.WX_GL_RGBA }, 
             wx.wxPoint(0, 0), wx.wxSize(SCREEN_WIDTH, M._height)
         )
@@ -56,6 +57,8 @@ function M:initModule(surface)
         M._glContext = wx.wxGLContext(M._glCanvas)
         
         M._glCanvas:SetCurrent(M._glContext)
+        
+        Mls.gui:setSurface(M._glCanvas)
     elseif SDL then
         -- Initialize the SDL library
         if SDL.SDL_Init(SDL.SDL_INIT_VIDEO) < 0 then
