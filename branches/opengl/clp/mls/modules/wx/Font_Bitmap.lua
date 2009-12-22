@@ -135,8 +135,7 @@ function M.print(screenOffset, font, x, y, text, color, _useColor)
     
     local offscreenDC = screen._getOffscreenDC(screenOffset)
     
-    M.static()._printNoClip(screenOffset, font, x, screenOffset + y, text, 
-                            color)
+    M._printNoClip(screenOffset, font, x, screenOffset + y, text, color)
 end
 
 --- Prints a text, without using clipping at screen limits.

@@ -33,8 +33,6 @@ function M.draw(screenOffset, scrollmap)
     
     M.parent().draw(screenOffset, scrollmap, 0, 0, 
                     scrollmap._width, scrollmap._height, true, true)
-    
-    screen.disableGlClipping()
 end
 
 function M.space(map, x, y)
