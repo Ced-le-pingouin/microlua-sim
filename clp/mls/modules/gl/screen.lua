@@ -53,7 +53,7 @@ function M:initModule(surface)
         M._glCanvas = wx.wxGLCanvas(
             Mls.gui:getWindow(), 
             wx.wxID_ANY, 
-            { wx.WX_GL_DOUBLEBUFFER, wx.WX_GL_RGBA }, 
+            { wx.WX_GL_DOUBLEBUFFER, wx.WX_GL_RGBA, 0 }, 
             wx.wxPoint(0, 0), 
             wx.wxSize(SCREEN_WIDTH * M._ratio, M._height * M._ratio)
         )
