@@ -427,12 +427,12 @@ end
 
 --- Switches to the next available offscreen surface.
 function M._switchOffscreen()
-    if SDL then
-        SDL.SDL_GL_SwapBuffers()
-    elseif M._glCanvas then
+    if M._glCanvas then
         --M._initGLView()
         --glFlush()
         M._glCanvas:SwapBuffers()
+    elseif SDL then
+        SDL.SDL_GL_SwapBuffers()
     end
 end
 
