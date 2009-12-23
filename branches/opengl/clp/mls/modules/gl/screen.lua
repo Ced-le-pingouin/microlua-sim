@@ -55,8 +55,8 @@ function M:initModule(surface)
         wx.wxSize(SCREEN_WIDTH * M._ratio, M._height * M._ratio)
     )
     M._glContext = wx.wxGLContext(M._glCanvas)
-    M._glCanvas:SetCurrent(M._glContext)
     Mls.gui:setSurface(M._glCanvas)
+    M._glCanvas:SetCurrent(M._glContext)
     
     -- OpenGL viewport/perspective
     M._initGLView()

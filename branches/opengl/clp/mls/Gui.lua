@@ -246,6 +246,7 @@ function M:setSurface(surface)
     wx.wxYield()
     
     self._window:Fit()
+    wx.wxYield()
     self._window:Center()
     
     self._surface = surface
