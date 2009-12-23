@@ -30,9 +30,6 @@
 require "luagl"
 require "memarray"
 require "wx"
--- in case wxGLCanvas is not available, we'll use SDL for OpenGL, but we don't
--- want an error if the SDL lib isn't there => we use pcall
-pcall(require, "sdl")
 
 local Class = require "clp.Class"
 local screen_wx = require "clp.mls.modules.wx.screen"
@@ -47,39 +44,21 @@ function M:initModule(surface)
     local surface = surface or Mls.gui:getSurface()
     M.parent().initModule(M.parent(), surface)
     
-    M._ratio = 1
+    M._ratio = 2
     
-    if wx.wxGLCanvas then
-        M._glCanvas = wx.wxGLCanvas(
-            Mls.gui:getWindow(), 
-            wx.wxID_ANY, 
-            { wx.WX_GL_DOUBLEBUFFER, wx.WX_GL_RGBA, 0 }, 
-            wx.wxPoint(0, 0), 
-            wx.wxSize(SCREEN_WIDTH * M._ratio, M._height * M._ratio)
-        )
-        
-        M._glContext = wx.wxGLContext(M._glCanvas)
-        
-        M._glCanvas:SetCurrent(M._glContext)
-        
-        Mls.gui:setSurface(M._glCanvas)
-    elseif SDL then
-        -- Initialize the SDL library
-        if SDL.SDL_Init(SDL.SDL_INIT_VIDEO) < 0 then
-            error("SDL: initialization failed: "..SDL.SDL_GetError().."\n")
-        end
-        
-        SDL.SDL_GL_SetAttribute(SDL.SDL_GL_DOUBLEBUFFER, 1)
-        
-        local screen = SDL.SDL_SetVideoMode(
-            SCREEN_WIDTH * M._ratio, M._height * M._ratio, 0, SDL.SDL_OPENGL
-        )
-        if not screen then
-            error("SDL: OpenGL init failed: "..SDL.SDL_GetError().."\n")
-        end
-    end
+    -- init wxGLCanvas
+    M._glCanvas = wx.wxGLCanvas(
+        Mls.gui:getWindow(), 
+        wx.wxID_ANY, 
+        { wx.WX_GL_DOUBLEBUFFER, wx.WX_GL_RGBA, 0 }, 
+        wx.wxPoint(0, 0), 
+        wx.wxSize(SCREEN_WIDTH * M._ratio, M._height * M._ratio)
+    )
+    M._glContext = wx.wxGLContext(M._glCanvas)
+    M._glCanvas:SetCurrent(M._glContext)
+    Mls.gui:setSurface(M._glCanvas)
     
-    -- GL
+    -- OpenGL viewport/perspective
     M._initGLView()
     
     -- init some OpenGL variables and states
@@ -100,16 +79,6 @@ function M:initModule(surface)
     cpDown[0], cpDown[1], cpDown[2], cpDown[3] = 0, 1, 0, -192
     M._clipPlanes[SCREEN_UP] = cpUp
     M._clipPlanes[SCREEN_DOWN] = cpDown
-    
-    -- set up a system to display a fake mouse pointer, since mouse events have
-    -- to happen in the wx window (for now), so we can't see where we are in the
-    -- OpenGL window
-    if SDL then
-        M._fakePointerX = -100
-        M._fakePointerY = -100
-        Mls:attach(self, "mouseMoveBothScreens", M.onMouseMoveBothScreens)
-        Mls:attach(self, "stopDrawing", M.onStopDrawing)
-    end
 end
 
 function M._initGLView()
@@ -427,13 +396,8 @@ end
 
 --- Switches to the next available offscreen surface.
 function M._switchOffscreen()
-    if M._glCanvas then
-        --M._initGLView()
-        --glFlush()
-        M._glCanvas:SwapBuffers()
-    elseif SDL then
-        SDL.SDL_GL_SwapBuffers()
-    end
+    --glFlush()
+    M._glCanvas:SwapBuffers()
 end
 
 --- Copies the previously rendered offscreen surface to the current one.

@@ -32,6 +32,7 @@ bitmap_fonts = 1
 ;;
 ;;  0 = disable the hack (Stylus.newPress is only true *once* after a "click")
 ;;  1 = enable the hack
+;;
 stylus_hack = 0
 
 ;; Set the value to use when computing rectangles width and height. Normally it
@@ -52,6 +53,7 @@ rect_length = 0
 ;;           The higher the number, the slower the function. Any value above
 ;;           24 is not recommended
 ;;  max: 256
+;;
 draw_gradient_rect_accuracy = 0
 
 ;; Use OpenGL for drawing operations
@@ -59,10 +61,6 @@ draw_gradient_rect_accuracy = 0
 ;; 0 = no
 ;; 1 = yes
 ;;
-;; WARNING: This is largely incomplete and in alpha state. Right now, it can 
-;;          only be enabled on Linux, needs the SDL lib to work, and creates
-;;          a second window to display OpenGL. The default font doesn't work,
-;;          either
 open_gl = 0
 
 ;; DEBUG OPTIONS !!! YOU SHOULD NOT ENABLE OR CHANGE THESE !!!
