@@ -39,8 +39,6 @@ local screen_wx = require "clp.mls.modules.wx.screen"
 
 local M = Class.new(screen_wx)
 
-M._RATIO = 2
-
 --- Module initialization function.
 --
 -- @param surface (wxPanel) The surface representing the screens, to which the 
@@ -49,11 +47,15 @@ function M:initModule(surface)
     local surface = surface or Mls.gui:getSurface()
     M.parent().initModule(M.parent(), surface)
     
+    M._ratio = 1
+    
     if wx.wxGLCanvas then
         M._glCanvas = wx.wxGLCanvas(
-            Mls.gui:getWindow(), wx.wxID_ANY, 
+            Mls.gui:getWindow(), 
+            wx.wxID_ANY, 
             { wx.WX_GL_DOUBLEBUFFER, wx.WX_GL_RGBA }, 
-            wx.wxPoint(0, 0), wx.wxSize(SCREEN_WIDTH * M._RATIO, M._height * M._RATIO)
+            wx.wxPoint(0, 0), 
+            wx.wxSize(SCREEN_WIDTH * M._ratio, M._height * M._ratio)
         )
         
         M._glContext = wx.wxGLContext(M._glCanvas)
@@ -66,13 +68,15 @@ function M:initModule(surface)
         if SDL.SDL_Init(SDL.SDL_INIT_VIDEO) < 0 then
             error("SDL: initialization failed: "..SDL.SDL_GetError().."\n")
         end
+        
+        SDL.SDL_GL_SetAttribute(SDL.SDL_GL_DOUBLEBUFFER, 1)
+        
         local screen = SDL.SDL_SetVideoMode(
-            SCREEN_WIDTH * M._RATIO, M._height * M._RATIO, 0, SDL.SDL_OPENGL
+            SCREEN_WIDTH * M._ratio, M._height * M._ratio, 0, SDL.SDL_OPENGL
         )
         if not screen then
-            error("SDL: OpenGL init failed"..SDL.SDL_GetError().."\n")
+            error("SDL: OpenGL init failed: "..SDL.SDL_GetError().."\n")
         end
-        SDL.SDL_GL_SetAttribute(SDL.SDL_GL_DOUBLEBUFFER, 1)
     end
     
     -- GL
@@ -112,7 +116,7 @@ function M._initGLView()
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
     glOrtho(0, SCREEN_WIDTH, M._height, 0, -1, 1)
-    glViewport(0, 0, SCREEN_WIDTH * M._RATIO, M._height * M._RATIO)
+    glViewport(0, 0, SCREEN_WIDTH * M._ratio, M._height * M._ratio)
 end
 
 --- Blits an image on the screen [ML 2+ API].
@@ -305,6 +309,11 @@ function M.clearOffscreenSurface()
     glClear(GL_COLOR_BUFFER_BIT + GL_DEPTH_BUFFER_BIT)
 end
 
+-- @return (number)
+function getRatio()
+    return M._ratio
+end
+
 --- Records the current x,y pointer position inside the wx Window, to reproduce
 --  a fake pointer in the GL window (gives a visual indication).
 --
@@ -434,7 +443,7 @@ function M._copyOffscreenFromPrevious()
     -- warning: we set up coords system to be "y-inverted", so y-bottom = height
     glRasterPos2d(0, M._height)
     -- copy pixels from front to current (=back)
-    glCopyPixels(0, 0, SCREEN_WIDTH * M._RATIO, M._height * M._RATIO, GL_COLOR)
+    glCopyPixels(0, 0, SCREEN_WIDTH * M._ratio, M._height * M._ratio, GL_COLOR)
 end
 
 return M
