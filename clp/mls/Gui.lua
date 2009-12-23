@@ -243,6 +243,7 @@ function M:setSurface(surface)
     self._topSizer:Insert(0, surface, 1, wx.wxSHAPED + wx.wxALIGN_CENTER)
     self._surface:Hide()
     self._topSizer:Layout()
+    wx.wxYield()
     
     self._window:Fit()
     self._window:Center()
