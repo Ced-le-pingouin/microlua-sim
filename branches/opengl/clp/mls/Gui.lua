@@ -90,7 +90,6 @@ function M:_createWindow()
     if self._icon then self._window:SetIcon(self._icon) end
     
     self._topSizer = wx.wxBoxSizer(wx.wxVERTICAL)
-    self._window:SetSizer(self._topSizer)
 end
 
 --- Creates the surface that will represent the screens, which MLS will draw to.
@@ -219,12 +218,11 @@ end
 function M:showWindow()
     Mls.logger:debug("showing main window", "gui")
     
+    wx.wxGetApp():SetTopWindow(self._window)
     -- make client height of main window correct (menu + screens + status bar)
-    self._window:Fit()
-    
+    self._window:SetSizerAndFit(self._topSizer)
     self._window:Center()
     self._window:Show()
-    wx.wxGetApp():SetTopWindow(self._window)
     
     self:_createConsole()
     
