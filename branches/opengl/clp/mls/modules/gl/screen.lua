@@ -44,7 +44,7 @@ function M:initModule(surface)
     local surface = surface or Mls.gui:getSurface()
     M.parent().initModule(M.parent(), surface)
     
-    M._ratio = 2
+    M._ratio = 1
     M._displayWidth = SCREEN_WIDTH * M._ratio
     M._displayHeight = M._height * M._ratio
     
@@ -292,8 +292,9 @@ end
 
 function M.onResize(event)
     local size = event:GetSize()
-    --print(size:GetWidth(), size:GetHeight())
     glViewport(0, 0, size:GetWidth(), size:GetHeight())
+    
+    M._displayWidth, M._displayHeight = size:GetWidth(), size:GetHeight()
 end
 
 --- Records the current x,y pointer position inside the wx Window, to reproduce
