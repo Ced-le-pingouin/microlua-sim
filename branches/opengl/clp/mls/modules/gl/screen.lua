@@ -285,16 +285,13 @@ function M.clearOffscreenSurface()
     glClear(GL_COLOR_BUFFER_BIT + GL_DEPTH_BUFFER_BIT)
 end
 
--- @return (number)
-function getRatio()
-    return M._ratio
-end
-
 function M.onResize(event)
     local size = event:GetSize()
     glViewport(0, 0, size:GetWidth(), size:GetHeight())
     
     M._displayWidth, M._displayHeight = size:GetWidth(), size:GetHeight()
+    
+    Mls:notify("screenResize", M._displayWidth, M._displayHeight)
 end
 
 --- Records the current x,y pointer position inside the wx Window, to reproduce
