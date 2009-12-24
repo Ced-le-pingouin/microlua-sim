@@ -45,6 +45,8 @@ function M:initModule(surface)
     M.parent().initModule(M.parent(), surface)
     
     M._ratio = 2
+    M._displayWidth = SCREEN_WIDTH * M._ratio
+    M._displayHeight = M._height * M._ratio
     
     -- init wxGLCanvas
     M._glCanvas = wx.wxGLCanvas(
@@ -52,14 +54,26 @@ function M:initModule(surface)
         wx.wxID_ANY, 
         { wx.WX_GL_DOUBLEBUFFER, wx.WX_GL_RGBA, 0 }, 
         wx.wxPoint(0, 0), 
-        wx.wxSize(SCREEN_WIDTH * M._ratio, M._height * M._ratio)
+        wx.wxSize(M._displayWidth, M._displayHeight)
     )
-    M._glContext = wx.wxGLContext(M._glCanvas)
+    -- set a min size, it's what sizers use when Layout() & Fit() are called
+    M._glCanvas:SetMinSize(wx.wxSize(SCREEN_WIDTH, M._height))
     Mls.gui:setSurface(M._glCanvas)
+    
+    -- we need to know when the canvas is resized, GL viewport should change too
+    M._glCanvas:Connect(wx.wxEVT_SIZE, M.onResize)
+    
+    -- create & bind an OpenGL context to the canvas
+    M._glContext = wx.wxGLContext(M._glCanvas)
     M._glCanvas:SetCurrent(M._glContext)
     
-    -- OpenGL viewport/perspective
-    M._initGLView()
+    -- init OpenGL perspective
+    glMatrixMode(GL_PROJECTION)
+    glLoadIdentity()
+    glOrtho(0, SCREEN_WIDTH, M._height, 0, -1, 1)
+    
+    -- init OpenGL viewport size
+    glViewport(0, 0, M._displayWidth, M._displayHeight)
     
     -- init some OpenGL variables and states
     glClearColor(0, 0, 0, 0)
@@ -79,13 +93,6 @@ function M:initModule(surface)
     cpDown[0], cpDown[1], cpDown[2], cpDown[3] = 0, 1, 0, -192
     M._clipPlanes[SCREEN_UP] = cpUp
     M._clipPlanes[SCREEN_DOWN] = cpDown
-end
-
-function M._initGLView()
-    glMatrixMode(GL_PROJECTION)
-    glLoadIdentity()
-    glOrtho(0, SCREEN_WIDTH, M._height, 0, -1, 1)
-    glViewport(0, 0, SCREEN_WIDTH * M._ratio, M._height * M._ratio)
 end
 
 --- Blits an image on the screen [ML 2+ API].
@@ -283,6 +290,12 @@ function getRatio()
     return M._ratio
 end
 
+function M.onResize(event)
+    local size = event:GetSize()
+    --print(size:GetWidth(), size:GetHeight())
+    glViewport(0, 0, size:GetWidth(), size:GetHeight())
+end
+
 --- Records the current x,y pointer position inside the wx Window, to reproduce
 --  a fake pointer in the GL window (gives a visual indication).
 --
@@ -407,7 +420,7 @@ function M._copyOffscreenFromPrevious()
     -- warning: we set up coords system to be "y-inverted", so y-bottom = height
     glRasterPos2d(0, M._height)
     -- copy pixels from front to current (=back)
-    glCopyPixels(0, 0, SCREEN_WIDTH * M._ratio, M._height * M._ratio, GL_COLOR)
+    glCopyPixels(0, 0, M._displayWidth, M._displayHeight, GL_COLOR)
 end
 
 return M
