@@ -244,7 +244,7 @@ function M:setSurface(surface)
     self._surface:Hide()
     
     -- add new surface to top sizer (autosizing and keeping ratio, centered)
-    self._topSizer:Add(surface, 1, wx.wxSHAPED + wx.wxALIGN_CENTER)
+    self._topSizer:Insert(0, surface, 1, wx.wxSHAPED + wx.wxALIGN_CENTER)
     
     -- temporarily set min size of new surface to its current one, otherwise 
     -- Layout/Fit will shrink the main window to current min size
