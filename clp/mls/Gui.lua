@@ -97,7 +97,7 @@ function M:_createSurface()
     Mls.logger:debug("creating screens' drawing surface", "gui")
     
     local panel = wx.wxPanel(self._window, wx.wxID_ANY, wx.wxDefaultPosition,
-                             wx.wxSize(self._width, self._height))
+                             wx.wxSize(self._width, self._height), 0)
     
     --panel:SetBackgroundColour(wx.wxBLACK)
     self._topSizer:Add(panel, 1, wx.wxSHAPED + wx.wxALIGN_CENTER)
