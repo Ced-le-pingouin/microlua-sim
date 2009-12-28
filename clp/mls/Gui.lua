@@ -229,6 +229,41 @@ function M:showWindow()
     self:focus()
 end
 
+function M:incZoomFactor()
+    -- zoom factor is based on width only, because aspect ratio is kept anyway
+    local zoomFactor = math.floor(
+        self._surface:GetSize():GetWidth() / self._width
+    )
+    -- we increase zoom factor by integer for now (1x, 2x, ...)
+    zoomFactor = zoomFactor + 1
+    
+    -- compute new width and height
+    local newWidth = self._width * zoomFactor
+    local newHeight = self._height * zoomFactor
+    
+    --  get available "desktop" area
+    local displayNum = wx.wxDisplay.GetFromWindow(self._window)
+    local display = wx.wxDisplay(displayNum)
+    local availableWidth = display:GetClientArea():GetWidth()
+    local availableHeight = display:GetClientArea():GetHeight()
+    
+    -- if new width or height is larger than what's available, get back to 1x
+    if newWidth > availableWidth or newHeight > availableHeight then
+        newWidth, newHeight = self._width, self._height
+    end
+    
+    -- set min size for Layout, then Fit the window...
+    self._surface:SetMinSize(wx.wxSize(newWidth, newHeight))
+    self._window:Layout()
+    wx.wxYield()
+    self._window:Fit()
+    wx.wxYield()
+    -- ...but re-set min size to original after Layout/Fit
+    self._surface:SetMinSize(wx.wxSize(self._width, self._height))
+    
+    Mls.logger:info("screens zoom factor set to "..zoomFactor)
+end
+
 function M:switchFullScreen()
     -- on wxLua, ShowFullScreen is only available on Windows
     if Sys.getOS() ~= "Windows" then return end
