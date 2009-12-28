@@ -117,12 +117,12 @@ function M.blit(screenOffset, x, y, image, sourcex, sourcey, width, height)
     local x2 = x + width
     local y2 = y + height
     
-    local maxX = image._width
-    local maxY = image._height
-    local sourcex2 = ( sourcex + width ) / maxX
-    local sourcey2 = ( sourcey + height ) / maxY
-    sourcex = sourcex / maxX
-    sourcey = sourcey / maxY
+    local pixToTexX = 1 / image._width
+    local pixToTexY = 1 / image._height
+    local sourcex2 = ( sourcex + width ) * pixToTexX
+    local sourcey2 = ( sourcey + height ) * pixToTexY
+    sourcex = sourcex * pixToTexX
+    sourcey = sourcey * pixToTexY
     
     M.enableGlClipping(screenOffset)
     
