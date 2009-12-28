@@ -250,6 +250,7 @@ function M:incZoomFactor()
     -- if new width or height is larger than what's available, get back to 1x
     if newWidth > availableWidth or newHeight > availableHeight then
         newWidth, newHeight = self._width, self._height
+        zoomFactor = 1
     end
     
     -- set min size for Layout, then Fit the window...
