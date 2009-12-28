@@ -44,9 +44,8 @@ function M:initModule(surface)
     local surface = surface or Mls.gui:getSurface()
     M.parent().initModule(M.parent(), surface)
     
-    M._ratio = 1
-    M._displayWidth = SCREEN_WIDTH * M._ratio
-    M._displayHeight = M._height * M._ratio
+    M._displayWidth = SCREEN_WIDTH
+    M._displayHeight = M._height
     
     -- init wxGLCanvas
     M._glCanvas = wx.wxGLCanvas(
