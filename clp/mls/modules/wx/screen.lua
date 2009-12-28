@@ -42,6 +42,10 @@ function M:initModule(surface)
     M._surface = surface or Mls.gui:getSurface()
     M._height = M._surface:GetSize():GetHeight()
     
+    M._displayWidth = SCREEN_WIDTH
+    M._displayHeight = M._height
+    M._zoomFactor = 1
+    
     M._framesInOneSec = 0
     M._totalFrames = 0
     
@@ -103,6 +107,7 @@ end
 --- Binds functions to events needed to refresh screen.
 function M._bindEvents()
     M._surface:Connect(wx.wxEVT_PAINT, M._onPaintEvent)
+    M._surface:Connect(wx.wxEVT_SIZE, M.onResize)
 end
 
 --- All drawing instructions must be between this and stopDrawing() [ML 2 API].
@@ -642,6 +647,15 @@ function M._copyOffscreenFromPrevious()
                        wx.wxCOPY, false)
 end
 
+function M.onResize(event)
+    local size = event:GetSize()
+    
+    M._displayWidth, M._displayHeight = size:GetWidth(), size:GetHeight()
+    M._zoomFactor = M._displayWidth / SCREEN_WIDTH
+    
+    Mls:notify("screenResize", M._displayWidth, M._displayHeight)
+end
+
 --- Event handler used to repaint the screens.
 -- Also update the FPS counter if needed
 --
@@ -653,6 +667,9 @@ function M._onPaintEvent(event)
     local destDC = wx.wxPaintDC(M._surface) -- ? wxAutoBufferedPaintDC
     
     offscreenDC:DestroyClippingRegion()
+    
+    local zoomFactor = M._zoomFactor
+    destDC:SetUserScale(zoomFactor, zoomFactor)
     
     destDC:Blit(0, 0, SCREEN_WIDTH, M._height, offscreenDC, 
                 0, 0)
