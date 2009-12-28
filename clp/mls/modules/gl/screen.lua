@@ -53,7 +53,7 @@ function M:initModule(surface)
         wx.wxID_ANY, 
         { wx.WX_GL_DOUBLEBUFFER, wx.WX_GL_RGBA, 0 }, 
         wx.wxPoint(0, 0), 
-        wx.wxSize(M._displayWidth, M._displayHeight)
+        wx.wxSize(SCREEN_WIDTH, M._height)
     )
     Mls.gui:setSurface(M._glCanvas)
     
@@ -70,7 +70,7 @@ function M:initModule(surface)
     glOrtho(0, SCREEN_WIDTH, M._height, 0, -1, 1)
     
     -- init OpenGL viewport size
-    glViewport(0, 0, M._displayWidth, M._displayHeight)
+    glViewport(0, 0, SCREEN_WIDTH, M._height)
     
     -- init some OpenGL variables and states
     glClearColor(0, 0, 0, 0)
