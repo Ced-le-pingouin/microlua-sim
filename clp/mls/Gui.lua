@@ -229,6 +229,13 @@ function M:showWindow()
     self:focus()
 end
 
+function M:switchFullScreen()
+    -- on wxLua, ShowFullScreen is only available on Windows
+    if Sys.getOS() ~= "Windows" then return end
+    
+    self._window:ShowFullScreen(not self._window:IsFullScreen())
+end
+
 --- @return (wxWindow)
 function M:getWindow()
     return self._window
