@@ -29,6 +29,7 @@
 
 require "wx"
 local Class = require "clp.Class"
+local Sys = require "clp.mls.Sys"
 
 local M = Class.new()
 
@@ -669,14 +670,28 @@ function M._onPaintEvent(event)
     offscreenDC:DestroyClippingRegion()
     
     local zoomFactor = M._zoomFactor
-    destDC:SetUserScale(zoomFactor, zoomFactor)
+    if zoomFactor == 1 then
+        destDC:Blit(0, 0, SCREEN_WIDTH, M._height, offscreenDC, 0, 0)
+        --offscreenDC:SelectObject(wx.wxNullBitmap)
+        --destDC:DrawBitmap(M._offscreenSurface, 0, 0, false)
+        --offscreenDC:SelectObject(M._offscreenSurface)
+    else
+        if Sys.getOS() == "Windows" then
+            destDC:SetUserScale(zoomFactor, zoomFactor)
+            destDC:Blit(0, 0, SCREEN_WIDTH, M._height, offscreenDC, 0, 0)
+        else
+            local offscreenBitmap = M._offscreenSurfaces[M._currentOffscreen]
+            local scaledImage = offscreenBitmap:ConvertToImage()
+            scaledImage:Rescale(M._displayWidth, M._displayHeight)
+            local scaledBitmap = wx.wxBitmap(scaledImage, Mls.DEPTH)
+            
+            destDC:DrawBitmap(scaledBitmap, 0, 0, false)
+            
+            scaledImage:delete()
+            scaledBitmap:delete()
+        end
+    end
     
-    destDC:Blit(0, 0, SCREEN_WIDTH, M._height, offscreenDC, 
-                0, 0)
---    offscreenDC:SelectObject(wx.wxNullBitmap)
---    destDC:DrawBitmap(M._offscreenSurface, 0, 0, false)
---    offscreenDC:SelectObject(M._offscreenSurface)
-     
     destDC:delete()
 end
 
