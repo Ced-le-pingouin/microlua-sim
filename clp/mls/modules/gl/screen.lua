@@ -56,8 +56,6 @@ function M:initModule(surface)
         wx.wxPoint(0, 0), 
         wx.wxSize(M._displayWidth, M._displayHeight)
     )
-    -- set a min size, it's what sizers use when Layout() & Fit() are called
-    M._glCanvas:SetMinSize(wx.wxSize(SCREEN_WIDTH, M._height))
     Mls.gui:setSurface(M._glCanvas)
     
     -- we need to know when the canvas is resized, GL viewport should change too

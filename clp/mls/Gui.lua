@@ -251,26 +251,6 @@ function M:setSurface(surface)
     -- add new surface to top sizer (autosizing and keeping ratio, centered)
     self._topSizer:Insert(0, surface, 1, wx.wxSHAPED + wx.wxALIGN_CENTER)
     
-    -- temporarily set min size of new surface to its current one, otherwise 
-    -- Layout/Fit will shrink the main window to current min size
-    local minSize = surface:GetMinSize()
-    surface:SetMinSize(surface:GetSize())
-    
-    -- re-layout top sizer
-    self._topSizer:Layout()
-    wx.wxYield()
-    
-    -- resize the window to fit the new layout exactly...
-    self._window:Fit()
-    wx.wxYield()
-    
-    -- ...then re-centers it
-    self._window:Center()
-    
-    -- re-set min size of new surface to its original value, otherwise the user
-    -- won't be able to shrink the "screens" again
-    surface:SetMinSize(minSize)
-    
     -- the new surface is now the one we reference
     self._surface = surface
 end
