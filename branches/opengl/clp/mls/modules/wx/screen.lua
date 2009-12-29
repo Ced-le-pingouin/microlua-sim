@@ -654,6 +654,8 @@ function M.onResize(event)
     M._displayWidth, M._displayHeight = size:GetWidth(), size:GetHeight()
     M._zoomFactor = M._displayWidth / SCREEN_WIDTH
     
+    M.forceRepaint()
+    
     Mls:notify("screenResize", M._displayWidth, M._displayHeight)
 end
 
