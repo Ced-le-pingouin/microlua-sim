@@ -66,9 +66,7 @@ function M:ctr(fps, ups, timing, moduleManager)
     self._ups = ups
     
     self._timerResolution = 10
-    local defaultTiming = Sys.getOS() == "Macintosh"
-                          and M.TIMING_IDLE
-                           or M.TIMING_TIMER
+    local defaultTiming = M.TIMING_TIMER
     self._mainLoopTiming = timing or defaultTiming
     
     self._totalMainLoopIterations = 0
