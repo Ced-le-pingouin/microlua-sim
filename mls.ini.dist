@@ -18,7 +18,7 @@ fps = 60
 ;;
 ;; Please note that the achieved rate can vary (+- 5 fps) because of bad timings
 ;;
-ups = 55
+ups = 60
 
 ;; Use bitmap fonts (0 or 1)
 ;;
