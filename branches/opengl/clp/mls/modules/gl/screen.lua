@@ -48,9 +48,11 @@ function M:initModule(surface)
     M._glCanvas = wx.wxGLCanvas(
         Mls.gui:getWindow(), 
         wx.wxID_ANY, 
-        { wx.WX_GL_DOUBLEBUFFER, wx.WX_GL_RGBA, 0 }, 
         wx.wxPoint(0, 0), 
-        wx.wxSize(SCREEN_WIDTH, M._height)
+        wx.wxSize(SCREEN_WIDTH, M._height),
+        0,
+        "GLCanvas",
+        { wx.WX_GL_DOUBLEBUFFER, wx.WX_GL_RGBA, 0 }
     )
     Mls.gui:setSurface(M._glCanvas)
     
@@ -58,8 +60,8 @@ function M:initModule(surface)
     M._glCanvas:Connect(wx.wxEVT_SIZE, M.onResize)
     
     -- create & bind an OpenGL context to the canvas
-    M._glContext = wx.wxGLContext(M._glCanvas)
-    M._glCanvas:SetCurrent(M._glContext)
+    --M._glContext = wx.wxGLContext(M._glCanvas)
+    --M._glCanvas:SetCurrent(M._glContext)
     
     -- init OpenGL perspective
     glMatrixMode(GL_PROJECTION)
