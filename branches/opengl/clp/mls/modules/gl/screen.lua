@@ -44,28 +44,45 @@ function M:initModule(surface)
     local surface = surface or Mls.gui:getSurface()
     M.parent().initModule(M.parent(), surface)
     
-    -- init wxGLCanvas. This version of the ctr is deprecated but needed for my
-    -- Mac version. It implicitely creates the context
-    M._glCanvas = wx.wxGLCanvas(
-        Mls.gui:getWindow(), 
-        wx.wxID_ANY, 
-        wx.wxPoint(0, 0), 
-        wx.wxSize(SCREEN_WIDTH, M._height),
-        0,
-        "GLCanvas",
-        { wx.WX_GL_DOUBLEBUFFER, wx.WX_GL_RGBA, 0 }
-    )
-    Mls.gui:setSurface(M._glCanvas)
+    -- on Mac, we can't create a context explicitely, since there's no function
+    -- in wx.wxGLContext (not even a constructor)
+    if #wx.wxGLContext == 0 then
+        -- this version of the ctr is deprecated but needed for my Mac version
+        -- It implicitely creates the context
+        M._glCanvas = wx.wxGLCanvas(
+            Mls.gui:getWindow(), 
+            wx.wxID_ANY, 
+            wx.wxPoint(0, 0), 
+            wx.wxSize(SCREEN_WIDTH, M._height),
+            0,
+            "GLCanvas",
+            { wx.WX_GL_DOUBLEBUFFER, wx.WX_GL_RGBA, 0 }
+        )
+        
+        Mls.gui:setSurface(M._glCanvas)
+        
+        -- doesn't create the context, it's been created by wxGLCanvas ctr
+        M._glCanvas:SetCurrent()
+    else
+        -- this is the recommended ctr to use for newer versions of wx, and you
+        -- must create a context explicitely afterwards
+        M._glCanvas = wx.wxGLCanvas(
+            Mls.gui:getWindow(), 
+            wx.wxID_ANY, 
+            { wx.WX_GL_DOUBLEBUFFER, wx.WX_GL_RGBA, 0 },
+            wx.wxPoint(0, 0), 
+            wx.wxSize(SCREEN_WIDTH, M._height)
+        )
+        
+        Mls.gui:setSurface(M._glCanvas)
+        
+        -- create & bind an OpenGL context to the canvas
+        M._glContext = wx.wxGLContext(M._glCanvas)
+        M._glCanvas:SetCurrent(M._glContext)
+    end
     
     -- we need to know when the canvas is resized, GL viewport should change too
     M._glCanvas:Connect(wx.wxEVT_SIZE, M.onResize)
-    
-    -- create & bind an OpenGL context to the canvas
-    --M._glContext = wx.wxGLContext(M._glCanvas)
-    --M._glCanvas:SetCurrent(M._glContext)
-    
-    -- doesn't create the context anymore; it's been created by wxGLCanvas ctr
-    M._glCanvas:SetCurrent(M._glCanvas:GetContext())
     
     -- init OpenGL perspective
     glMatrixMode(GL_PROJECTION)
