@@ -287,6 +287,9 @@ function M:setSurface(surface)
     -- add new surface to top sizer (autosizing and keeping ratio, centered)
     self._topSizer:Insert(0, surface, 1, wx.wxSHAPED + wx.wxALIGN_CENTER)
     
+    -- apparently, Mac needs this to initially show the new surface (for GL)
+    self._window:Fit()
+    
     -- the new surface is now the one we reference
     self._surface = surface
 end
