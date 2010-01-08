@@ -44,7 +44,8 @@ function M:initModule(surface)
     local surface = surface or Mls.gui:getSurface()
     M.parent().initModule(M.parent(), surface)
     
-    -- init wxGLCanvas
+    -- init wxGLCanvas. This version of the ctr is deprecated but needed for my
+    -- Mac version. It implicitely creates the context
     M._glCanvas = wx.wxGLCanvas(
         Mls.gui:getWindow(), 
         wx.wxID_ANY, 
@@ -62,6 +63,9 @@ function M:initModule(surface)
     -- create & bind an OpenGL context to the canvas
     --M._glContext = wx.wxGLContext(M._glCanvas)
     --M._glCanvas:SetCurrent(M._glContext)
+    
+    -- doesn't create the context anymore; it's been created by wxGLCanvas ctr
+    M._glCanvas:SetCurrent(M._glCanvas:GetContext())
     
     -- init OpenGL perspective
     glMatrixMode(GL_PROJECTION)
