@@ -33,6 +33,7 @@ require "wx"
 
 local Class = require "clp.Class"
 local screen_wx = require "clp.mls.modules.wx.screen"
+local Sys = require "clp.mls.Sys"
 
 local M = Class.new(screen_wx)
 
@@ -46,7 +47,7 @@ function M:initModule(surface)
     
     -- on Mac, we can't create a context explicitely, since there's no function
     -- in wx.wxGLContext (not even a constructor)
-    if #wx.wxGLContext == 0 then
+    if Sys.getOS() == "Macintosh" then
         -- this version of the ctr is deprecated but needed for my Mac version
         -- It implicitely creates the context
         M._glCanvas = wx.wxGLCanvas(
