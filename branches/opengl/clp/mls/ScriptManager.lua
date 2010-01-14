@@ -630,6 +630,8 @@ end
 -- @see _module
 function M._require(modname)
     local callerEnv = getfenv(2)
+    
+    -- TODO: remove this test ???
     if modname == "oKeyboard" then
         local modtable = callerEnv[modname]
         print(modname, type(modtable), modtable.Load)
@@ -637,6 +639,26 @@ function M._require(modname)
             print(k, v)
         end
     end
+    
+    -- these 2 lines should ensure that:
+    --   1) we can reset _G's global package.loaded[modname] in its original
+    --      state after we leave our function
+    --   2) we can prevent the original Lua require() function from loading a 
+    --      user module if it's already been loaded. require() is originally 
+    --      global so it'll look in the real _G's package.loaded table to see 
+    --      if a module has been loaded. We keep our own custom env table for
+    --      loaded "modules", so we temporarily copy our table element in _G's
+    --      package.loaded table, with the same index
+    local oldPackageLoaded = _G.package.loaded[modname]
+    _G.package.loaded[modname] = callerEnv[modname]
+    
+    -- ask Lua original require() to load a module, and keep it in our custom 
+    -- env
+    callerEnv[modname] = _G.require(modname)
+    
+    -- reset _G's package.loaded module entry to its original state
+    _G.package.loaded[modname] = oldPackageLoaded
+    
     return callerEnv[modname]
 end
 
