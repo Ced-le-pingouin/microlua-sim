@@ -142,7 +142,10 @@ function M._newObjectInstance(class, ...)
     local object = {}
     setmetatable(object, { __index = class })
     
-    if class.ctr and type(class.ctr) == "function" then
+    if class.ctr
+       and (type(class.ctr) == "function"
+            or (type(class.ctr) == "table" and class.ctr.name == "ctr"))
+    then
         class.ctr(object, ...)
     end
     
