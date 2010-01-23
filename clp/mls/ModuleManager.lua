@@ -33,15 +33,27 @@ local M = Class.new()
 function M:ctr(modules, prefixes)
     self._modules = modules or {
         -- MUST be loaded first because other modules depend on it!
-        "Timer", "Font", "screen",
+        "Timer", "screen", "Color", "Image", "Font",
         -- from here the order doesn't matter
-        "Canvas", "Color", "Controls", "DateTime", "Debug", "Image", "INI",
+        "Canvas", "Controls", "DateTime", "Debug", "INI",
         "Keyboard", "Map", "Mod", "Motion", "Rumble", "ScrollMap", "Sound",
         "Sprite", "System", "Wifi"
     }
     
     -- prefixes used to load modules. These are tried first, then unprefixed
     self._prefixes = prefixes or { "wx." }
+end
+
+--- Adds a prefix to the ones to be looked for when loading modules.
+--
+-- @param prefix (string) The prefix
+-- @param prepend (boolean) If true, the prefix will be prepended to the list of
+--                          already defined prefixes, otherwise it is added at 
+--                          the end of the list
+function M:addPrefix(prefix, prepend)
+    local pos = prepend and 1 or #self._prefixes + 1
+    
+    table.insert(self._prefixes, pos, prefix)
 end
 
 --- Loads and initializes simulated ML modules.
@@ -73,6 +85,12 @@ function M:loadModules(modules, prefixes)
             -- in the compiled version, modules are already set on _G, so 
             -- consider them loaded
             self._modules[module] = _G[module]
+        end
+        
+        if module == "screen" then
+            _G.startDrawing = screen.startDrawing
+            _G.stopDrawing = screen.stopDrawing
+            _G.render = screen.render
         end
         
         local loadedModule = _G[module]
@@ -121,6 +139,8 @@ function M:_loadModule(module, prefixes)
         loaded, result = pcall(require, "clp.mls.modules."..prefix..module)
         if loaded then break end
         
+        -- @todo: sometimes it's not that the module is not found, an error has
+        --        occured, so maybe we should display it
         Mls.logger:debug(module.." not found with prefix '"..prefix.."'", "module")
     end
     

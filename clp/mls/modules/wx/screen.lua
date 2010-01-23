@@ -29,6 +29,7 @@
 
 require "wx"
 local Class = require "clp.Class"
+local Sys = require "clp.mls.Sys"
 
 local M = Class.new()
 
@@ -42,6 +43,10 @@ function M:initModule(surface)
     M._surface = surface or Mls.gui:getSurface()
     M._height = M._surface:GetSize():GetHeight()
     
+    M._displayWidth = SCREEN_WIDTH
+    M._displayHeight = M._height
+    M._zoomFactor = 1
+    
     M._framesInOneSec = 0
     M._totalFrames = 0
     
@@ -50,11 +55,13 @@ function M:initModule(surface)
     M._initOffscreenSurfaces()
     M._bindEvents()
     
+    M._drawGradientRectNumBlocks = 20
     M.setDrawGradientRectAccuracy(0)
+    M.setRectAdditionalLength(1)
 end
 
 function M:resetModule()
-    M.clearAllOffscreenSurfaces()
+    M.static().clearAllOffscreenSurfaces()
 end
 
 --- Initializes global variables for the screen module.
@@ -101,15 +108,16 @@ end
 --- Binds functions to events needed to refresh screen.
 function M._bindEvents()
     M._surface:Connect(wx.wxEVT_PAINT, M._onPaintEvent)
+    M._surface:Connect(wx.wxEVT_SIZE, M.onResize)
 end
 
 --- All drawing instructions must be between this and stopDrawing() [ML 2 API].
 --
 -- @deprecated
-function startDrawing()
+function M.startDrawing()
     Mls.logger:trace("startDrawing called", "screen")
     
-    M.clearOffscreenSurface()
+    M.static().clearOffscreenSurface()
 end
 
 --- All drawing instructions must be between startDrawing() and this [ML 2 API].
@@ -117,18 +125,18 @@ end
 -- @eventSender
 --
 -- @deprecated
-function stopDrawing()
+function M.stopDrawing()
     Mls.logger:trace("stopDrawing called", "screen")
     
     Mls:notify("stopDrawing")
     
-    M._switchOffscreen()
+    M.static()._switchOffscreen()
 end
 
 --- Refreshes the screen (replaces start- and stopDrawing()) [ML 3+ API].
-function render()
-    stopDrawing()
-    startDrawing()
+function M.render()
+    M.static().stopDrawing()
+    M.static().startDrawing()
 end
 
 --- Switches the screens [ML 2+ API].
@@ -204,6 +212,7 @@ function M.drawLine(screenOffset, x0, y0, x1, y1, color)
     M._pen:SetColour(color)
     offscreenDC:SetPen(M._pen)
     offscreenDC:DrawLine(x0, y0 + screenOffset, x1, y1 + screenOffset)
+    --offscreenDC:DrawPoint(x1, y1 + screenOffset)
 end
 
 --- Draws a rectangle on the screen [ML 2+ API].
@@ -226,7 +235,9 @@ function M.drawRect(screenOffset, x0, y0, x1, y1, color)
     M._pen:SetColour(color)
     offscreenDC:SetPen(M._pen)
     offscreenDC:SetBrush(wx.wxTRANSPARENT_BRUSH)
-    offscreenDC:DrawRectangle(x0, y0 + screenOffset, x1 - x0, y1 - y0)
+    offscreenDC:DrawRectangle(x0, y0 + screenOffset, 
+                              (x1 - x0) + M._rectAdditionalLength,
+                              (y1 - y0) + M._rectAdditionalLength)
 end
 
 --- Draws a filled rectangle on the screen [ML 2+ API].
@@ -244,7 +255,9 @@ function M.drawFillRect(screenOffset, x0, y0, x1, y1, color)
     offscreenDC:SetPen(M._pen)
     M._brush:SetColour(color)
     offscreenDC:SetBrush(M._brush)
-    offscreenDC:DrawRectangle(x0, y0 + screenOffset, x1 - x0, y1 - y0)
+    offscreenDC:DrawRectangle(x0, y0 + screenOffset, 
+                              (x1 - x0) + M._rectAdditionalLength,
+                              (y1 - y0) + M._rectAdditionalLength)
 end
 
 --- Draws a gradient rectangle on the screen [ML 2+ API][under the name 
@@ -286,9 +299,10 @@ function M.drawGradientRectSimple(screenOffset, x0, y0, x1, y1,
         direction = wx.wxRIGHT
     end
     
-    local w = x1 - x0
-    local h = y1 - y0
     local offscreenDC = M._getOffscreenDC(screenOffset)
+    
+    local w = (x1 - x0) + M._rectAdditionalLength
+    local h = (y1 - y0) + M._rectAdditionalLength
     
     offscreenDC:GradientFillLinear(wx.wxRect(x0, y0 + screenOffset, w, h),
                                    c1, c2, direction)
@@ -318,9 +332,12 @@ function M.drawGradientRectAdvanced(screenOffset, x0, y0, x1, y1,
     if type(color4) == "number" then color4 = wx.wxColour(color4, 0, 0) end
     --
     
+    local w = (x1 - x0) + M._rectAdditionalLength
+    local h = (y1 - y0) + M._rectAdditionalLength
+    
     local offscreenDC = M.offscreenDC
     offscreenDC:DestroyClippingRegion()
-    offscreenDC:SetClippingRegion(x0, y0 + screenOffset, x1 - x0, y1 - y0)
+    offscreenDC:SetClippingRegion(x0, y0 + screenOffset, w, h)
     
     local NUM_BLOCKS = M._drawGradientRectNumBlocks
     
@@ -331,8 +348,8 @@ function M.drawGradientRectAdvanced(screenOffset, x0, y0, x1, y1,
     end
     
     -- calculates size of single colour bands
-    local xStep = math.floor((x1 - x0) / NUM_BLOCKS) + 1
-    local yStep = math.floor((y1 - y0) / NUM_BLOCKS) + 1
+    local xStep = math.floor(w / NUM_BLOCKS) + 1
+    local yStep = math.floor(h / NUM_BLOCKS) + 1
     
     -- prevent function calls in the loop
     local c1r, c1g, c1b = color1:Red(), color1:Green(), color1:Blue()
@@ -390,7 +407,8 @@ function M.drawTextBox(screenOffset, x0, y0, x1, y1, text, color)
     y1 = screenOffset + y1
     
     local posY = y0
-    local width, height = x1 - x0, y1 - y0
+    local width = (x1 - x0) + M._rectAdditionalLength
+    local height = (y1 - y0) + M._rectAdditionalLength
     local font = Font._defaultFont
     local fontHeight = Font.getCharHeight(font)
     
@@ -442,12 +460,49 @@ end
 --                          the more precise and nicer the result, but beware, 
 --                          this function is slow!
 function M.setDrawGradientRectAccuracy(accuracy)
+    Mls.logger:info("setting drawGradientRect() accuracy to "..accuracy, 
+                    "screen")
+    
     if accuracy == 0 then
         M.drawGradientRect = M.drawGradientRectSimple
     else
         M._drawGradientRectNumBlocks = accuracy
         M.drawGradientRect = M.drawGradientRectAdvanced
     end
+end
+
+--- Switchs drawGradientRect() accuracy between simple and the advanced
+--
+-- @see setDrawGradientAccuracy
+function M.switchDrawGradientRectAccuracy()
+    if M.drawGradientRect == M.drawGradientRectSimple then
+        M.setDrawGradientRectAccuracy(M._drawGradientRectNumBlocks)
+    else
+        M.setDrawGradientRectAccuracy(0)
+    end
+end
+
+--- Sets the value that will be added when computing rectangles width/height.
+--
+-- The standard value shoud be 1 (width = x1 - x0 + 1), but some scripts won't
+-- display correctly when rectangle are displayed in MLS, so it should sometimes
+-- use 0 as an "additional" value
+--
+-- @param number (number)
+function M.setRectAdditionalLength(number)
+    Mls.logger:info("setting rectangles' length additional value to "..number, 
+                    "screen")
+    
+    M._rectAdditionalLength = number or 1
+end
+
+--- Increments the additional value to be used when computing rectangles width 
+--  and height.
+--
+-- @see setRectAdditionalLength
+function M.incRectAdditionalLength()
+    -- right now the only possible values are 0 and 1 (hence the % 2)
+    M.setRectAdditionalLength((M._rectAdditionalLength + 1) % 2)
 end
 
 --- Returns current FPS.
@@ -473,8 +528,8 @@ end
 --- Clears all offscreen surfaces.
 function M.clearAllOffscreenSurfaces()
     for i = 1, M.MAX_OFFSCREENS do
-        M._switchOffscreen()
-        M.clearOffscreenSurface()
+        M.static()._switchOffscreen()
+        M.static().clearOffscreenSurface()
     end
 end
 
@@ -497,19 +552,21 @@ function M.displayInfoText(text, color)
     local textXOffset = (w - Font.getStringWidth(Font._defaultFont, text)) / 2
     local textYOffset = (h - Font.getCharHeight(Font._defaultFont)) / 2
     
-    M._copyOffscreenFromPrevious()
+    M.static()._copyOffscreenFromPrevious()
     
     -- draw the frame and its shadow
-    M.drawFillRect(SCREEN_UP, x + shadowOffset, y + shadowOffset, 
-                   x + w + shadowOffset, y + h + shadowOffset, shadowColor)
-    M.drawFillRect(SCREEN_UP, x, y, x + w, y + h, color)
+    M.static().drawFillRect(SCREEN_UP, x + shadowOffset, y + shadowOffset, 
+                            x + w + shadowOffset, y + h + shadowOffset, 
+                            shadowColor)
+    M.static().drawFillRect(SCREEN_UP, x, y, x + w, y + h, color)
     
     -- draw text and its shadow
-    M.print(SCREEN_UP, x + textXOffset + shadowOffset, 
-            y + textYOffset + shadowOffset, text, shadowColor)
-    M.print(SCREEN_UP, x + textXOffset, y + textYOffset, text, textColor)
+    M.static().print(SCREEN_UP, x + textXOffset + shadowOffset, 
+                     y + textYOffset + shadowOffset, text, shadowColor)
+    M.static().print(SCREEN_UP, x + textXOffset, y + textYOffset, text, 
+                     textColor)
     
-    M.forceRepaint()
+    M.static().forceRepaint()
 end
 
 --- Forces the underlying GUI/GFX lib to immediately repaint the "screens".
@@ -520,12 +577,14 @@ end
 --                               rendered offscreen surface instead of the 
 --                               current one
 function M.forceRepaint(showPrevious)
-    if showPrevious then M._switchOffscreen() end
+    if showPrevious then M.static()._switchOffscreen() end
     
     M._surface:Refresh(false)
     M._surface:Update()
     
-    if showPrevious then M._switchOffscreen() end
+    if showPrevious then M.static()._switchOffscreen() end
+    
+    M.static()._updateFps()
 end
 
 --- Draws a point on the screen.
@@ -589,6 +648,17 @@ function M._copyOffscreenFromPrevious()
                        wx.wxCOPY, false)
 end
 
+function M.onResize(event)
+    local size = event:GetSize()
+    
+    M._displayWidth, M._displayHeight = size:GetWidth(), size:GetHeight()
+    M._zoomFactor = M._displayWidth / SCREEN_WIDTH
+    
+    M.forceRepaint()
+    
+    Mls:notify("screenResize", M._displayWidth, M._displayHeight)
+end
+
 --- Event handler used to repaint the screens.
 -- Also update the FPS counter if needed
 --
@@ -601,15 +671,30 @@ function M._onPaintEvent(event)
     
     offscreenDC:DestroyClippingRegion()
     
-    destDC:Blit(0, 0, SCREEN_WIDTH, M._height, offscreenDC, 
-                0, 0)
---    offscreenDC:SelectObject(wx.wxNullBitmap)
---    destDC:DrawBitmap(M._offscreenSurface, 0, 0, false)
---    offscreenDC:SelectObject(M._offscreenSurface)
-     
-    destDC:delete()
+    local zoomFactor = M._zoomFactor
+    if zoomFactor == 1 then
+        destDC:Blit(0, 0, SCREEN_WIDTH, M._height, offscreenDC, 0, 0)
+        --offscreenDC:SelectObject(wx.wxNullBitmap)
+        --destDC:DrawBitmap(M._offscreenSurface, 0, 0, false)
+        --offscreenDC:SelectObject(M._offscreenSurface)
+    else
+        if Sys.getOS() == "Windows" then
+            destDC:SetUserScale(zoomFactor, zoomFactor)
+            destDC:Blit(0, 0, SCREEN_WIDTH, M._height, offscreenDC, 0, 0)
+        else
+            local offscreenBitmap = M._offscreenSurfaces[M._currentOffscreen]
+            local scaledImage = offscreenBitmap:ConvertToImage()
+            scaledImage:Rescale(M._displayWidth, M._displayHeight)
+            local scaledBitmap = wx.wxBitmap(scaledImage, Mls.DEPTH)
+            
+            destDC:DrawBitmap(scaledBitmap, 0, 0, false)
+            
+            scaledImage:delete()
+            scaledBitmap:delete()
+        end
+    end
     
-    M._updateFps()
+    destDC:delete()
 end
 
 return M

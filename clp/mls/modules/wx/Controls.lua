@@ -44,9 +44,13 @@ end
 function M:initModule(receiver)
     M._receiver = receiver or Mls.gui:getSurface()
     M._stylusHack = false
+    M._screenRatio = 1
     
     M._initKeyBindings()
     M._bindEvents()
+    
+    Mls:attach(self, "screenResize", self.onScreenResize)
+    
     M:resetModule()
 end
 
@@ -201,7 +205,7 @@ function M._onKeyDownEvent(event)
     
     Mls.logger:debug("keyDown: raw = "..key..", mapped to "..tostring(mappedKey), "controls")
     
-    Mls:notify("keyDown", key)
+    Mls:notify("keyDown", key, event:ShiftDown())
     
     event:Skip()
 end
@@ -265,6 +269,13 @@ function M._onMouseMoveEvent(event)
         
         Mls.logger:trace("mouseMove: x = "..x..", y = "..y, "controls")
     end
+    
+    Mls:notify("mouseMoveBothScreens", event:GetX(), event:GetY())
+end
+
+function M:onScreenResize(event, width, height)
+    -- for now, we assume the screen keeps its aspect ratio, so X&Y ratios are =
+    M._screenRatio = width / SCREEN_WIDTH
 end
 
 --- Returns horizontal position of the stylus.
@@ -273,7 +284,7 @@ end
 --
 -- @return (number)
 function M._GetX(event)
-    local x = event:GetX()
+    local x = math.floor(event:GetX() / M._screenRatio)
     
     if x < 0 then return 0
     elseif x >= SCREEN_WIDTH then return SCREEN_WIDTH - 1
@@ -286,7 +297,7 @@ end
 --
 -- @return (number)
 function M._GetY(event)
-    local y = event:GetY() - SCREEN_HEIGHT
+    local y = math.floor(event:GetY() / M._screenRatio) - SCREEN_HEIGHT
     
     if y < 0 then return 0
     elseif y >= SCREEN_HEIGHT then return SCREEN_HEIGHT - 1

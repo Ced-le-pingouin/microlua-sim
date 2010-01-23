@@ -32,7 +32,6 @@
 
 local Class = require "clp.Class"
 local Sys = require "clp.mls.Sys"
-local ModuleManager = require "clp.mls.ModuleManager"
 
 local M = Class.new()
 
@@ -55,9 +54,11 @@ end
 -- @param ups (number) The target ups = script main loop iteration rate
 -- @param timing (number) The method used for timing the loop iterations (one 
 --                        of the TIMING constants in this class)
+-- @param moduleManager (ModuleManager) A previously created module manager, 
+--                                      that can load and reset ML modules
 --
 -- @see init
-function M:ctr(fps, ups, timing)
+function M:ctr(fps, ups, timing, moduleManager)
     -- fps config --
     self._fps = fps
     
@@ -65,9 +66,7 @@ function M:ctr(fps, ups, timing)
     self._ups = ups
     
     self._timerResolution = 10
-    local defaultTiming = Sys.getOS() == "Macintosh"
-                          and M.TIMING_IDLE
-                           or M.TIMING_TIMER
+    local defaultTiming = M.TIMING_TIMER
     self._mainLoopTiming = timing or defaultTiming
     
     self._totalMainLoopIterations = 0
@@ -82,7 +81,8 @@ function M:ctr(fps, ups, timing)
     
     self:_setScriptState(M.SCRIPT_NONE)
     
-    self._moduleManager = ModuleManager:new()
+    -- load ML modules
+    self._moduleManager = moduleManager
     self._moduleManager:loadModules()
 end
 
@@ -99,7 +99,7 @@ function M:init()
     self:setTargetUps(self._ups)
     self:_initUpsSystem()
     
-    Mls:attach(self, "controlsRead", self.onControlsRead)    
+    Mls:attach(self, "controlsRead", self.onControlsRead)
     Mls:attach(self, "stopDrawing", self.onStopDrawing)
 end
 
@@ -433,6 +433,28 @@ function M:restartScript()
     self:startScript()
 end
 
+--- Loads a script from a file, then starts it.
+--
+-- @param (string) file The path of the script you want to load
+function M:loadAndStartScript(file)
+    if self:loadScript(file) then
+        self:startScript()
+    end
+end
+
+--- Reloads the current script from disk, then starts it
+function M:reloadAndStartScript()
+    if self._scriptState == M.SCRIPT_NONE then
+        --Mls.logger:warn("can't reload: no script loaded", "script")
+        return
+    end
+    
+    Mls.logger:info("reloading script from disk", "script")
+    
+    self:stopScript()
+    self:loadAndStartScript(self._scriptPath)
+end
+
 --- Returns the name of a given state.
 --
 -- @param state (number)
@@ -469,6 +491,7 @@ function M:_setFunctionEnvironmentToEmpty(func)
     env.dofile = M._dofile
     env.module = M._module
     env.require = M._require
+    env._G = env
     self:_changeMlsFunctionsEnvironment(env)
 
     --method2 (problem with keys ?)
@@ -484,14 +507,12 @@ end
 -- Since Mls and its "modules" are *created* in the beginning in the 
 -- *global* environment, even when they're called from a custom env, they create
 -- and change variables in their own env, i.e. the global one, not in any 
--- custom env they're called from. So if we need these functions to set "global"
--- vars in a custom env, we need to switch their env (ex: if NB_FPS is changed
+-- custom env they're called from. So if we want these functions to set "global"
+-- vars in a custom env, we have to switch their env (ex: if NB_FPS is changed
 -- in the global env, it'll not be seen by external scripts, which execute in 
 -- a custom env)
 --
 -- @param env (table) The custom environment to copy global variables to
---
--- @todo Put functionsToChange outside this function, and make it recursive
 function M:_changeMlsFunctionsEnvironment(env)
     local functionsToChange = {
         -- global functions
@@ -505,16 +526,27 @@ function M:_changeMlsFunctionsEnvironment(env)
     }
     
     for _, funcName in ipairs(functionsToChange) do
-        local obj = _G[funcName]
-        if type(obj) == "function" then
-            setfenv(obj, env)
-        elseif type(obj) == "table" then
-            for methodName, method in pairs(obj) do
-                if type(method) == "function" then
-                    setfenv(method, env)
-                end
+        self:_changeFunctionsEnvironment(_G[funcName], env)
+    end
+end
+
+--- Sets a custom environment table for a function or all the methods of a 
+--  Class.
+--
+-- @param obj (funcion|Class) The function or class (= its methods) that will
+--                            have their environment replaced
+-- @param env (table)
+function M:_changeFunctionsEnvironment(obj, env)
+    if type(obj) == "function" then
+        setfenv(obj, env)
+    elseif type(obj) == "table" and obj.__class then
+        for methodName, method in pairs(obj) do
+            if type(method) == "function" then
+                setfenv(method, env)
             end
         end
+        
+        self:_changeFunctionsEnvironment(obj.__parent, env)
     end
 end
 
@@ -598,6 +630,8 @@ end
 -- @see _module
 function M._require(modname)
     local callerEnv = getfenv(2)
+    
+    -- TODO: remove this test ???
     if modname == "oKeyboard" then
         local modtable = callerEnv[modname]
         print(modname, type(modtable), modtable.Load)
@@ -605,6 +639,26 @@ function M._require(modname)
             print(k, v)
         end
     end
+    
+    -- these 2 lines should ensure that:
+    --   1) we can reset _G's global package.loaded[modname] in its original
+    --      state after we leave our function
+    --   2) we can prevent the original Lua require() function from loading a 
+    --      user module if it's already been loaded. require() is originally 
+    --      global so it'll look in the real _G's package.loaded table to see 
+    --      if a module has been loaded. We keep our own custom env table for
+    --      loaded "modules", so we temporarily copy our table element in _G's
+    --      package.loaded table, with the same index
+    local oldPackageLoaded = _G.package.loaded[modname]
+    _G.package.loaded[modname] = callerEnv[modname]
+    
+    -- ask Lua original require() to load a module, and keep it in our custom 
+    -- env
+    callerEnv[modname] = _G.require(modname)
+    
+    -- reset _G's package.loaded module entry to its original state
+    _G.package.loaded[modname] = oldPackageLoaded
+    
     return callerEnv[modname]
 end
 

@@ -81,16 +81,15 @@ function M:_createWindow()
         self._windowTitle,          -- caption on the frame
         wx.wxDefaultPosition,       -- let system place the frame
         wx.wxSize(self._width, self._height),   -- set the size of the frame
-        --wx.wxDEFAULT_FRAME_STYLE    -- use default frame styles
-        wx.wxCAPTION + wx.wxMINIMIZE_BOX + wx.wxCLOSE_BOX + wx.wxSYSTEM_MENU
-        + wx.wxCLIP_CHILDREN
+        wx.wxDEFAULT_FRAME_STYLE    -- use default frame styles
+        --wx.wxCAPTION + wx.wxMINIMIZE_BOX + wx.wxCLOSE_BOX + wx.wxSYSTEM_MENU
+        --+ wx.wxCLIP_CHILDREN
     )
     
     Mls.logger:debug("setting main window icon", "gui")
     if self._icon then self._window:SetIcon(self._icon) end
     
     self._topSizer = wx.wxBoxSizer(wx.wxVERTICAL)
-    self._window:SetSizer(self._topSizer)
 end
 
 --- Creates the surface that will represent the screens, which MLS will draw to.
@@ -98,7 +97,7 @@ function M:_createSurface()
     Mls.logger:debug("creating screens' drawing surface", "gui")
     
     local panel = wx.wxPanel(self._window, wx.wxID_ANY, wx.wxDefaultPosition,
-                             wx.wxSize(self._width, self._height))
+                             wx.wxSize(self._width, self._height), 0)
     
     --panel:SetBackgroundColour(wx.wxBLACK)
     self._topSizer:Add(panel, 1, wx.wxSHAPED + wx.wxALIGN_CENTER)
@@ -219,16 +218,58 @@ end
 function M:showWindow()
     Mls.logger:debug("showing main window", "gui")
     
+    wx.wxGetApp():SetTopWindow(self._window)
     -- make client height of main window correct (menu + screens + status bar)
-    self._window:Fit()
-    
+    self._window:SetSizerAndFit(self._topSizer)
     self._window:Center()
     self._window:Show()
-    wx.wxGetApp():SetTopWindow(self._window)
     
     self:_createConsole()
     
     self:focus()
+end
+
+function M:incZoomFactor()
+    -- zoom factor is based on width only, because aspect ratio is kept anyway
+    local zoomFactor = math.floor(
+        self._surface:GetSize():GetWidth() / self._width
+    )
+    -- we increase zoom factor by integer for now (1x, 2x, ...)
+    zoomFactor = zoomFactor + 1
+    
+    -- compute new width and height
+    local newWidth = self._width * zoomFactor
+    local newHeight = self._height * zoomFactor
+    
+    --  get available "desktop" area
+    local displayNum = wx.wxDisplay.GetFromWindow(self._window)
+    local display = wx.wxDisplay(displayNum)
+    local availableWidth = display:GetClientArea():GetWidth()
+    local availableHeight = display:GetClientArea():GetHeight()
+    
+    -- if new width or height is larger than what's available, get back to 1x
+    if newWidth > availableWidth or newHeight > availableHeight then
+        newWidth, newHeight = self._width, self._height
+        zoomFactor = 1
+    end
+    
+    -- set min size for Layout, then Fit the window...
+    self._surface:SetMinSize(wx.wxSize(newWidth, newHeight))
+    self._window:Layout()
+    wx.wxYield()
+    self._window:Fit()
+    wx.wxYield()
+    -- ...but re-set min size to original after Layout/Fit
+    self._surface:SetMinSize(wx.wxSize(self._width, self._height))
+    
+    Mls.logger:info("setting screens' zoom factor to "..zoomFactor)
+end
+
+function M:switchFullScreen()
+    -- on wxLua, ShowFullScreen is only available on Windows
+    if Sys.getOS() ~= "Windows" then return end
+    
+    self._window:ShowFullScreen(not self._window:IsFullScreen())
 end
 
 --- @return (wxWindow)
@@ -236,7 +277,24 @@ function M:getWindow()
     return self._window
 end
 
---- @return (wxPanel)
+--- Changes what the GUI views as the "screen surface".
+--
+-- @param (wxPanel|wxGLCanvas)
+function M:setSurface(surface)
+    -- hide the old surface so the sizer will layout correctly
+    self._surface:Hide()
+    
+    -- add new surface to top sizer (autosizing and keeping ratio, centered)
+    self._topSizer:Insert(0, surface, 1, wx.wxSHAPED + wx.wxALIGN_CENTER)
+    
+    -- apparently, Mac needs this to initially show the new surface (for GL)
+    self._window:Fit()
+    
+    -- the new surface is now the one we reference
+    self._surface = surface
+end
+
+--- @return (wxPanel|wxGLCanvas)
 function M:getSurface()
     return self._surface
 end
