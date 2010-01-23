@@ -5,19 +5,19 @@
 -- @name clp.mls.Mls
 -- @author Ced-le-pingouin <Ced.le.pingouin@gmail.com>
 --
--- @todo The spr_depl script (maybe other?) sometimes crashes suddenly, often 
+-- @todo The spr_depl script (maybe others?) sometimes crashes suddenly, often 
 --       after other scripts having been loaded before. I'm suspecting the many 
 --       Images needed for Font cache. Maybe some <module>:resetModule() should 
 --       dispose of resources (and thus keep track of the resources they load
 --       or create)
--- @todo Zoom and/or position of the image in Command-EZ 1.1 example are 
---       incorrect
 -- @todo In aloufs, the + and - buttons are always clicked twice !?
 -- @todo In UFO, under Linux, the click doesn't work well when L is held (screen
 --       goes black). Is this related to the "click twice" problem in aloufs ?
 -- @todo Some scripts are less responsive since the changes in timing (aloufs)
 -- @todo Some scripts don't work: CodeMonkeyDS, LED 1.2b (in files menu when
 --       pressed Back). alternativ-keyboard is dog-slow, too
+-- @todo Make the script directory the current one for INI.save()
+-- @todo check that drawTextBox() is correctly clipped (reported by Quent42340)
 -- @todo Have proper packaging for MacOS (as a real App)
 -- @todo Try to minimize the use of SelectObject() in functions that are called
 --       many times per second, as SelectObject() seems to be really slow on 
@@ -37,6 +37,7 @@
 --             the stylus has just been pressed. After that it is false again
 --           - Command-EZ / CommandButton (L49): screen.drawRect() will crash in
 --             MLS, see comments in that function for a working hack
+-- @todo OpenGL: Win/MacOS, default font, flickering, clipping, ups/fps
 -- @todo Search in multiple locations for mls.ini
 -- @todo Allow window resizing with stretching of the "screens"
 --
@@ -89,6 +90,7 @@ local Logger = require "clp.Logger"
 local Sys = require "clp.mls.Sys"
 local Config = require "clp.mls.Config"
 local Gui = require "clp.mls.Gui"
+local ModuleManager = require "clp.mls.ModuleManager"
 local ScriptManager = require "clp.mls.ScriptManager"
 
 Mls = Class.new(Observable)
@@ -113,46 +115,60 @@ function Mls:ctr(scriptPath)
     
     Mls.logger:setLevel(Mls.config:get("debug_log_level", Logger.WARN))
     
+    -- init vars and gui
     Mls._initVars()
     Mls.gui = Mls._initGui()
     
+    -- logger
     Mls.logger:setWriterFunction(Mls.gui:getConsoleWriter())
     Mls.logger:setLogFormat("%m")
               :reserved("Welcome to the console. Script errors and log messages will be displayed here.")
               :resetLogFormat()
     
-    -- init various debug vars
+    -- debug vars
     __DEBUG_NO_REFRESH = Mls.config:get("debug_no_refresh", false)
     __DEBUG_LIMIT_TIME = Mls.config:get("debug_limit_time", 0)
-    --
+    
+    -- ML modules manager
+    local moduleManager = ModuleManager:new()
+    Mls.openGl = Mls.config:get("open_gl", false)
+    if Mls.openGl then
+        moduleManager:addPrefix("gl.", true)
+    end
+    
+    -- script manager
     local fps = Mls.config:get("fps", 60)
     local ups = Mls.config:get("ups", 55)
     local timing = Mls.config:get("debug_main_loop_timing", nil)
     
-    Mls.scriptManager = ScriptManager:new(fps, ups, timing)
+    Mls.scriptManager = ScriptManager:new(fps, ups, timing, moduleManager)
     
+    -- event handlers
     Mls:attach(self, "scriptStateChange", self.onScriptStateChange)
     Mls:attach(self, "upsUpdate", self.onUpsUpdate)
     Mls:attach(self, "keyDown", self.onKeyDown)
-    
-    Mls._initTimer()
-    
-    -- configure the modules from the config file
-    Controls.setStylusHack(Mls.config:get("stylus_hack", false))
-    screen.setDrawGradientRectAccuracy(
-        Mls.config:get("draw_gradient_rect_accuracy", 0)
-    )
-    
     if __DEBUG_LIMIT_TIME > 0 then
         Mls:attach(self, "stopDrawing", self.onStopDrawing)
     end
     
+    -- timer
+    Mls._initTimer()
+    
+    -- hacks and config options
+    Controls.setStylusHack(Mls.config:get("stylus_hack", false))
+    screen.setDrawGradientRectAccuracy(
+        Mls.config:get("draw_gradient_rect_accuracy", 0)
+    )
+    screen.setRectAdditionalLength(Mls.config:get("rect_length", 1))
+    
+    -- and finally load the script given at the command line if needed
     Mls.scriptManager:init()
     if scriptPath then
-        if Mls.scriptManager:loadScript(scriptPath) then
-            Mls.scriptManager:startScript()
-        end
+        Mls.scriptManager:loadAndStartScript(scriptPath)
     end
+    
+    -- in case some module has changed GUI components, we re-set the focus
+    Mls.gui:focus()
 end
 
 --- Initializes ML global and internal variables.
@@ -240,6 +256,8 @@ function Mls:getValidOptions()
         bitmap_fonts = { "boolean" },
         stylus_hack = { "boolean" },
         draw_gradient_rect_accuracy = { "number", 0, 256 },
+        open_gl = { "boolean" },
+        rect_length = { "number", 0, 1 },
         
         -- debug options below
         debug_log_level = { "number", Logger.TRACE, Logger.FATAL },
@@ -280,16 +298,21 @@ end
 -- @param event (string) The name of the event that caused the callback. 
 --                       Should be "keyDown" here
 -- @param key (number) The raw key code
+-- @param shift (boolean) true if the Shift key is pressed
 --
 -- @eventHandler
-function Mls:onKeyDown(event, key)
+function Mls:onKeyDown(event, key, shift)
     local fpsAndUpsStep = 5
     local sm = Mls.scriptManager
     
     if key == wx.WXK_P then
-        Mls.scriptManager:pauseOrResumeScript()
+        sm:pauseOrResumeScript()
     elseif key == wx.WXK_B then
-        Mls.scriptManager:restartScript()
+        if not shift then
+            sm:restartScript()
+        else
+            sm:reloadAndStartScript()
+        end
     elseif key == wx.WXK_C then
         Mls.gui:showOrHideConsole()
     elseif key == wx.WXK_H then
@@ -305,6 +328,14 @@ function Mls:onKeyDown(event, key)
     elseif key == wx.WXK_F4 then
         sm:setTargetUps(sm:getTargetUps() + fpsAndUpsStep)
     elseif key == wx.WXK_F5 then
+        screen.switchDrawGradientRectAccuracy()
+    elseif key == wx.WXK_F6 then
+        screen.incRectAdditionalLength()
+    elseif key == wx.WXK_F7 then
+        Mls.gui:incZoomFactor()
+    elseif key == wx.WXK_F11 then
+        Mls.gui:switchFullScreen()
+    elseif key == wx.WXK_F12 then
         Mls.logger:incrementLevel(true)
     end
 end
@@ -348,7 +379,8 @@ function Mls:onScriptStateChange(event, script, state)
         then
             color = Color.new(31, 0, 0)
         elseif state == ScriptManager.SCRIPT_PAUSED then
-            color = Color.new(0, 20, 0)
+            -- "paused" banner = color of OpenGL logo in OpenGL, green otherwise
+            color = Mls.openGl and Color.new(11, 17, 21) or Color.new(0, 20, 0)
         else
             color = Color.new(0, 0, 31)
         end
@@ -381,9 +413,7 @@ function Mls.onFileOpen()
         
         if file ~= "" then
             screen.clearAllOffscreenSurfaces()
-            if Mls.scriptManager:loadScript(file) then
-                Mls.scriptManager:startScript()
-            end
+            Mls.scriptManager:loadAndStartScript(file)
         end
     end)
     

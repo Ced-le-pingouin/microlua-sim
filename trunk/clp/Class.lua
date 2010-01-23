@@ -33,7 +33,7 @@ local M = {}
 -- new() function will call <class variable>:ctr(...) as a user-defined 
 -- constructor
 -- 
--- @param parentClass (string) The name of a parent class (optional)
+-- @param parentClass (Class) An optional parent class
 --
 -- @return (table) The created class
 function M.new(...) -- only one arg accepted = parentClass
@@ -43,7 +43,7 @@ function M.new(...) -- only one arg accepted = parentClass
     --     . one arg passed but == nil (could mean a non-existent "class" has 
     --                                  been passed by mistake => error)
     --                AND
-    --     . no arg passed at all (valid case where we want no inheritance)
+    --     . no arg passed at all (valid case where we don't want inheritance)
     local numArgs = select("#", ...)
     
     if numArgs == 1 then
@@ -52,31 +52,61 @@ function M.new(...) -- only one arg accepted = parentClass
             error("parent class passed to Class.new is not a valid object/table", 2)
         end
     elseif numArgs > 1 then
-        error("multiple heritage not supported (too many args passed to Class.new)", 2)
+        error("multiple inheritance not supported (too many args passed to Class.new)", 2)
     end
     -----
     
     local newClass = {}
+    
+    newClass.__class = newClass
+    newClass.__parent = parentClass
+    
+    newClass.__virtualMethods = {}
+    newClass.__staticCallers = {}
+    
     if parentClass then
         setmetatable(newClass, { __index = parentClass })
-        newClass.super = function () return parentClass end
-    end
-    
-    newClass.new = function (self, ...)
-        local object = {}
-        setmetatable(object, { __index = self })
         
-        if self.ctr and type(self.ctr) == "function" then
-            self.ctr(object, ...)
+        for _, parentVm in pairs(parentClass.__virtualMethods) do
+            local vm = { 
+                originalClass = parentVm.originalClass,
+                callingClass = newClass,
+                name = parentVm.name
+            }
+            setmetatable(vm, { __call = M._callAncestorMethodUsingLateBinding })
+            
+            newClass.__virtualMethods[name] = vm
+            newClass[name] = vm
         end
         
-        return object
+        for name, member in pairs(parentClass) do
+            if type(member) == "function" then
+                local vm = {
+                    originalClass = parentClass,
+                    callingClass = newClass,
+                    name = name
+                }
+                setmetatable(vm, { __call = M._callAncestorMethodUsingLateBinding })
+                
+                newClass.__virtualMethods[name] = vm
+                newClass[name] = vm
+            end
+        end
     end
     
-    newClass.new2 = newClass.new
-    
-    newClass.class = function () return newClass end
+    newClass.class = function() return newClass end
+    newClass.parent = function() return parentClass end
+    newClass.super = function() return newClass.__virtualMethods end
     newClass.instanceOf = M.instanceOf
+    
+    -- for classes that already have an inherited new or new2 function, don't 
+    -- overwrite it, since we have two versions
+    newClass.new = newClass.new or M._newObjectInstance
+    newClass.new2 = newClass.new2 or M._newObjectInstance
+    
+    newClass.static = function()
+        return M._getActualClassUsingLateBinding(newClass)
+    end
     
     return newClass
 end
@@ -84,22 +114,80 @@ end
 --- Checks whether current object is an instance of a class or one of its 
 --  ancestors.
 --
--- @param class (table)
+-- @param ancestor (Class)
 --
 -- @return (boolean)
-function M:instanceOf(class)
-    if type(class) == "table" and type(self) == "table" then
-        local parentClass = self
+function M:instanceOf(ancestor)
+    if type(ancestor) == "table" and type(self) == "table" then
+        local class = self.__class
         
-        while parentClass ~= nil and getmetatable(parentClass) ~= nil do
-            parentClass = getmetatable(parentClass).__index
-            if parentClass == class then
+        while class ~= nil do
+            local parent = class.__parent
+            if class == ancestor or parent == ancestor then
                 return true
             end
+            class = parent
         end
     end
     
     return false
+end
+
+--- Creates a new instance from a class.
+--
+-- @param class (Class)
+--
+-- @warning Must be called with ":" on a class
+function M._newObjectInstance(class, ...)
+    local object = {}
+    setmetatable(object, { __index = class })
+    
+    if class.ctr
+       and (type(class.ctr) == "function"
+            or (type(class.ctr) == "table" and class.ctr.name == "ctr"))
+    then
+        class.ctr(object, ...)
+    end
+    
+    return object
+end
+
+--- Returns the actual class to consider for static members resolution on a 
+--  given class.
+--
+-- @param class (Class)
+--
+-- @return (Class) The given class if no static resolution was needed, or the 
+--                 calling descendant class if there was one
+function M._getActualClassUsingLateBinding(class)
+    local callers = class.__staticCallers
+    return callers[#callers] or class
+end
+
+--- Calls an ancestor/virtual method, setting everything up so that static calls
+--  in the ancestor class will resolve correctly to the calling class if needed
+--  (i.e. the calling class does override some members used in the ancestor 
+--  call) => uses late static binding
+--
+-- @param vm (table) The "virtual method" data, i.e. a table with the keys 
+--                   "originalClass" (Class, the ancestor class where this 
+--                   method is actually defined), "callingClass" (Class, the 
+--                   class that should be considered "current" when calls from
+--                   the virtual method use static members), and "name" (string,
+--                   the name of the method)
+--
+-- @return (any, any, ...) The return value(s) from the virtual method that was
+--                         called
+function M._callAncestorMethodUsingLateBinding(vm, ...)
+    local originalClass = vm.originalClass
+    local callingClass = vm.callingClass
+    local methodName = vm.name
+    
+    table.insert(originalClass.__staticCallers, callingClass)
+    local r = { originalClass[methodName](...) }
+    table.remove(originalClass.__staticCallers)
+    
+    return unpack(r)
 end
 
 return M

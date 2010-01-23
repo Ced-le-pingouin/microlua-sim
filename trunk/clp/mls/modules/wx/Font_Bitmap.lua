@@ -33,7 +33,7 @@ function M:initModule()
     M.NUM_CHARS = 256
     M.CACHE_MAX_STRINGS = 25
     M.CACHE_MIN_STRING_LEN = 1
-    M._initDefaultFont()
+    M.static()._initDefaultFont()
 end
 
 --- Creates a new font from a font file (oslib and µLibray format) [ML 2+ API].
@@ -127,11 +127,11 @@ end
 -- @param y (number) The y coordinate to draw to
 -- @param text (string) The text to print
 -- @param color (Color) The color of the text
--- @param useColor (boolean) This is an INTERNAL parameter to reproduce a ML 
---                           bug, where color is ignore when using Font.print, 
---                           but used when using the print functions in screen
-function M.print(screenOffset, font, x, y, text, color, useColor)
-    if not useColor then color = nil end
+-- @param _useColor (boolean) This is an INTERNAL parameter to reproduce a ML 
+--                            bug, where color is ignore when using Font.print, 
+--                            but used when using the print functions in screen
+function M.print(screenOffset, font, x, y, text, color, _useColor)
+    if not _useColor then color = nil end
     
     local offscreenDC = screen._getOffscreenDC(screenOffset)
     
@@ -155,7 +155,7 @@ end
 function M._printNoClip(screenOffset, font, x, y, text, color)
     if type(text) == "number" then text = tostring(text) end
     if #text == 0 then return end
-    if not color then color = wx.wxWHITE end
+    if not color then color = Color.WHITE end
     
     local offscreenDC = screen.offscreenDC
     local stringBitmap
@@ -691,7 +691,7 @@ function M._initDefaultFont()
         0x14, 0x0, 0x22, 0x22, 0x22, 0x3c, 0x20, 0x1c
     })
     
-    M._defaultFont = font
+    M.static()._defaultFont = font
 end
 
 return M
