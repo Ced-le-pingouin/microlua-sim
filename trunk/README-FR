@@ -82,6 +82,8 @@ manipulations d'images. Je pourrais aussi m'intéresser aux bindings Qt pour Lua
 voire même à l'OpenGL, mais comme je suis débutant dans ce domaine, ça sera sans
 doute la dernière chose que je tenterai.
 
+PS: depuis la version initiale de ce texte, l'OpenGL a été implémenté. Youpi!
+
 
 ------------------------------
 [2] Contenu de l'archive (zip)
@@ -169,7 +171,9 @@ disponibles:
 | F4       | Augmente les UPS                  |
 | F5       | drawGradientRect() simple/avancé  |
 | F6       | Ajuste la longueur des rectangles |
+| F7       | Bascule entre le zoom 1x et 2x    |
 | H        | Hack Stylus.newPress (ML3/ML2)    |
+| F11      | Plein écran (Windows seulement)   |
 | F12      | Augmente le niveau de log         |
 | Ctrl+Q   | Quitte MLS                        |
 +----------+-----------------------------------+
@@ -186,21 +190,21 @@ peut-être plus agréable à l'oeil, et de toute façon cela n'affecte pas la
 vitesse *d'exécution* des scripts.
 
 Les UPS sont le nombre d'itérations/sec de la boucle principale dans le script
-en cours d'exécution. Je considère les appels à stopDrawing() comme la fin d'une
-itération de boucle, étant donné que c'est la structure la plus courante pour 
-un script de jeu. Donc, les UPS affectent la vitesse réelle des scripts.
-Je ne connais pas la vitesse de ML à ce niveau, mais ma valeur apr défaut est de
-55.
+en cours d'exécution. Je considère les appels à Controls.read() comme la fin 
+d'une itération de boucle, étant donné que c'est la structure la plus courante 
+pour un script de jeu. Donc, les UPS affectent la vitesse réelle des scripts.
+Je ne connais pas la vitesse de ML à ce niveau, mais ma valeur par défaut est de
+60 également.
 
 Veuillez noter que les FPS et UPS "cibles" ne seront pas respectés à la 
 perfection, vu que mon système de temporisation est loin d'être parfait, et 
 qu'il dépend parfois de particularités de l'OS utilisé.
 
-Le niveau de log (touche F5) est seulement présent pour des raisons de déboguage
-et vous ne devriez pas trop y toucher, sauf si vous savez ce que vous faites.
-Autrement vous pourriez vous retrouver avec des tonnes de messages internes de 
-MLS qui envahissent la console, et cela pourrait même ralentir les scripts en 
-cours.
+Le niveau de log (touche F12) est seulement présent pour des raisons de 
+déboguage et vous ne devriez pas trop y toucher, sauf si vous savez ce que vous 
+faites. Autrement vous pourriez vous retrouver avec des tonnes de messages 
+internes de MLS qui envahissent la console, et cela pourrait même ralentir les 
+scripts en cours.
 
 
 ----------------------------
@@ -208,14 +212,14 @@ cours.
 ----------------------------
 Un fichier de configuration nommé "mls.ini" est chargé, s'il existe, à partir du
 dossier courant. Il vous permet de définir quelques options (fps, ups, système 
-de polices).
+de polices, OpenGL etc).
 
 Les commentaires sont autorisés dans ce fichier, il doivent débuter par le 
 caractère ";".
 
 Il y a un mls.ini en exemple dans la distribution, nommé mls.ini.dist. 
 Toutes ses options sont définies aux valeurs par défaut, mais vous pouvez le 
-renommer en mls.ini, et commencer à la modifier.
+renommer en mls.ini, et commencer à le modifier.
 
 Pour plus d'informations sur les options, consultez le fichier de configuration 
 fourni.
@@ -247,11 +251,11 @@ Général
 
 - Les versions Windows et Mac OS X sont considérées comme beta, étant donné que 
   je développe et teste surtout sous Linux, mon OS principal. Des tests on été 
-  faits sous Ubuntu 8.10 et +, Windows XP, et Mac OS X 10.4 "Tiger", le tout 
-  en version 32 bits. Je n'ai pas testé sous d'autres distribs Linux, ni sous 
-  Windows Vista, ni sous Mac OS X Léopard. Aussi, mon Windows XP est en fait 
-  virtualisé, donc je suppose que le résultat peut être différent sous un 
-  Windows XP natif.
+  faits sous Ubuntu 8.10 et +, Windows XP, et Mac OS X 10.6 "Snow Leopard", le 
+  tout en version 32 bits. Je n'ai pas testé sous d'autres distribs Linux, ni 
+  sous Windows Vista ou 7, ni sous Mac OS X Léopard. Aussi, mon Windows XP est 
+  en fait virtualisé, donc je suppose que le résultat peut être différent sous 
+  un Windows XP natif.
   
   NOTE: j'ai récemment installé un Ubuntu en 64-bit, et MLS semble bien 
         fonctionner, si ce n'est quelques messages d'avertissement concernant
@@ -317,8 +321,8 @@ screen
 - En ML, le rafraichissement des écrans se fait à 30 images/seconde, dans le 
   simulateur, vous pouvez le modifier.
   
-- drawGradientRect() n'est pas "MicroLua-tement correct" (trop dur à faire en 
-  wxWidgets).
+- drawGradientRect() n'est pas "MicroLua-tement correct" lorsqu'OpenGL est
+  désactivé (trop dur à faire en wxWidgets).
 
 ScrollMap
 ~~~~~~~~~
@@ -358,9 +362,8 @@ quelques trucs que j'aimerais faire:
   - résoudre les problèmes d'encodage des systèmes de polices bitmap/natives 
     (latin1/utf8)
   - si la vitesse d'exécution reste insatisfaisante, peut-être essayer la lib 
-    Qt, l'OpenGL, ou même réécrire le simulateur en Java avec une lib "Lua 
-    intégré", et Java2D pour la partie graphique (un peu folle peut-être cette 
-    idée?)
+    Qt ou même réécrire le simulateur en Java avec une lib "Lua intégré", et 
+    Java2D pour la partie graphique (un peu folle peut-être cette idée?)
 
 Pour plus de "TODO"'s, regardez les sources, particulièrement clp/mls/Mls.lua. 
 Des balises @todo sont placées dans les commentaires.
@@ -374,10 +377,10 @@ E-mail: Ced.le.pingouin@gmail.com
 Google Code: http://code.google.com/p/microlua-sim/
 
 Site web (téléchargement seulement):
-  http://www.cedlepingouin.com/mls/files/mls-0.4-linux.zip
-  http://www.cedlepingouin.com/mls/files/mls-0.4-win.zip
-  http://www.cedlepingouin.com/mls/files/mls-0.4-mac.zip
-  http://www.cedlepingouin.com/mls/files/mls-0.4-src.zip
+  http://www.cedlepingouin.com/mls/files/mls-0.4beta3-linux.zip
+  http://www.cedlepingouin.com/mls/files/mls-0.4beta3-win.zip
+  http://www.cedlepingouin.com/mls/files/mls-0.4beta3-mac.zip
+  http://www.cedlepingouin.com/mls/files/mls-0.4beta3-src.zip
 
 Dans les URL ci-dessus, vous pouvez remplacer le n° de version par celui que 
 vous désirez, car toutes les versions sont maintenant gardées sur le site.
