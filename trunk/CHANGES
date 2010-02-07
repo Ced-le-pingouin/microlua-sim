@@ -1,9 +1,70 @@
-0.4 (?? ??? 2009)
------------------
+0.4 beta 3 (??? ??? 2010)
+-------------------------
+  * OpenGL support. It can ben enabled in the config file
+  * the main window can now be resized, and a shortcut key (F7) allows you to 
+    switch between 1x and 2x zoom. On Windows, F11 enables/disables fullscreen 
+    (a bit ugly because of the non integer zoom ratio).
+    WARNING: resizing the window can cause massive slowdown if OpenGL is 
+    disabled (except maybe on Windows)
+  * it is now possible to reload a script from disk (Shift+B)
+  * shortcut keys: increasing/decreasing FPS/UPS now uses steps of 5, instead of
+    1
+  * shortcut keys: displaying and hiding the console is now bound to F12 instead
+    of F5
+  * arrow keys now work on Windows too
+  * screen: drawGradientRect() accuracy can now be adjusted (F5 key and config 
+    file option)
+  * screen: it is now possible to enable or disable "rectangle length 
+    correction" (F6 key and config file option)
+  * module() and require() should work better in loaded scripts
+  * Font.print(): in ML, the color argument is ignored (bug). This behaviour is
+    now reproduced by MLS
+  * newPress behaviour can mimic either ML2 or ML3 (H key and config file 
+    option)
+  * Image.blit(): MLS reproduces the "weird" behaviour of ML when a rotation is
+    set on the image (offset or not when displaying)
+  * variable accesses like _G["var_name"] didn't work in previous versions
+  * default UPS in the provided config file are now set to 60 instead of 55
+  * timing handling has been changed (but I'm not quite happy with it right now
+    :( )
+    
+0.4 beta 2 (9 August 2009)
+--------------------------
+  * Stylus: doubleClick has been implemented, released behaviour is now 
+    similar to the one in Micro Lua, and newPress can behave as in ML2 or ML3
+  * screen.mirrorH()/mirrorV(): they are now enabled, because we discovered 
+    that they really were enabled in ML, only they needed a second 
+    (undocumented) boolean parameter set to true to have any effect
+  * ScrollMap: getTile()/setTile() are now implemented, and scrollmap 
+    transparency is now respected
+  * screen: functions drawing a rectangle now draw it correctly (they used to
+    draw rectangles one pixel shorter than they should have been)
+  * enabled an internal hack that detects whether the StylusBox library is 
+    loading, and replace its newPressinBox() function with our own version, 
+    because the original one doesn't work in MLS (nor in ML3)
+  * state of current script (paused etc.) is now displayed in a colored box, 
+    directly on the DS screen, in addition to the status bar, where it wasn't 
+    too noticeable
+  * shortcut to erase the content of the console (Del key)
+  * the console is automatically displayed on error
+  * whenever an error occurs while loading an image, the error message is no 
+    longer displayed in an alert dialog box, it's displayed in the console
+  * more detailed error messages (the call stack is displayed)
+  * "*.*" filter available in File open dialog. It allows Linux users to see
+    "*.LUA" files, which are different, on Linux, than "*.lua" files
+  * Windows: mls and mls-src don't crash when you specify the path of a script
+    that contains spaces on the command line
+  * Windows: the launcher file is now a (fake) .exe instead of a .bat, which 
+    allows us to embed an icon in it
+  * Linux: folders and files with incorrect case in dofile(), Image.load() etc.
+    are now always found if they exist (e.g. trying to load "LIBWindow.lua" when
+    the file name is "libWindow.lua")
+
+0.4 beta 1 (2 August 2009)
+--------------------------
   ! Micro Lua Simulator is now licenced under GPL v3. This means you get the 
     source, and you can modify it, BUT you have to provide the modified source
     whenever you decide to re-distribute your work
-  ! OpenGL support. In alpha state for now. Linux only. Disabled by default
   * compatible with the new Micro Lua version, 3.0:
     - Image.scale() works as it should, i.e. it doesn't reset itself after a 
       blit()
@@ -17,37 +78,13 @@
       . Wifi (but no UDP sockets)
       . Sound (a stub)
   * bitmap fonts (read: MicroLua-correct), but slower (and latin-1 only)
-  * Font.print(): in ML, the color argument is ignored (bug). This behaviour is
-    now reproduced by MLS
-  * Image.blit(): MLS reproduces the "weird" behaviour of ML when a rotation is
-    set on the image (offset or not when displaying)
-  * Stylus: doubleClick has been implemented, released behaviour is now 
-    similar to the one in Micro Lua, and newPress can behave as in ML2 or ML3
-  * screen.mirrorH()/mirrorV(): they are now enabled, because we discovered 
-    that they really were enabled in ML, only they needed a second 
-    (undocumented) boolean parameter set to true to have any effect
-  * screen.drawGradientRect() accuracy can now be adjusted
-  * screen: functions drawing a rectangle now draw it correctly (they used to
-    draw rectangles one pixel shorter than they should have been).
-    If not, there's an config option and a shortcut key to switch "length modes"
-  * ScrollMap: getTile()/setTile() are now implemented, and scrollmap 
-    transparency is now respected
-  * enabled an internal hack that detects whether the StylusBox library is 
-    loading, and replace its newPressinBox() function with our own version, 
-    because the original one doesn't work in MLS (nor in ML3)
-  * module() and require() should work better in loaded scripts
-  * timing handling has been changed (but I'm not quite happy with it right now
-    :( )
   * GUI and menus: you can load scripts from there, and you don't have to 
     provide the name of the initial script at the command line anymore
-  * some key bindings allowing to change FPS/UPS, pause and restart/reload
-    scripts...
+  * some key bindings allowing to change FPS/UPS, pause and restart scripts...
   * also added the keypad numbers for up/down/left/right moves
   * all new console that displays the errors encountered in scripts, instead
     of violently exiting MLS. MLS log/debug messages also appear there
   * no more screen flickering in Windows (at least not on my side)
-  * the launcher file is now a (fake) .exe in Windows instead of a .bat, which 
-    allows us to embed an icon in it
   * the sim now reads some options from a config file
   * scripts and their additional files (images, libs...) don't have to sit in 
     MLS root anymore to be found
