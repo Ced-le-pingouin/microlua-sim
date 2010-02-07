@@ -71,6 +71,8 @@ which is probably not that fast for bitmap and image manipulations. I could look
 into Qt bindings, or try to use an OpenGL canvas for the graphics, but I have 
 close to no experience of OpenGL, so I guess this would be the last thing I try.
 
+PS: since the initial text, OpenGL has been implemented, yay!
+
 
 ----------------------------
 [2] What's in the zip file ?
@@ -153,7 +155,9 @@ available:
 | F4       | Increase UPS                       |
 | F5       | Simple/advanced drawGradientRect() |
 | F6       | Adjust rectangles length           |
+| F7       | Switch between 1x and 2x zoom      |
 | H        | Stylus.newPress hack (ML3/ML2)     |
+| F11      | Fullscreen mode (Windows only)     |
 | F12      | Increase log level                 |
 | Ctrl+Q   | Quit MLS                           |
 +----------+------------------------------------+
@@ -169,15 +173,15 @@ even though ML claims a 30fps display rate. 60 maybe easier on the eye, anyway
 it should not change the *running* speed of the scripts (see below).
 
 The UPS are updates/sec, that is the number of times MLS will iterate the main 
-loop of a running script. I consider calls to stopDrawing() in scripts as the
+loop of a running script. I consider calls to Controls.read() in scripts as the
 end of a loop iteration, since it is a common structure for game scripts.
 So, these UPS will affect the real speed of the scripts. I don't know the exact
-rate of the real ML, but the default value is 55.
+rate of the real ML, but the default value is 60.
 
 Please note that "target" FPS and UPS won't be perfectly achieved, since my 
 timing system is far from perfect, and depends on OS internals.
 
-The log level (F5 key) is only there for debugging purposes, and you should not
+The log level (F12 key) is only there for debugging purposes, and you should not
 play with this unless you know what you're doing. Otherwise the console might
 overflow with useless MLS internal messages, and maybe slow down the running 
 script. You have been warned :)
@@ -187,7 +191,7 @@ script. You have been warned :)
 [4] Config file
 ---------------
 A config file called "mls.ini" is loaded from the current directory if it exists
-and allows you to change some settings (fps, ups, font system...).
+and allows you to change some settings (fps, ups, font system, OpenGL...).
 
 Comments are allowed in the config file, they should begin with the ";" 
 character.
@@ -224,8 +228,8 @@ General
   
 - The Windows and Mac versions are considered beta, since I usually test on 
   Linux, my main OS. Tests have been done on Ubuntu 8.10+, Windows XP, and
-  Mac OS X 10.4 "Tiger", all in 32-bit version. I haven't tested it on other 
-  Linux distribs, Windows Vista or Mac OS X Leopard. Also, my WinXP is 
+  Mac OS X 10.6 "Snow Leopard", all in 32-bit versions. I haven't tested it on 
+  other Linux distribs, Windows Vista/7 or Mac OS X Leopard. Also, my WinXP is 
   virtualized, so there may be differences in a native WinXP.
   
   NOTE: I recently installed a 64-bit Ubuntu, and MLS works fine with it, only 
@@ -286,7 +290,8 @@ screen
 - In ML, screen refresh is locked at 30fps. In MLS, you can choose the target
   FPS.
 
-- drawGradientRect() is not "ML-correct" (too hard to achieve with wxWidgets).
+- drawGradientRect() is not "ML-correct" when OpenGL is disabled (too hard to 
+  achieve with wxWidgets).
 
 ScrollMap
 ~~~~~~~~~
@@ -319,9 +324,9 @@ of the things I'd like to do:
   - read key bindings from the config file, too
   - better launch script on Mac OS X, would give focus to the window => real app
   - possible to fix encoding problems with bitmap/native fonts ? (latin1/utf8)
-  - if gfx speed is hopeless, maybe try Qt bindings, or OpenGL, or maybe rewrite
-    the sim in Java with an embedded Lua lib and Java2D for the gfx bits
-    (is this a crazy idea?)
+  - if gfx speed is hopeless, maybe try Qt bindings, or maybe rewrite the sim
+    in Java with an embedded Lua lib and Java2D for the gfx bits (is this a 
+    crazy idea?)
 
 For more "TODO"'s, take a look at the source, especially clp/mls/Mls.lua.
 @todo tags are written inside comments.
@@ -335,10 +340,10 @@ E-mail: Ced.le.pingouin@gmail.com
 Google Code: http://code.google.com/p/microlua-sim/
 
 Website (download only):
-  http://www.cedlepingouin.com/mls/files/mls-0.4-linux.zip
-  http://www.cedlepingouin.com/mls/files/mls-0.4-win.zip
-  http://www.cedlepingouin.com/mls/files/mls-0.4-mac.zip
-  http://www.cedlepingouin.com/mls/files/mls-0.4-src.zip
+  http://www.cedlepingouin.com/mls/files/mls-0.4beta3-linux.zip
+  http://www.cedlepingouin.com/mls/files/mls-0.4beta3-win.zip
+  http://www.cedlepingouin.com/mls/files/mls-0.4beta3-mac.zip
+  http://www.cedlepingouin.com/mls/files/mls-0.4beta3-src.zip
 
 In the above URLs, you can replace the version number with the one you'd like
 to download, since all previous versions are now kept on the site.
