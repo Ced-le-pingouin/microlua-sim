@@ -321,7 +321,7 @@ function M:loadScript(scriptPath)
     -- sets script path as an additional path to find files (for dofile(), 
     -- Image.load()...)
     local scriptDir, scriptFile = Sys.getPathComponents(scriptPath)
-    if scriptDir ~= "" then Sys.setPath(scriptDir) end
+    if scriptDir ~= "" then System.changeDirectory(scriptDir) end
     
     self._scriptPath = scriptPath
     self._scriptFile = scriptFile
