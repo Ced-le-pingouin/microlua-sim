@@ -104,6 +104,8 @@ Mls.VERSION = "0.4beta3"
 function Mls:ctr(scriptPath)
     Mls.logger = Logger:new(Logger.WARN, "*")
     
+    Mls.initialDirectory = wx.wxGetCwd()
+    
     -- two config files are valid, first the dev one, then the user one
     local configFile, found = nil, false
     for _, possibleConfigFile in ipairs{ "mls.dev.ini", "mls.ini" } do
@@ -117,7 +119,7 @@ function Mls:ctr(scriptPath)
     
     -- init vars and gui
     Mls._initVars()
-    Mls.gui = Mls._initGui()
+    Mls.gui = Mls._initGui(Mls.initialDirectory)
     
     -- logger
     Mls.logger:setWriterFunction(Mls.gui:getConsoleWriter())
@@ -185,12 +187,14 @@ end
 --- Initializes main window, menu items and their associated action, then shows
 --  the window.
 --
+-- @param path (string) An optional directory to search for the GUI icons
+--
 -- @return (Gui) The created Gui object
-function Mls._initGui()
+function Mls._initGui(path)
     Mls.logger:info("initializing GUI")
     
     local gui = Gui:new(SCREEN_WIDTH, SCREEN_HEIGHT * 2, 
-                        "uLua DS Sim v"..Mls.VERSION)
+                        "uLua DS Sim v"..Mls.VERSION, nil, nil)
     
     gui:registerShutdownCallback(function()
         -- the events functions must always be called with current "Mls"
