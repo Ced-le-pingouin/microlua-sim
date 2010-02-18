@@ -194,7 +194,7 @@ function Mls._initGui(path)
     Mls.logger:info("initializing GUI")
     
     local gui = Gui:new(SCREEN_WIDTH, SCREEN_HEIGHT * 2, 
-                        "uLua DS Sim v"..Mls.VERSION, nil, nil)
+                        "uLua DS Sim v"..Mls.VERSION, nil, path)
     
     gui:registerShutdownCallback(function()
         -- the events functions must always be called with current "Mls"
