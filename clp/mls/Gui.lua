@@ -49,16 +49,18 @@ M.MENU_ABOUT = wx.wxID_ABOUT
 --                          to an icon for the main app window. MUST BE 32x32 or
 --                          16x16 otherwise Windows doesn't like it.
 --                          When nil, "icon.png" will be tried as well
+-- @param path (string) An optional directory to search for the GUI icons
 --
 -- @see _createWindow
 -- @see _createSurface
 -- @see _createInfoLabels
 -- @see _createStatusBar
-function M:ctr(width, height, windowTitle, iconPath)
+function M:ctr(width, height, windowTitle, iconPath, path)
     self._width, self._height, self._windowTitle = width, height, windowTitle
+    self._path = path or ""
     
     iconPath = iconPath or "icon.png"
-    iconPath, found = Sys.getFile(iconPath)
+    iconPath, found = Sys.getFileWithPath(iconPath, self._path)
     Mls.logger:debug("loading app icon "..iconPath, "gui")
     self._icon = found and wx.wxIcon(iconPath, wx.wxBITMAP_TYPE_PNG)
                         or nil
@@ -421,7 +423,7 @@ function M:showAboutBox(appInfo)
     Mls.logger:debug("showing About box", "gui")
     
     local iconPath = appInfo.icon or "about.png"
-    iconPath, found = Sys.getFile(iconPath)
+    iconPath, found = Sys.getFileWithPath(iconPath, self._path)
     local icon = found and wx.wxIcon(iconPath, wx.wxBITMAP_TYPE_PNG)
                         or self._icon
     
