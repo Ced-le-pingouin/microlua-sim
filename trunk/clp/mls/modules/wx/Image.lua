@@ -56,12 +56,10 @@ function M.load(path, destination)
     assert(type(destination) == "number", 
            "Destination (RAM or VRAM) must be given when loading an image !")
     
-    local ext3 = path:sub(-4):lower()
-    local ext4 = path:sub(-5):lower()
-    assert(
-        ext3 == ".png" or ext3 == ".gif" or ext3 == ".jpg" or ext4 == ".jpeg",
-        "Image file must be a .png, .gif, .jpg or .jpeg file"
-    )
+    local _, ext = Sys.getFileComponents(path)
+    ext = ext:lower()
+    assert(ext == "png" or ext == "gif" or ext == "jpg" or ext == "jpeg",
+           "Image file must be a .png, .gif, .jpg or .jpeg file")
     
     local image = {}
     
