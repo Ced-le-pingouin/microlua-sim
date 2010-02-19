@@ -39,6 +39,32 @@ function M.getOS()
     return platform:GetOperatingSystemFamilyName()
 end
 
+--- Builds a path from multiple parts.
+--
+-- @param ... (string) The parts to use for building the final path
+--
+-- @return (string)
+function M.buildPath(...)
+    local parts = {...}
+    
+    -- find the separator in arguments, or use a default value
+    local fileSeparator
+    for _, part in ipairs(parts) do
+        fileSeparator = part:match("[/\\]")
+        if fileSeparator then break end
+    end
+    fileSeparator = fileSeparator or "/"
+    
+    -- concatenate all the parts using found separator
+    local finalPath = table.concat(parts, fileSeparator)
+    
+    -- remove duplicate and final separators
+    finalPath = finalPath:gsub("([/\\]+)", "%1")
+    finalPath = finalPath:gsub("[/\\]$", "")
+    
+    return finalPath
+end
+
 --- Returns the various components of a given path.
 --
 -- @param path (string) A complete path
