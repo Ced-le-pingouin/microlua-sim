@@ -17,6 +17,8 @@
     file option). This is useless in OpenGL mode
   * screen: it is now possible to enable or disable "rectangle length 
     correction" (F6 key and config file option)
+  * screen.drawTextBox() is now correctly clipped when overflowing from the 
+    upper screen to the lower one
   * module() and require() should work better in loaded scripts
   * Font.print(): in ML, the color argument is ignored (bug). This behaviour is
     now reproduced by MLS

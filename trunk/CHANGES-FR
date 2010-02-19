@@ -18,6 +18,8 @@
     fichier de configuration). Cette option n'est pas utile en OpenGL
   * screen: possibilité d'activer ou pas la "correction" de la taille des 
     "fonctions rectangulaires" (touche F6 et fichier de configuration)
+  * screen.drawTextBox() a maintenant un clipping correct lorsqu'il déborde de
+    l'écran du haut vers celui du bas
   * module() et require() devraient être mieux supportés dans les scripts 
     chargés
   * Font.print(): dans ML, le paramètre de couleur est ignoré (bug). Ce 
