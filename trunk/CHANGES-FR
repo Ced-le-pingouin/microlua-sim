@@ -9,18 +9,20 @@
                excessifs lorsque le mode OpenGL est inactif (sauf peut-être sous
                Windows)
   * possibilité de recharger un script modifié, à partir du disque (Shift+B)
+  * le dossier courant de départ est celui du script chargé
   * raccourcis clavier: l'incrémentation/décrémentation des FPS/UPS fonctionne 
     désormais par pas de 5 (au lieu de 1)
   * raccourcis clavier: l'affichage ou pas de la console passe de F5 à F12
   * les flèches directionnelles fonctionnent maintenant aussi sous Windows
   * screen: possibilité d'ajuster la qualité de drawGradientRect() (touche F5 et
-    fichier de configuration)
+    fichier de configuration). Cette option n'est pas utile en OpenGL
   * screen: possibilité d'activer ou pas la "correction" de la taille des 
     "fonctions rectangulaires" (touche F6 et fichier de configuration)
   * module() et require() devraient être mieux supportés dans les scripts 
     chargés
   * Font.print(): dans ML, le paramètre de couleur est ignoré (bug). Ce 
     comportement est reproduit par le simulateur
+  * Image.load() n'accepte plus que les fichiers png/gif/jpg/jpeg
   * newPress peut se comporter comme en ML2 ou ML3, au choix (touche H et 
     fichier de configuration)
   * Image.blit(): + compatible avec le comportement "bizarre" de ML lorsqu'une 
