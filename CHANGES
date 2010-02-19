@@ -7,18 +7,20 @@
     WARNING: resizing the window can cause massive slowdown if OpenGL is 
     disabled (except maybe on Windows)
   * it is now possible to reload a script from disk (Shift+B)
+  * initial current working directory is now the same as the running script
   * shortcut keys: increasing/decreasing FPS/UPS now uses steps of 5, instead of
     1
   * shortcut keys: displaying and hiding the console is now bound to F12 instead
     of F5
   * arrow keys now work on Windows too
   * screen: drawGradientRect() accuracy can now be adjusted (F5 key and config 
-    file option)
+    file option). This is useless in OpenGL mode
   * screen: it is now possible to enable or disable "rectangle length 
     correction" (F6 key and config file option)
   * module() and require() should work better in loaded scripts
   * Font.print(): in ML, the color argument is ignored (bug). This behaviour is
     now reproduced by MLS
+  * Image.load() now only accepts png/gif/jpg/jpeg files
   * newPress behaviour can mimic either ML2 or ML3 (H key and config file 
     option)
   * Image.blit(): MLS reproduces the "weird" behaviour of ML when a rotation is
