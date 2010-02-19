@@ -404,6 +404,7 @@ end
 -- @param color (Color) The color of the text box
 function M.drawTextBox(screenOffset, x0, y0, x1, y1, text, color)
     y0 = screenOffset + y0
+    if y1 > SCREEN_HEIGHT then y1 = SCREEN_HEIGHT end
     y1 = screenOffset + y1
     
     local posY = y0
