@@ -30,7 +30,7 @@ local Sys = require "clp.mls.Sys"
 
 local M = Class.new()
 
-M._imagePath = "clp/mls/images/keyboard"
+M._imagePath = Sys.buildPath(Mls.initialDirectory, "clp/mls/images/keyboard")
 
 function M:initModule()
     M._fontHeight = Font.getCharHeight(Font._defaultFont)
