@@ -40,11 +40,11 @@ M.MAGENTA = wx.wxColour(255, 0, 255)
 -- @return (Color) The created color. The real type is implementation 
 --                 dependent
 --
--- @todo In MLS, a number is returned, and Color is a number everywhere it 
+-- @todo In ML, a number is returned, and Color is a number everywhere it 
 --       is used, so if some scripts incorrectly give a number for Color, 
 --       there's no error in ML, whereas in MLS a wxColour object is expected
 --       so an error is raised. Maybe I should make Color a number internally
---       too, bu then I'd have to convert it to a wxColour every time it is
+--       too, but then I'd have to convert it to a wxColour every time it is
 --       used. Would this be too much overhead?
 --       The macro in ML/uLibrary/libnds is:
 --           #define RGB15(r,g,b)  ((r)|((g)<<5)|((b)<<10))
