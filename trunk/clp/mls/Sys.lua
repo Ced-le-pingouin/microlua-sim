@@ -212,7 +212,7 @@ function M.getFile(path, usePath)
         -- "part" the root dir. When we have a relative path, the first part
         -- should be "."
         if path:sub(1,1) == fileSeparator then
-            table.insert(parts, 1, "/")
+            table.insert(parts, 1, fileSeparator)
         elseif parts[1] ~= "." then
             table.insert(parts, 1, ".")
         end
