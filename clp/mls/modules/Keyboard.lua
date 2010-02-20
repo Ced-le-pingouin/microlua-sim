@@ -30,8 +30,6 @@ local Sys = require "clp.mls.Sys"
 
 local M = Class.new()
 
-M._imagePath = Sys.buildPath(Mls.initialDirectory, "clp/mls/images/keyboard")
-
 function M:initModule()
     M._fontHeight = Font.getCharHeight(Font._defaultFont)
     M._enterChar = "\n" --"|"
@@ -89,6 +87,9 @@ end
 
 --- Initializes variables for this module.
 function M._initVars()
+    M._imagePath = Sys.buildPath(Mls.initialDirectory, 
+                                 "clp/mls/images/keyboard")
+    
     M.color = { 
         blue   = "blue.png",
         gray   = "gray.png",
