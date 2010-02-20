@@ -29,8 +29,6 @@ local Image_wx = require "clp.mls.modules.wx.Image"
 
 local M = Class.new(Image_wx)
 
-M.MASK_COLOR = Color.MAGENTA
-
 --- Creates a new image in memory from an image file (PNG, JPG or GIF) [ML 2+ API].
 --
 -- @param path (string) The path of the image to load

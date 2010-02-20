@@ -26,9 +26,9 @@
 require "luagl"
 local Class = require "clp.Class"
 local Image = require "clp.mls.modules.gl.Image"
-local Font_wx = require "clp.mls.modules.wx.Font_Bitmap"
+local Font_Bitmap_wx = require "clp.mls.modules.wx.Font_Bitmap"
 
-local M = Class.new(Font_wx)
+local M = Class.new(Font_Bitmap_wx)
 
 function M.load(path)
     local font = M.parent().load(path)
