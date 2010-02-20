@@ -66,6 +66,8 @@ end
 function M:loadModules(modules, prefixes)
     Mls.logger:info("loading uLua simulated modules", "module")
     
+    if not self._modules then self._modules = {} end
+    
     modules = modules or self._modules
     prefixes = prefixes or self._prefixes
     
@@ -73,18 +75,7 @@ function M:loadModules(modules, prefixes)
         if not __MLS_COMPILED then
             _G[module] = self:_loadModule(module, prefixes)
         else
-            -- modules won't be loaded (only initialized) if we're running a 
-            -- "compiled" version of Mls (everything in one big file).
-            
-            -- ugly hack to make Font work in the compiled version of MLS
-            -- we have to put one of the two Font implementations in global 
-            -- variable Font => only the bitmap one is available in this version
-            if module == "Font" then
-                Font = Font_Bitmap
-            end
-            -- in the compiled version, modules are already set on _G, so 
-            -- consider them loaded
-            self._modules[module] = _G[module]
+            self:_registerCompiledModule(module, prefixes)
         end
         
         if module == "screen" then
@@ -120,8 +111,6 @@ end
 --                         prefixes (in list order) until the module is found, 
 --                         or the list is over. The latter throws an error.
 function M:_loadModule(module, prefixes)
-    if not self._modules then self._modules = {} end
-    
     Mls.logger:debug(module.." loading", "module")
     
     if self._modules[module] then
@@ -152,6 +141,54 @@ function M:_loadModule(module, prefixes)
     self._modules[module].__MODULE_NAME = module
     
     return result
+end
+
+--- Registers a simulated ML module in the "compiled" version of MLS.
+--
+-- @param module (string) The name of the module to register. Its Lua "class" 
+--                        should have been declared in the big single "compiled"
+--                        file, and will generally have the same name as the 
+--                        module, or be suffixed, e.g. with "_wx" or "_gl"
+-- @param prefixes (table) An optional list of prefixes that are usually used in
+--                         the source version of MLS. In this function, the 
+--                         prefixes will be turned into suffixes, as they do not
+--                         stand for the directories in which the lua scripts 
+--                         are supposed to be, but rather for suffixes for the 
+--                         names of Lua "classes", based on the module names
+function M:_registerCompiledModule(module, prefixes)
+    Mls.logger:debug("registering compiled module "..module, "module")
+    
+    prefixes = prefixes or {}
+    
+    -- modules won't be loaded (only initialized) if we're running a "compiled"
+    -- version of Mls (everything in one big file).
+    
+    -- ugly hack to make Font work in the compiled version of MLS;
+    -- we have to put one of the two Font implementations in global variable
+    -- Font => only the bitmap one is available in this version
+    if module == "Font" then
+        Font = Font_Bitmap_wx
+    end
+    
+    -- in the compiled version, modules are already set on _G, so we consider
+    -- them already loaded...
+    
+    -- ...but we need to choose the right module name (compiled modules have 
+    -- their "prefix" as a suffix in their name)
+    for _, prefix in ipairs(prefixes) do
+        prefix = prefix:gsub("\.$", "")
+        local suffix = (prefix ~= "" and "_"..prefix or prefix)
+        local suffixedModuleName = module..suffix
+        
+        Mls.logger:debug(module..": trying to register with suffix '"..suffix.."'", "module")
+        
+        if _G[suffixedModuleName] then
+            _G[module] = _G[suffixedModuleName]
+            break
+        end
+    end
+    
+    self._modules[module] = _G[module]
 end
 
 return M
