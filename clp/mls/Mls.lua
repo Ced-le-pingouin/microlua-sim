@@ -425,7 +425,7 @@ function Mls.onAbout()
             version = Mls.VERSION,
             description = "Run Micro Lua DS scripts on your computer",
             authors = { "Ced-le-pingouin <Ced.le.pingouin@gmail.com>" },
-            copyright = "(c) 2009 Ced-le-pingouin",
+            copyright = "(c) 2009-2010 Ced-le-pingouin",
             link = {
                 caption = "Micro Lua Simulator topic on official Micro Lua DS forums",
                 url = "http://microlua.xooit.fr/t180-Micro-Lua-Simulator.htm"
