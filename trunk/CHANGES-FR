@@ -1,5 +1,5 @@
-0.4 beta 3 (??? ??? 2010)
--------------------------
+0.4 beta 3 (21 février 2010)
+----------------------------
   * support OpenGL pour l'affichage, activable par une variable dans le fichier
     de configuration
   * possibilité de redimensionner la fenêtre, et raccourci clavier F7 pour 
