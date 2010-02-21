@@ -87,8 +87,10 @@ end
 
 --- Initializes variables for this module.
 function M._initVars()
-    M._imagePath = Sys.buildPath(Mls.initialDirectory, 
-                                 "clp/mls/images/keyboard")
+    M._imagePath = {
+        Mls.initialDirectory,
+        Sys.buildPath(Mls.initialDirectory, "clp/mls/images/keyboard")
+    }
     
     M.color = { 
         blue   = "blue.png",
@@ -173,7 +175,7 @@ function M._loadImages()
     
     for _, color in ipairs{ M._normalColor, M._pressedColor } do
         if not M._images[color] then
-            local image = Sys.getFileWithPath(color, M._imagePath)
+        local image = Sys.getFileWithPath(color, M._imagePath)
             M._images[color] = Image.load(image, RAM)
         end
     end
