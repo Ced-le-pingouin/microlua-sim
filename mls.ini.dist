@@ -45,7 +45,7 @@ stylus_hack = 0
 rect_length = 0
 
 ;; Choose wich function will be used and with what precision when 
-;; drawGradientRect() is called
+;; drawGradientRect() is called (has no effect in OpenGL mode)
 ;;
 ;;  min: 0 = use the simple version, not ML-correct but fast (2-color gradient)
 ;;  2-256  = use the advanced version, slower (4-color gradient). Defines the
