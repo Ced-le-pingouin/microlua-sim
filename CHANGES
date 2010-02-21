@@ -14,9 +14,10 @@
     of F5
   * arrow keys now work on Windows too
   * screen: drawGradientRect() accuracy can now be adjusted (F5 key and config 
-    file option). This is useless in OpenGL mode
+    file option). This option does nothing in OpenGL mode
   * screen: it is now possible to enable or disable "rectangle length 
-    correction" (F6 key and config file option)
+    correction" (F6 key and config file option). This option does nothing in 
+    OpenGL mode
   * screen.drawTextBox() is now correctly clipped when overflowing from the 
     upper screen to the lower one
   * module() and require() should work better in loaded scripts
