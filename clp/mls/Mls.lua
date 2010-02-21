@@ -129,7 +129,7 @@ function Mls:ctr(scriptPath)
     
     -- script manager
     local fps = Mls.config:get("fps", 60)
-    local ups = Mls.config:get("ups", 55)
+    local ups = Mls.config:get("ups", 60)
     local timing = Mls.config:get("debug_main_loop_timing", nil)
     
     Mls.scriptManager = ScriptManager:new(fps, ups, timing, moduleManager)
@@ -150,7 +150,7 @@ function Mls:ctr(scriptPath)
     screen.setDrawGradientRectAccuracy(
         Mls.config:get("draw_gradient_rect_accuracy", 0)
     )
-    screen.setRectAdditionalLength(Mls.config:get("rect_length", 1))
+    screen.setRectAdditionalLength(Mls.config:get("rect_length", 0))
     
     -- and finally load the script given at the command line if needed
     Mls.scriptManager:init()
