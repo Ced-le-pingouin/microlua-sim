@@ -1,5 +1,5 @@
-0.4 beta 3 (??? ??? 2010)
--------------------------
+0.4 beta 3 (21 February 2010)
+-----------------------------
   * OpenGL support. It can ben enabled in the config file
   * the main window can now be resized, and a shortcut key (F7) allows you to 
     switch between 1x and 2x zoom. On Windows, F11 enables/disables fullscreen 
