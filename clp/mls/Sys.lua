@@ -254,19 +254,33 @@ function M.getFile(path, usePath)
     return path, false
 end
 
---- An extended getFile() with a temporary additional path to look for first
+--- An extended getFile() with temporary additional paths to look for first
 --
 -- @param path (string) The path of the file/dir to check for existence
--- @param additionalPath (string) A path to search the file/dir in before the 
---                                additional paths set in the class
+-- @param ... (string|table) Additional paths to search the file/dir in before 
+--                           the paths already set in the class. Can be a list
+--                           of parameters, or a table. When this second 
+--                           parameter is a table, further parameters are 
+--                           ignored
 --
 -- @return (string, boolean)
 --
 -- @see getFile
-function M.getFileWithPath(path, additionalPath)
-    M.addPath(additionalPath, true)
-    p, found = M.getFile(path)
-    M.removePath(additionalPath)
+function M.getFileWithPath(path, ...)
+    local additionalPaths = {...}
+    if type(additionalPaths[1]) == "table" then
+        additionalPaths = additionalPaths[1]
+    end
+    
+    for i = 1, #additionalPaths do
+        M.addPath(additionalPaths[i], true)
+    end
+    
+    local p, found = M.getFile(path)
+    
+    for i = #additionalPaths, 1 do
+        M.removePath(additionalPaths[i])
+    end
     
     return p, found
 end
