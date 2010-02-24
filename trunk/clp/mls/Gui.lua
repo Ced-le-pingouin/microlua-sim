@@ -305,7 +305,7 @@ end
 --
 -- @param text (string)
 function M:writeToConsole(text)
-    self._consoleText:AppendText(text .. "\n")
+    self._consoleText:AppendText(tostring(text).."\n")
 end
 
 --- Clears the GUI console
