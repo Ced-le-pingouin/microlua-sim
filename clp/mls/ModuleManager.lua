@@ -110,6 +110,8 @@ end
 --                         with. That is, a require will be issued with these 
 --                         prefixes (in list order) until the module is found, 
 --                         or the list is over. The latter throws an error.
+--
+-- @return (table) The loaded module
 function M:_loadModule(module, prefixes)
     Mls.logger:debug(module.." loading", "module")
     
