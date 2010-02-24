@@ -111,6 +111,12 @@ function M:initModule(surface)
     cpDown[0], cpDown[1], cpDown[2], cpDown[3] = 0, 1, 0, -192
     M._clipPlanes[SCREEN_UP] = cpUp
     M._clipPlanes[SCREEN_DOWN] = cpDown
+    
+    -- save GL extensions for later queries (spaces added at both ends to make
+    -- future searches easier without missing the first and last extension)
+    M._glExts = " "..glGetString(GL_EXTENSIONS).." "
+    --Mls.logger:warn(M._hasGlExt("GL_ARB_texture_rectangle"))
+    --Mls.logger:warn(M._hasGlExt("GL_ARB_texture_non_power_of_two"))
 end
 
 --- Blits an image on the screen [ML 2+ API].
@@ -437,6 +443,15 @@ function M._copyOffscreenFromPrevious()
     glRasterPos2d(0, M._height)
     -- copy pixels from front to current (=back)
     glCopyPixels(0, 0, M._displayWidth, M._displayHeight, GL_COLOR)
+end
+
+--- Checks whether a specific OpenGL extension is available.
+--
+-- @param extension (string)
+--
+-- @return (boolean)
+function M._hasGlExt(extension)
+    return M._glExts:find(" "..extension.." ") ~= nil
 end
 
 return M
