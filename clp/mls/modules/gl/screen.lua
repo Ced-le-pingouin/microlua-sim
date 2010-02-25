@@ -115,8 +115,19 @@ function M:initModule(surface)
     -- save GL extensions for later queries (spaces added at both ends to make
     -- future searches easier without missing the first and last extension)
     M._glExts = " "..glGetString(GL_EXTENSIONS).." "
-    --Mls.logger:warn(M._hasGlExt("GL_ARB_texture_rectangle"))
-    --Mls.logger:warn(M._hasGlExt("GL_ARB_texture_non_power_of_two"))
+    
+    Mls.logger:warn(M._glExts)
+    local extsToCheck = {
+        "GL_ARB_texture_rectangle",
+        "GL_ARB_texture_non_power_of_two",
+        "GL_EXT_texture_rectangle",
+        --"GL_EXT_texture_non_power_of_two",
+        "GL_NV_texture_rectangle"
+    }
+    
+    for _, ext in ipairs(extsToCheck) do
+        Mls.logger:warn(ext..": "..tostring(M._hasGlExt(ext)))
+    end
 end
 
 --- Blits an image on the screen [ML 2+ API].
