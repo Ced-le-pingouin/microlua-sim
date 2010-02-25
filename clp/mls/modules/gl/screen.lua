@@ -468,10 +468,7 @@ function M._hasGlExt(extension)
 end
 
 function M._initTextureType()
-    if M._hasGlExt("GL_ARB_texture_rectangle")
-       or M._hasGlExt("GL_EXT_texture_rectangle")
-       or M._hasGlExt("GL_NV_texture_rectangle")
-    then
+    if M._hasTextureRectangleExt() then
         Mls.logger:info("GL texture rectangle extension is supported, using it", "screen")
         
         M.textureType = GL_TEXTURE_RECTANGLE_ARB
@@ -482,6 +479,12 @@ function M._initTextureType()
         M.textureType = GL_TEXTURE_2D
         M.normalizeTextureCoordinates = true
     end
+end
+
+function M._hasTextureRectangleExt()
+    return M._hasGlExt("GL_ARB_texture_rectangle")
+        or M._hasGlExt("GL_EXT_texture_rectangle")
+        or M._hasGlExt("GL_NV_texture_rectangle")
 end
 
 return M
