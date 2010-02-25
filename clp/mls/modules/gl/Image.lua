@@ -122,7 +122,7 @@ function M.createTextureFromImage(image)
     -- origin that is at the TOP left
     glMatrixMode(GL_TEXTURE)
     glLoadIdentity()
-    glScaled(1, -1, 1)
+    --glScaled(1, -1, 1)
     glMatrixMode(GL_MODELVIEW)
     
     return textureId
