@@ -149,17 +149,15 @@ function M.blit(screenOffset, x, y, image, sourcex, sourcey, width, height)
     local x2 = x + width
     local y2 = y + height
     
-    local pixToTexX, pixToTexY
+    local xRatio, yRatio = 1, 1
     if M.normalizeTextureCoordinates then
-        pixToTexX, pixToTexY = 1 / image._width, 1 / image._height
-    else
-        pixToTexX, pixToTexY = 1, 1
+        xRatio, yRatio = 1 / image._width, 1 / image._height
     end
     
-    local sourcex2 = ( sourcex + width - 0.01 ) * pixToTexX
-    local sourcey2 = ( sourcey + height - 0.01 ) * pixToTexY
-    sourcex = ( sourcex + 0.01 ) * pixToTexX
-    sourcey = ( sourcey + 0.01 ) * pixToTexY
+    local sourcex2 = ( sourcex + width - 0.01 ) * xRatio
+    local sourcey2 = ( sourcey + height - 0.01 ) * yRatio
+    sourcex = ( sourcex + 0.01 ) * xRatio
+    sourcey = ( sourcey + 0.01 ) * yRatio
     
     M.enableGlClipping(screenOffset)
     

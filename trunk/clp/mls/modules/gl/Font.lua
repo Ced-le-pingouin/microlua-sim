@@ -62,8 +62,11 @@ function M._printNoClip(screenOffset, font, x, y, text, color)
     local charsPos = font.charsPos
     local addedSpace = font.addedSpace
     
-    local imageWidth = font._image:GetWidth()
-    local imageHeight = font._image:GetHeight()
+    local xRatio, yRatio = 1, 1
+    if screen.normalizeTextureCoordinates then
+        xRatio = font._image:GetWidth()
+        yRatio = font._image:GetHeight()
+    end
     
     glColor3d(color:Red() / 255, color:Green() / 255, color:Blue() / 255)
     
@@ -77,9 +80,9 @@ function M._printNoClip(screenOffset, font, x, y, text, color)
             local charWidth = charsWidths[charNum]
             
             local sourcex, sourcey = charsPos[charNum].x, charsPos[charNum].y
-            local sourcex2 = (sourcex + charWidth) / imageWidth
-            local sourcey2 = (sourcey + charHeight) / imageHeight
-            sourcex, sourcey = sourcex / imageWidth, sourcey / imageHeight
+            local sourcex2 = (sourcex + charWidth) / xRatio
+            local sourcey2 = (sourcey + charHeight) / yRatio
+            sourcex, sourcey = sourcex / xRatio, sourcey / yRatio
             
             glLoadIdentity()
             
