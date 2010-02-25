@@ -67,8 +67,8 @@ function M._printNoClip(screenOffset, font, x, y, text, color)
     
     glColor3d(color:Red() / 255, color:Green() / 255, color:Blue() / 255)
     
-    glEnable(GL_TEXTURE_2D)
-    glBindTexture(GL_TEXTURE_2D, font._textureId[0])
+    glEnable(screen.textureType)
+    glBindTexture(screen.textureType, font._textureId[0])
     
     glPushMatrix()
         for i = 1, len do
