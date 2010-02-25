@@ -466,7 +466,9 @@ function M._hasGlExt(extension)
 end
 
 function M._initTextureType()
-    if M._hasTextureRectangleExt() then
+    local canUseTextureRectangle = true
+    
+    if M._hasTextureRectangleExt() and canUseTextureRectangle then
         Mls.logger:info("GL texture rectangle extension is supported, using it", "screen")
         
         M.textureType = GL_TEXTURE_RECTANGLE_ARB
