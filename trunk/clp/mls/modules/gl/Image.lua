@@ -111,8 +111,8 @@ function M.createTextureFromImage(image)
     glTexImage2D(screen.textureType, 0, GL_RGBA, 
                  image:GetWidth(), image:GetHeight(),
                  0, GL_RGBA, GL_UNSIGNED_BYTE, textureData:ptr())
-    glTexParameterf(screen.textureType, GL_TEXTURE_WRAP_S, GL_REPEAT)
-    glTexParameterf(screen.textureType, GL_TEXTURE_WRAP_T, GL_REPEAT)
+    --glTexParameterf(screen.textureType, GL_TEXTURE_WRAP_S, GL_REPEAT)
+    --glTexParameterf(screen.textureType, GL_TEXTURE_WRAP_T, GL_REPEAT)
     glTexParameterf(screen.textureType, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
     glTexParameterf(screen.textureType, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE)
