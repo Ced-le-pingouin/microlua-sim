@@ -117,14 +117,6 @@ function M.createTextureFromImage(image)
     glTexParameterf(screen.textureType, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE)
     
-    -- since OpenGL textures have their 0,0 origin at the bottom left, we need
-    -- to flip the loaded texture around the Y axis, so we can use the ML 0,0 
-    -- origin that is at the TOP left
-    glMatrixMode(GL_TEXTURE)
-    glLoadIdentity()
-    --glScaled(1, -1, 1)
-    glMatrixMode(GL_MODELVIEW)
-    
     return textureId
 end
 
@@ -144,7 +136,7 @@ function M._convertWxImageDataToOpenGlTextureData(image)
     
     local data = memarray("uchar", width * height * 4)
     local dst = 0
-    for y = height - 1, 0, -1 do
+    for y = 0, height - 1 do
         local src = (y * width * 3) + 1
         for x = 0, width - 1 do
             local r, g, b = imageBytes:byte(src, src + 2)
