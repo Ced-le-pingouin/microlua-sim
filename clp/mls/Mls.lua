@@ -120,9 +120,14 @@ function Mls:ctr(scriptPath)
     __DEBUG_NO_REFRESH = Mls.config:get("debug_no_refresh", false)
     __DEBUG_LIMIT_TIME = Mls.config:get("debug_limit_time", 0)
     
+    -- OpenGL stuff
+    Mls.openGl = Mls.config:get("open_gl", false)
+    Mls.openGlUseTextureRectangle = Mls.config:get(
+        "open_gl_use_texture_rectangle", true
+    )
+    
     -- ML modules manager
     local moduleManager = ModuleManager:new()
-    Mls.openGl = Mls.config:get("open_gl", false)
     if Mls.openGl then
         moduleManager:addPrefix("gl.", true)
     end
@@ -250,6 +255,7 @@ function Mls:getValidOptions()
         stylus_hack = { "boolean" },
         draw_gradient_rect_accuracy = { "number", 0, 256 },
         open_gl = { "boolean" },
+        open_gl_use_texture_rectangle = { "boolean" },
         rect_length = { "number", 0, 1 },
         
         -- debug options below

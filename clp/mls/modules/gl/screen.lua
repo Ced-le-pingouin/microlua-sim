@@ -470,16 +470,14 @@ function M._hasGlExt(extension)
 end
 
 function M._initTextureType()
-    local canUseTextureRectangle = true
-    
-    if M._hasTextureRectangleExt() and canUseTextureRectangle then
-        Mls.logger:info("GL texture rectangle extension is supported, using it", "screen")
+    if Mls.openGlUseTextureRectangle and M._hasTextureRectangleExt() then
+        Mls.logger:info("OpenGL: using texture rectangle extension", "screen")
         
         M.textureType = GL_TEXTURE_RECTANGLE_ARB
         M.normalizeTextureCoordinates = false
         M.usePowerOfTwoDimensions = false
     else
-        Mls.logger:info("GL texture rectangle extension is NOT supported, using standard 2D textures", "screen")
+        Mls.logger:info("OpenGL: using standard 2D textures", "screen")
         
         M.textureType = GL_TEXTURE_2D
         M.normalizeTextureCoordinates = true
