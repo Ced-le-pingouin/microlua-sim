@@ -63,7 +63,7 @@ draw_gradient_rect_accuracy = 0
 ;;
 open_gl = 0
 
-;; in OpenGL mode, should MLS use a texture_rectangle extension for images, or 
+;; In OpenGL mode, should MLS use a texture_rectangle extension for images, or 
 ;; standard 2D textures (which then will be loaded with power of two dimensions)
 ;;
 ;; 0 = no = use standard - power of two - 2D textures for images
