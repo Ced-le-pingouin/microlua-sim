@@ -33,7 +33,8 @@ local M = Class.new(Font_Bitmap_wx)
 function M.load(path)
     local font = M.parent().load(path)
     
-    font._textureId = Image.createTextureFromImage(font._image)
+    font._textureId, font._textureWidth, font._textureHeight = 
+        Image.createTextureFromImage(font._image)
     
     return font
 end
@@ -64,8 +65,8 @@ function M._printNoClip(screenOffset, font, x, y, text, color)
     
     local xRatio, yRatio = 1, 1
     if screen.normalizeTextureCoordinates then
-        xRatio = font._image:GetWidth()
-        yRatio = font._image:GetHeight()
+        xRatio = font._textureWidth
+        yRatio = font._textureHeight
     end
     
     glColor3d(color:Red() / 255, color:Green() / 255, color:Blue() / 255)
@@ -111,8 +112,10 @@ end
 function M._initDefaultFont()
     M.parent()._initDefaultFont()
     
-    M.static()._defaultFont._textureId =
-        Image.createTextureFromImage(M.static()._defaultFont._image)
+    local defaultFont = M.static()._defaultFont
+    
+    defaultFont._textureId, defaultFont._textureWidth, defaultFont._textureHeight =
+        Image.createTextureFromImage(defaultFont._image)
 end
 
 return M
