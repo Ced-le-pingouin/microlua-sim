@@ -162,23 +162,9 @@ function M._convertWxImageDataToOpenGlTextureData(image, textureWidth, textureHe
                        image:GetMaskBlue()
     local data = memarray("uchar", textureWidth * textureHeight * 4)
     
-    
-    local dst
-    -- zeroes out and make alpha transparent the entire texture, so that 
-    -- additional width/height from the original image is "invisible"
-    if width ~= textureWidth or height ~= textureHeight then
-        dst = 0
-        for y = 0, height - 1 do
-            for x = 0, width - 1 do
-                data[dst], data[dst + 1], data[dst + 2] = 0, 0, 0
-                data[dst + 3] = 0
-            end
-        end
-    end
-    
     local widthDiff = (textureWidth - width) * 4
     
-    dst = 0
+    local dst = 0
     for y = 0, height - 1 do
         local src = (y * width * 3) + 1
         for x = 0, width - 1 do
