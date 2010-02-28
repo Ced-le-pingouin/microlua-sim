@@ -53,6 +53,7 @@ LIB_LIST="
     clp/Class.lua
     clp/Observable.lua
     clp/Logger.lua
+    clp/Math.lua
     clp/mls/Mls.lua
     clp/mls/Sys.lua
     clp/mls/Config.lua
