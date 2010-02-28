@@ -151,7 +151,7 @@ function M.blit(screenOffset, x, y, image, sourcex, sourcey, width, height)
     
     local xRatio, yRatio = 1, 1
     if M.normalizeTextureCoordinates then
-        xRatio, yRatio = 1 / image._width, 1 / image._height
+        xRatio, yRatio = 1 / image._textureWidth, 1 / image._textureHeight
     end
     
     local sourcex2 = ( sourcex + width - 0.01 ) * xRatio
@@ -473,11 +473,13 @@ function M._initTextureType()
         
         M.textureType = GL_TEXTURE_RECTANGLE_ARB
         M.normalizeTextureCoordinates = false
+        M.usePowerOfTwoDimensions = false
     else
         Mls.logger:info("GL texture rectangle extension is NOT supported, using standard 2D textures", "screen")
         
         M.textureType = GL_TEXTURE_2D
         M.normalizeTextureCoordinates = true
+        M.usePowerOfTwoDimensions = true
     end
 end
 

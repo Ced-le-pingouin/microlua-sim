@@ -25,6 +25,7 @@
 require "luagl"
 require "memarray"
 local Class = require "clp.Class"
+local Math = require "clp.Math"
 local Image_wx = require "clp.mls.modules.wx.Image"
 
 local M = Class.new(Image_wx)
@@ -45,7 +46,8 @@ local M = Class.new(Image_wx)
 function M.load(path, destination)
     local image = M.parent().load(path, destination)
     
-    image._textureId = M.createTextureFromImage(image._source)
+    image._textureId, image._textureWidth, image._textureHeight = 
+        M.createTextureFromImage(image._source)
     
     --image._source:Destroy()
     --image._source = nil
@@ -93,14 +95,32 @@ end
 
 --- Creates an OpenGL texture from a wxImage, giving it an ID, binding it to it 
 --  and setting default parameters for it.
+-- 
+-- If screen.usePowerOfTwoDimensions is true, the texture will be created with
+-- power of two dimensions.
+-- Effective width and height of the created texture are always returned after 
+-- the texture ID.
 --
 -- @param image (wxImage)
 --
--- @return (memarray) The memory slot that contains the texture ID (created with
---                    the memarray lib (from luaglut)
+-- @return (memarray, number, number)
+--      (memarray): The memory slot that contains the texture ID, created with
+--                  the memarray lib (from luaglut)
+--      (number): Effective width of the created texture
+--      (number): Effective height of the created texture
 function M.createTextureFromImage(image)
-    -- creates texture data in correct order, and a memory slot for texture ID
-    local textureData = M._convertWxImageDataToOpenGlTextureData(image)
+    local width, height = image:GetWidth(), image:GetHeight()
+    local textureWidth, textureHeight = width, height
+    
+    if screen.usePowerOfTwoDimensions then
+        textureWidth = math.pow(2, math.ceil(Math.log2(textureWidth)))
+        textureHeight = math.pow(2, math.ceil(Math.log2(textureHeight)))
+    end
+    
+    -- creates texture data from image, and a memory slot for texture ID
+    local textureData = M._convertWxImageDataToOpenGlTextureData(
+        image, textureWidth, textureHeight
+    )
     local textureId = memarray("GLuint", 1)
     
     -- get a texture ID and bind that ID for further parameters setting
@@ -109,7 +129,7 @@ function M.createTextureFromImage(image)
     
     -- generic texture parameters to use in MLS
     glTexImage2D(screen.textureType, 0, GL_RGBA, 
-                 image:GetWidth(), image:GetHeight(),
+                 textureWidth, textureHeight,
                  0, GL_RGBA, GL_UNSIGNED_BYTE, textureData:ptr())
     --glTexParameterf(screen.textureType, GL_TEXTURE_WRAP_S, GL_REPEAT)
     --glTexParameterf(screen.textureType, GL_TEXTURE_WRAP_T, GL_REPEAT)
@@ -117,25 +137,48 @@ function M.createTextureFromImage(image)
     glTexParameterf(screen.textureType, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE)
     
-    return textureId
+    return textureId, textureWidth, textureHeight
 end
 
---- Converts pixels from a wxImage to pixels suitable for an OpenGL texture 
---  (because the order of pixels is not the same).
+--- Converts pixels from a wxImage to pixels suitable for an OpenGL texture.
 --
 -- @param image (wxImage)
+-- @param texturewidth (number) required width of the texture. No matter what
+--                              the width of the image is, the texture will
+--                              have that width. This is useful, for example, 
+--                              when textures need to have POT sizes
+-- @param textureHeight (number) required height of the texture
 --
 -- @return (memarray) The pixels in correct order to create an OpenGL texture 
 --                    from.
-function M._convertWxImageDataToOpenGlTextureData(image)
-    local width = image:GetWidth()
-    local height = image:GetHeight()
+function M._convertWxImageDataToOpenGlTextureData(image, textureWidth, textureHeight)
+    local width, height = image:GetWidth(), image:GetHeight()
+    
+    textureWidth = textureWidth or width
+    textureHeight = textureHeight or height
+    
     local imageBytes = image:GetData()
     local mr, mg, mb = image:GetMaskRed(), image:GetMaskGreen(), 
                        image:GetMaskBlue()
+    local data = memarray("uchar", textureWidth * textureHeight * 4)
     
-    local data = memarray("uchar", width * height * 4)
-    local dst = 0
+    
+    local dst
+    -- zeroes out and make alpha transparent the entire texture, so that 
+    -- additional width/height from the original image is "invisible"
+    if width ~= textureWidth or height ~= textureHeight then
+        dst = 0
+        for y = 0, height - 1 do
+            for x = 0, width - 1 do
+                data[dst], data[dst + 1], data[dst + 2] = 0, 0, 0
+                data[dst + 3] = 0
+            end
+        end
+    end
+    
+    local widthDiff = (textureWidth - width) * 4
+    
+    dst = 0
     for y = 0, height - 1 do
         local src = (y * width * 3) + 1
         for x = 0, width - 1 do
@@ -150,6 +193,7 @@ function M._convertWxImageDataToOpenGlTextureData(image)
             src = src + 3
             dst = dst + 4
         end
+        dst = dst + widthDiff
     end
     
     return data
