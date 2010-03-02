@@ -452,6 +452,8 @@ end
 
 --- Copies the previously rendered offscreen surface to the current one.
 function M._copyOffscreenFromPrevious()
+    if Mls.openGlSimplePause then return end
+    
     -- we're drawing to the back buffer right now, so "previous" means front
     glReadBuffer(GL_FRONT)
     -- warning: we set up coords system to be "y-inverted", so y-bottom = height
