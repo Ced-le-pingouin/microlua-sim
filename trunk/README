@@ -121,7 +121,7 @@ mouse button.
 In this version, the buttons<>keys bindings cannot be changed. They are:
 
 +-----------+-----------------------------+
-|    DS     |             PC              |
+|    DS     |             Key             |
 +-----------+-----------------------------+
 | Pad Up    | I, Up arrow or KP 8         |
 | Pad Down  | K, Down arrow, KP 5 or KP 2 |
@@ -135,32 +135,32 @@ In this version, the buttons<>keys bindings cannot be changed. They are:
 | Y         | S                           |
 | Start     | Q or F                      |
 | Select    | W or V                      |
-+----------+------------------------------+
++-----------+-----------------------------+
 
 Starting with v0.4, additional keys and combinations not related to the DS are 
 available:
 
-+----------+------------------------------------+
-|    Key   |               Action               |
-+----------+------------------------------------+
-| Ctrl+O   | Open a script                      |
-| P        | Pause script                       |
-| B        | Restart script                     |
-| Shift+B  | Reload script (from disk)          |
-| C        | Show/hide console                  |
-| DEL      | Clear console                      |
-| F1       | Decrease FPS                       |
-| F2       | Increase FPS                       |
-| F3       | Decrease UPS                       |
-| F4       | Increase UPS                       |
-| F5       | Simple/advanced drawGradientRect() |
-| F6       | Adjust rectangles length           |
-| F7       | Switch between 1x and 2x zoom      |
-| H        | Stylus.newPress hack (ML3/ML2)     |
-| F11      | Fullscreen mode (Windows only)     |
-| F12      | Increase log level                 |
-| Ctrl+Q   | Quit MLS                           |
-+----------+------------------------------------+
++------------------------------------+----------+
+|               Action               |    Key   |
++------------------------------------+----------+
+| Open a script                      | Ctrl+O   |
+| Pause script                       | P        |
+| Restart script                     | B        |
+| Reload script (from disk)          | Shift+B  |
+| Show/hide console                  | C        |
+| Clear console                      | DEL      |
+| Decrease FPS                       | F1       |
+| Increase FPS                       | F2       |
+| Decrease UPS                       | F3       |
+| Increase UPS                       | F4       |
+| Simple/advanced drawGradientRect() | F5       |
+| Adjust rectangles length           | F6       |
+| Switch between 1x and 2x zoom      | F7       |
+| Stylus.newPress hack (ML3/ML2)     | H        |
+| Fullscreen mode (Windows only)     | F11      |
+| Increase log level                 | F12      |
+| Quit MLS                           | Ctrl+Q   |
++------------------------------------+----------+
 
 The Ctrl key is replaced by Cmd (="apple") on Mac OS X.
 
