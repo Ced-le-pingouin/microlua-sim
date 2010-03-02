@@ -1,8 +1,11 @@
-0.4 (?? ????? 2010)
--------------------
+0.4 (2 mars 2010)
+-----------------
   * problèmes OpenGL résolus: plus de rectangles blancs à la place des images, 
     ou d'images déformées, ou de FPS insupportablement bas (sur de vieilles 
     cartes graphiques qui repassaient en rendu OpenGL logiciel)
+    Si vous rencontrez toujours des problèmes avec OpenGL, notamment avec la 
+    pause, jetez un oeil au fichier mls.ini, il contient des options 
+    supplémentaires pour OpenGL
   * screen.drawTextBox() prend maintenant en charge les retours à la ligne
   * nouvelle fenêtre "raccourcis clavier" dans le menu Help (ou Ctrl+K)
   * zoom: dans certains cas, le retour au zoom 1x ne se faisait pas
