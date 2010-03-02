@@ -197,9 +197,8 @@ and allows you to change some settings (fps, ups, font system, OpenGL...).
 Comments are allowed in the config file, they should begin with the ";" 
 character.
 
-There is a sample mls.ini in the distribution, called mls.ini.dist. All its 
-options are set to default values, but you can rename it to mls.ini, and start
-changing it.
+There is a sample mls.ini in the distribution. All its options are set to 
+default values.
 
 For more information about the options themselves, see the comments in the 
 provided config file.
@@ -226,15 +225,6 @@ General
   where nice ML enthusiasts create games and demos (see the links section at the
   end of this text), notably a "Seaquest" remake which works very well in MLS
   (although without sound).
-  
-- The Windows and Mac versions are considered beta, since I usually test on 
-  Linux, my main OS. Tests have been done on Ubuntu 8.10+, Windows XP, and
-  Mac OS X 10.6 "Snow Leopard", all in 32-bit versions. I haven't tested it on 
-  other Linux distribs, Windows Vista/7 or Mac OS X Leopard. Also, my WinXP is 
-  virtualized, so there may be differences in a native WinXP.
-  
-  NOTE: I recently installed a 64-bit Ubuntu, and MLS works fine with it, only 
-        with some ELFCLASS warnings.
   
 - I didn't try to reproduce the real Micro Lua limitations when loading images, 
   sounds, using RAM or VRAM. So be careful, some things you do in your programs
@@ -320,14 +310,10 @@ Wifi
 Depending on my free time, I'll continue to work on MLS. Here are some of the 
 things I'd like to do:
 
-  - speed optimizations where possible (think tinted/rotated/scaled images)
   - implement sound (using SDL?)
   - read key bindings from the config file, too
   - better launch script on Mac OS X, would give focus to the window => real app
   - possible to fix encoding problems with bitmap/native fonts ? (latin1/utf8)
-  - if gfx speed is hopeless, maybe try Qt bindings, or maybe rewrite MLS 
-    in Java with an embedded Lua lib and Java2D for the gfx bits (is this a 
-    crazy idea?)
 
 For more "TODO"'s, take a look at the source, especially clp/mls/Mls.lua.
 @todo tags are written inside comments.
