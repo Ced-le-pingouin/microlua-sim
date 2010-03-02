@@ -137,7 +137,7 @@ Dans cette version, les touches utilisées ne peuvent être modifiées. Les voic
 dire "pavé numérique")
 
 +-------------+---------------------------------+
-|     DS      |               PC                |
+|     DS      |             Touche              |
 +-------------+---------------------------------+
 | Haut (CD)   | I, Flèche haut ou 8 (PN)        |
 | Bas (CD)    | K, Flèche bas, 5 (PN) ou 2 (PN) |
@@ -156,27 +156,27 @@ dire "pavé numérique")
 A partir de la v0.4, des commandes indépendantes de la DS sont également 
 disponibles:
  
-+----------+-----------------------------------+
-|  Touche  |              Action               |
-+----------+-----------------------------------+
-| Ctrl+O   | Ouvre un script                   |
-| P        | Met le script en pause            |
-| B        | Redémarre le script               |
-| Shift+B  | Recharge le script (du disque)    |
-| C        | Affiche/cache la console          |
-| DEL      | Vide la console                   |
-| F1       | Diminue les FPS                   |
-| F2       | Augmente les FPS                  |
-| F3       | Diminue les UPS                   |
-| F4       | Augmente les UPS                  |
-| F5       | drawGradientRect() simple/avancé  |
-| F6       | Ajuste la longueur des rectangles |
-| F7       | Bascule entre le zoom 1x et 2x    |
-| H        | Hack Stylus.newPress (ML3/ML2)    |
-| F11      | Plein écran (Windows seulement)   |
-| F12      | Augmente le niveau de log         |
-| Ctrl+Q   | Quitte MLS                        |
-+----------+-----------------------------------+
++------------------------------------+----------+
+|               Action               |  Touche  |
++------------------------------------+----------+
+| Ouvrir un script                   | Ctrl+O   |
+| Mettre le script en pause          | P        |
+| Redémarrerle script                | B        |
+| Recharger le script (du disque)    | Shift+B  |
+| Afficher/cacher la console         | C        |
+| Vider la console                   | DEL      |
+| Diminuer les FPS                   | F1       |
+| Augmenter les FPS                  | F2       |
+| Diminuer les UPS                   | F3       |
+| Augmenter les UPS                  | F4       |
+| drawGradientRect() simple/avancé   | F5       |
+| Ajuster la longueur des rectangles | F6       |
+| Basculer entre le zoom 1x et 2x    | F7       |
+| Hack Stylus.newPress (ML3/ML2)     | H        |
+| Plein écran (Windows seulement)    | F11      |
+| Augmenter le niveau de log         | F12      |
+| Quitter MLS                        | Ctrl+Q   |
++------------------------------------+----------+
 
 La touche Ctrl est remplacée par la touche Commande (="Pomme") sous Mac OS X.
 
