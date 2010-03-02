@@ -482,6 +482,15 @@ function M:showKeyBindings(keyBindings)
             grid:SetCellValue(i - 1, 1, binding[2])
         end
         
+        -- decrease grid default fonts so it doesn't fill the whole screen
+        local labelFont = grid:GetLabelFont()
+        labelFont:SetPointSize(8)
+        grid:SetLabelFont(labelFont)
+        
+        local cellFont = grid:GetDefaultCellFont()
+        cellFont:SetPointSize(8)
+        grid:SetDefaultCellFont(cellFont)
+        
         -- autosize the columns, then set both to the width of the largest one
         grid:AutoSize()
         local minColSize = math.max(grid:GetColSize(0), grid:GetColSize(1))
