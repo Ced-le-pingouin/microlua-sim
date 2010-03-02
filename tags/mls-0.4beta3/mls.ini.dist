@@ -1,0 +1,70 @@
+[mls]
+;; Display refresh rate in frames/ second(number): controls the perceived 
+;; animation smoothness
+;;
+;;  min: 0 = unlimited
+;;
+;; Please note that the achieved rate can vary (+- 5 fps) because of my bad
+;; timing handling
+;;
+fps = 60
+
+;; Internal updates in updates/second (number): controls the real speed of the 
+;; loaded script.
+;; You may need to adjust this to make your script run at the same speed as on
+;; the real Micro Lua DS
+;;
+;;  min: 0 = unlimited
+;;
+;; Please note that the achieved rate can vary (+- 5 fps) because of bad timings
+;;
+ups = 60
+
+;; Use bitmap fonts (0 or 1)
+;;
+;;  0 = no  = native OS fonts  => faster but no custom fonts are displayed
+;;  1 = yes = bitmap fonts => slower
+;;
+bitmap_fonts = 1
+
+;; Enable "stylus hack", which causes Stylus.newPress to behave as in ML2, i.e.
+;; it is always true except when the stylus is held
+;;
+;;  0 = disable the hack (Stylus.newPress is only true *once* after a "click")
+;;  1 = enable the hack
+;;
+stylus_hack = 0
+
+;; Set the value to use when computing rectangles width and height. Normally it
+;; should be 1, as in "width = x1 - x0 + 1", but some scripts won't display 
+;; correctly unless set to 0
+;;
+;;  min: 0
+;;  max: 1
+;;
+rect_length = 0
+
+;; Choose wich function will be used and with what precision when 
+;; drawGradientRect() is called (has no effect in OpenGL mode)
+;;
+;;  min: 0 = use the simple version, not ML-correct but fast (2-color gradient)
+;;  2-256  = use the advanced version, slower (4-color gradient). Defines the
+;;           number of "color blocks" that will compose the final rectangle.
+;;           The higher the number, the slower the function. Any value above
+;;           24 is not recommended
+;;  max: 256
+;;
+draw_gradient_rect_accuracy = 0
+
+;; Use OpenGL for drawing operations
+;;
+;; 0 = no
+;; 1 = yes
+;;
+open_gl = 0
+
+;; DEBUG OPTIONS !!! YOU SHOULD NOT ENABLE OR CHANGE THESE !!!
+;debug_log_level = 4
+;debug_main_loop_timing = 3
+;debug_no_refresh = true
+;debug_limit_time = 9000

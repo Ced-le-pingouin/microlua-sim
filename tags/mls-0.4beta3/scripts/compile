@@ -1,0 +1,136 @@
+#!/bin/bash
+
+# compile : compiles Micro Lua Simulator into one unique big file
+#
+# @author Ced-le-pingouin <Ced.le.pingouin@gmail.com>
+
+#   Copyright (C) 2009-2010 Cédric FLOQUET
+#   
+#   This file is part of Micro Lua DS Simulator.
+#   
+#   Micro Lua DS Simulator is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
+#   
+#   Micro Lua DS Simulator is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#   
+#   You should have received a copy of the GNU General Public License
+#   along with Micro Lua DS Simulator.  If not, see <http://www.gnu.org/licenses/>.
+
+## go to MLS root dir (doesn't work if script was started from PATH)
+OLD_DIR=$PWD
+SCRIPT_DIR=$(dirname $0)
+cd $SCRIPT_DIR/..
+
+## process arguments
+LUAC=0
+PLAIN_TEXT=0
+for OPT in "$@"; do
+    case $OPT in
+        # the "compiled" version will just be an all in one plain text file, 
+        # it'll not really be compiled
+        --plain)
+            PLAIN_TEXT=1
+            ;;
+        # compilation on my 64bit linux would produce binaries that are unusable
+        # with the provided lua (AIO, "bad header" message), so we should use
+        # lua (AIO) with "-c" to compile
+        --luac)
+            LUAC=1
+            ;;
+    esac
+done
+
+SRC_MLS_SCRIPT="mls.lua"
+TMP_MLS_SCRIPT="$SRC_MLS_SCRIPT.tmp"
+COMPILED_MLS_SCRIPT="mls.comp.lua"
+
+LIB_LIST="
+    clp/Class.lua
+    clp/Observable.lua
+    clp/Logger.lua
+    clp/mls/Mls.lua
+    clp/mls/Sys.lua
+    clp/mls/Config.lua
+    clp/mls/Gui.lua
+    clp/mls/ScriptManager.lua
+    clp/mls/ModuleManager.lua
+    clp/mls/modules/wx/Timer.lua
+    clp/mls/modules/wx/screen.lua
+    clp/mls/modules/gl/screen.lua
+    clp/mls/modules/wx/Color.lua
+    clp/mls/modules/wx/Image.lua
+    clp/mls/modules/gl/Image.lua
+    clp/mls/modules/wx/Font_Native.lua
+    clp/mls/modules/wx/Font_Bitmap.lua
+    clp/mls/modules/gl/Font.lua
+    clp/mls/modules/Canvas.lua
+    clp/mls/modules/wx/Controls.lua
+    clp/mls/modules/DateTime.lua
+    clp/mls/modules/Debug.lua
+    clp/mls/modules/INI.lua
+    clp/mls/modules/Keyboard.lua
+    clp/mls/modules/Map.lua
+    clp/mls/modules/Mod.lua
+    clp/mls/modules/Motion.lua
+    clp/mls/modules/Rumble.lua
+    clp/mls/modules/wx/ScrollMap.lua
+    clp/mls/modules/gl/ScrollMap.lua
+    clp/mls/modules/Sound.lua
+    clp/mls/modules/Sprite.lua
+    clp/mls/modules/wx/System.lua
+    clp/mls/modules/wx/Wifi.lua
+"
+
+## concatenate all source files in one unique temp file 
+touch "$TMP_MLS_SCRIPT"
+for LIB_FILE in $LIB_LIST; do
+    MODULE_NAME=`basename "$LIB_FILE" | cut -f1 -d.`
+    ## some modules have "suffixes", and MLS' module loader will choose the right one to use
+    MODULE_SUFFIX=`echo "$LIB_FILE" | grep "/\(wx\|gl\)/" | cut -f4 -d/`
+    if [ "$MODULE_SUFFIX" != "" ]; then
+        MODULE_NAME="${MODULE_NAME}_${MODULE_SUFFIX}"
+    fi
+    ## get the initial content (script) of the module
+    LIB_FILE_CONTENT=`cat "$LIB_FILE"`
+    ## replace "local M = " with "<module name> = "
+    LIB_FILE_CONTENT=`echo "$LIB_FILE_CONTENT" | sed -e "s/local M =/$MODULE_NAME ="/`
+    ## when "M.", "M:", or "M[" is found, replace the "M" with "<module name>"
+    LIB_FILE_CONTENT=`echo "$LIB_FILE_CONTENT" | sed -re "s/\bM([.:\[])/$MODULE_NAME\1/g"`
+    ## concatenate current lib's modified content with previous content
+    echo "$LIB_FILE_CONTENT" >> "$TMP_MLS_SCRIPT"
+    echo "" >> "$TMP_MLS_SCRIPT"
+done
+
+## create a special flag to detect the compiled version of MLS, and put the main
+## script at the end of the temp file
+echo "__MLS_COMPILED = true" >> "$TMP_MLS_SCRIPT"
+cat "$SRC_MLS_SCRIPT" >> "$TMP_MLS_SCRIPT"
+echo "" >> "$TMP_MLS_SCRIPT"
+
+## remove require()s and module definition commands
+REMOVE_REQUIRE='^.*require \"clp'
+REMOVE_MODULE_RETURN='^\s*return M\s*$'
+grep -v "$REMOVE_REQUIRE" "$TMP_MLS_SCRIPT" | grep -v "$REMOVE_MODULE_RETURN" > "$COMPILED_MLS_SCRIPT"
+
+## compile the only resulting file either with luac or lua AIO ("-c" option)
+if [ "$PLAIN_TEXT" -eq 0 ]; then
+    if [ "$LUAC" -eq 1 ]; then
+        luac -s "$COMPILED_MLS_SCRIPT"
+        mv -f luac.out "$COMPILED_MLS_SCRIPT"
+
+    else
+        ./lua -c "$COMPILED_MLS_SCRIPT"
+        mv -f "$COMPILED_MLS_SCRIPT.compiled" "$COMPILED_MLS_SCRIPT"
+    fi
+fi
+
+## remove the temp file and intermediate compiled script
+rm "$TMP_MLS_SCRIPT"
+
+## back to original dir
+cd $OLD_DIR

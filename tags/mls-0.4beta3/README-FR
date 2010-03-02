@@ -1,0 +1,424 @@
+Micro Lua DS Simulator 0.4 (par Ced-le-pingouin)
+===============================================
+Note: dans le texte ci-dessous, j'utilise parfois l'abbréviation ML pour parler 
+      de Micro Lua DS, et "le simulateur" ou MLS pour faire référence à mon 
+      script de simulation
+
+----------------------
+[0] Table des matières
+----------------------
+[1] C'est quoi ce truc ?
+[2] Contenu de l'archive (zip)
+[3] Contrôles
+[4] Fichier de configuration
+[5] Remarques, ce qui marche ou pas, limitations
+[6] Le futur
+[7] Contact
+[8] Remerciements et liens
+
+
+------------------------
+[1] C'est quoi ce truc ?
+------------------------
+La description courte: un script Lua qui permet d'exécuter d'autres scripts
+écrits pour Micro Lua DS - donc qui utilisent le stylet, les deux écrans, les 
+timers etc. - directement sur un ordinateur (sous Linux, Windows, et Mac OS X ).
+
+Si la version longue vous intéresse, vous pouvez continuer à lire :)
+
+J'ai récemment découvert Micro Lua DS, un interpréteur pour le langage Lua qui
+tourne sur DS, complètement compatible avec la version 5.1 du langage, mais 
+mettant à disposition des objets et méthodes supplémentaires pour programmer les
+contrôles de la DS, les écrans, les sons, les sprites etc.
+
+Ca m'a donné envie de commencer à programmer de petits jeux pour DS en Lua, vu 
+que je trouve l'installation et la configuration de devkitARM, mais surtout un 
+éventuel retour de ma part au C et à son code "non managé", un peu trop lourds 
+pour le temps libre dont je dispose.
+
+Malheureusement(?), je suis sous Linux (Ubuntu), et les émulateurs DS 
+disponibles ont chacun un problème différent sur ma machine (pas de bol...), 
+que ce soit le manque de support DLDI (nécessaire à Micro Lua DS), ou des 
+erreurs de segmentation inexplicables.
+
+Donc la seule solution que j'avais était de faire tourner un émulateur DS pour 
+*Windows* (!!!) (iDeaS), grâce à Wine. Mais même en disposant d'une machine 
+rapide, il semble que l'affichage soit assez saccadé en utilisant cette méthode
+:(
+
+Une autre possibilité serait de transférer mes scripts sans arrêt de mon PC à ma
+DS, mais bon c'est casse-coui....!
+
+Je pourrais aussi éditer mes scripts Lua directement sur DS, grâce aux 
+excellents Lua Editor ou CodeMonkeyDS, mais je dois avouer que je tape beaucoup
+plus vite sur mon PC qu'avec un stylet ;)
+
+Finalement, dans un moment de folie, j'ai donc décidé d'écrire une sorte de 
+"simulateur" au-dessus du Lua "standard", càd que je voulais qu'il soit possible
+de développer directement en Lua sur mon PC, en utilisant les objets 
+additionnels fournis par Micro Lua DS, et je voulais que les scripts ainsi 
+écrits s'affichent sur le PC comme ils le feraient sur la "vraie" DS.
+
+Pour parvenir à mes fins, je devais trouver un moyen de rendre disponibles les
+objets et méthodes non-standards, dans un lua "standard" sous Linux. J'ai donc 
+jeté un oeil aux librairies existantes pour Lua, qui supporteraient la création 
+de fenêtres, la gestion du clavier et de la souris, les manipulations d'images, 
+les timers, et éventuellement les sons (une chose à la fois). Etant donné que 
+je voulais commencer assez rapidement, et que je voyais ce projet comme une 
+façon d'apprendre Lua en même temps, j'ai choisi wxWidgets comme librairie 
+principale, en me disant que la seule chose manquante serait le son (bon, 
+apparemment wxSound permet ça, mais c'est basique et ça ne me permettrait pas 
+de simuler facilement les Mods de ML, donc...)
+
+J'ai assez rapidement sorti la première et très imparfaite version de mon
+projet, sans son, loin d'être optimisée, et avec quelques comportement manquants
+ou différents par rapport au vrai Micro Lua DS.
+
+J'ai l'intention d'ajouter le son dans de futures versions (sans doute en 
+utilisant la librairie SDL), et aussi d'optimiser ce qui peut l'être. Peut-être 
+même utiliser autre chose que wxWidgets, qui n'est probablement pas la librairie
+la plus rapide ni la plus adaptée pour l'affichage de bitmaps et les 
+manipulations d'images. Je pourrais aussi m'intéresser aux bindings Qt pour Lua,
+voire même à l'OpenGL, mais comme je suis débutant dans ce domaine, ça sera sans
+doute la dernière chose que je tenterai.
+
+PS: depuis la version initiale de ce texte, l'OpenGL a été implémenté. Youpi!
+
+
+------------------------------
+[2] Contenu de l'archive (zip)
+------------------------------
+Le script principal mls.comp.lua, l'exécutable de Lua 5.1, quelques fichiers de 
+librairies, quelques images, et un script "mls" pour lancer les scripts ML.
+
+Ca, c'est si vous utilisez la version "compilée" de MLS. A partir de la v0.4, 
+MLS est un logiciel libre, et vous pouvez avoir une version "source". Dans ce
+cas, vous aurez également une hiérarchie de classes/packages source, quelques 
+scripts de maintenance (seulement pour Linux actuellement), et un script de 
+lancement supplémentaire, "mls-src". Ce dernier démarre la version non compilée
+de MLS, ce qui veut dire que c'est celui que vous devez utiliser si vous 
+modifiez les sources et voulez tester vos changements (puisque l'autre script
+de lancement ne démarre que la version compilée).
+
+Notez toutefois que la version "source" est plus brute de décoffrage, et qu'elle
+comporte les exécutables et scripts de lancement pour les trois systèmes 
+d'exploitation. Ces exécutables et scripts ne se trouvent donc pas par défaut 
+dans la racine de l'archive source; vous devrez, en fonction de votre système, 
+copier le contenu d'un sous-dossier de "os_specific" dans la racine de MLS. Ces 
+trois sous-dossiers sont, fort logiquement, "linux", "mac", et "win".
+
+Pour lancer votre script ML, tapez la commande suivante, lorsque vous vous 
+trouvez dans le dossier du simulateur:
+
+Linux & Mac OS X: ./mls <nom-de-votre-script>
+Windows: mls <nom-de-votre-script>
+
+(et n'oubliez pas d'utiliser "mls-src" au lieu de "mls" si vous utilisez la 
+version source!)
+
+Le nom de script est désormais facultatif, étant donné qu'une interface 
+graphique va de toute façon apparaître (avec un écran noir), et vous permettra 
+d'ouvrir un fichier script à exécuter.
+
+IMPORTANT: mls ou mls-src doit être lancé avec comme dossier courant, le dossier
+où il se trouve. S'il est démarré à partir d'un autre dossier (par exemple s'il
+est dans PATH, vous pouvez le lancer de n'importe où), MLS ne trouvera pas 
+certains de ses fichiers (le fichier de configuation, et les images).
+
+
+-------------
+[3] Contrôles
+-------------
+Bien entendu, le stylet est remplacé par la souris, et la pression de ce dernier
+par le bouton gauche
+
+Dans cette version, les touches utilisées ne peuvent être modifiées. Les voici:
+(dans le tableau, "CD" représente la croix directionnelle de la DS, et "PN" veut
+dire "pavé numérique")
+
++-------------+---------------------------------+
+|     DS      |               PC                |
++-------------+---------------------------------+
+| Haut (CD)   | I, Flèche haut ou 8 (PN)        |
+| Bas (CD)    | K, Flèche bas, 5 (PN) ou 2 (PN) |
+| Gauche (CD) | J, Flèche gauche ou 4 (PN)      |
+| Droite (CD) | L, Flèche droite ou 6 (PN)      |
+| L           | A ou R                          |
+| R           | Z ou T                          |
+| A           | D                               |
+| B           | X                               |
+| X           | E                               |
+| Y           | S                               |
+| Start       | Q ou F                          |
+| Select      | W ou V                          |
++-------------+---------------------------------+
+
+A partir de la v0.4, des commandes indépendantes de la DS sont également 
+disponibles:
+ 
++----------+-----------------------------------+
+|  Touche  |              Action               |
++----------+-----------------------------------+
+| Ctrl+O   | Ouvre un script                   |
+| P        | Met le script en pause            |
+| B        | Redémarre le script               |
+| Shift+B  | Recharge le script (du disque)    |
+| C        | Affiche/cache la console          |
+| DEL      | Vide la console                   |
+| F1       | Diminue les FPS                   |
+| F2       | Augmente les FPS                  |
+| F3       | Diminue les UPS                   |
+| F4       | Augmente les UPS                  |
+| F5       | drawGradientRect() simple/avancé  |
+| F6       | Ajuste la longueur des rectangles |
+| F7       | Bascule entre le zoom 1x et 2x    |
+| H        | Hack Stylus.newPress (ML3/ML2)    |
+| F11      | Plein écran (Windows seulement)   |
+| F12      | Augmente le niveau de log         |
+| Ctrl+Q   | Quitte MLS                        |
++----------+-----------------------------------+
+
+La touche Ctrl est remplacée par la touche Commande (="Pomme") sous Mac OS X.
+
+La console est l'endroit où seront affichés les erreurs des scripts exécutés.
+C'est aussi là qu'apparaîtront les messages et avertissements de MLS.
+
+Les FPS sont les images/sec que MLS va tenter d'atteindre. Il s'agit de taux de
+rafraichissement purement *visuel* qui affecte seulement la fluidité 
+d'affichage. La valeur par défaut est 60, même si ML utilise 30fps. 60 est 
+peut-être plus agréable à l'oeil, et de toute façon cela n'affecte pas la 
+vitesse *d'exécution* des scripts.
+
+Les UPS sont le nombre d'itérations/sec de la boucle principale dans le script
+en cours d'exécution. Je considère les appels à Controls.read() comme la fin 
+d'une itération de boucle, étant donné que c'est la structure la plus courante 
+pour un script de jeu. Donc, les UPS affectent la vitesse réelle des scripts.
+Je ne connais pas la vitesse de ML à ce niveau, mais ma valeur par défaut est de
+60 également.
+
+Veuillez noter que les FPS et UPS "cibles" ne seront pas respectés à la 
+perfection, vu que mon système de temporisation est loin d'être parfait, et 
+qu'il dépend parfois de particularités de l'OS utilisé.
+
+Le niveau de log (touche F12) est seulement présent pour des raisons de 
+déboguage et vous ne devriez pas trop y toucher, sauf si vous savez ce que vous 
+faites. Autrement vous pourriez vous retrouver avec des tonnes de messages 
+internes de MLS qui envahissent la console, et cela pourrait même ralentir les 
+scripts en cours.
+
+
+----------------------------
+[4] Fichier de configuration
+----------------------------
+Un fichier de configuration nommé "mls.ini" est chargé, s'il existe, à partir du
+dossier courant. Il vous permet de définir quelques options (fps, ups, système 
+de polices, OpenGL etc).
+
+Les commentaires sont autorisés dans ce fichier, il doivent débuter par le 
+caractère ";".
+
+Il y a un mls.ini en exemple dans la distribution, nommé mls.ini.dist. 
+Toutes ses options sont définies aux valeurs par défaut, mais vous pouvez le 
+renommer en mls.ini, et commencer à le modifier.
+
+Pour plus d'informations sur les options, consultez le fichier de configuration 
+fourni.
+
+
+------------------------------------------------
+[5] Remarques, ce qui marche ou pas, limitations
+------------------------------------------------
+Voici quelques remarques sur le simulateur en général, et sur chaque "composant"
+de Micro Lua DS que j'ai implémenté, avec des commentaires là où c'est 
+nécessaire.
+
+Général
+~~~~~~~
+- MLS est un peu hybride en ce qui concerne les versions de ML qu'il simule vu
+  qu'il contient aussi bien des modules obsolètes de ML 2 (Mod, Keyboard) que 
+  des modules présents uniquement en ML 3 (Sound, Wifi...). Cela signifie que 
+  ce n'est un simulateur ni de ML 2, ni de ML 3 en particulier. Vous devez donc
+  être attentif à la version de ML que vous ciblez, car MLS ne vous préviendra 
+  pas que vous utilisez des modules ou fonctions ML obsolètes ou trop récents.
+  J'implémenterai peut-être plus tard une option du genre "quelle version de ML
+  voulez-vous simuler ?", mais c'est pas pour tout de suite.
+
+- Toutes les démos fournies avec ML dans le dossier Examples fonctionnent, 
+  excepté le son qui n'est pas joué. J'ai aussi testé quelques scripts trouvés
+  sur les forums ML, où des fans sympas de ML créent et font partager des démos
+  et des jeux, notamment un remake du jeu Seaquest (Atari 2600?) qui fonctionne
+  assez bien dans le simulateur (mais sans le son, donc).
+
+- Les versions Windows et Mac OS X sont considérées comme beta, étant donné que 
+  je développe et teste surtout sous Linux, mon OS principal. Des tests on été 
+  faits sous Ubuntu 8.10 et +, Windows XP, et Mac OS X 10.6 "Snow Leopard", le 
+  tout en version 32 bits. Je n'ai pas testé sous d'autres distribs Linux, ni 
+  sous Windows Vista ou 7, ni sous Mac OS X Léopard. Aussi, mon Windows XP est 
+  en fait virtualisé, donc je suppose que le résultat peut être différent sous 
+  un Windows XP natif.
+  
+  NOTE: j'ai récemment installé un Ubuntu en 64-bit, et MLS semble bien 
+        fonctionner, si ce n'est quelques messages d'avertissement concernant
+        ELFCLASS.
+  
+- Je n'ai pas essayé de reproduire les limitations du vrai ML en ce qui concerne
+  le chargement des images, des sons, la différence RAM/VRAM etc. Faites 
+  attention donc, car certaines parties de vos scripts pourraient user toutes 
+  les ressources disponibles sur la DS, alors qu'ils fonctionnent très bien sur 
+  le PC.
+
+Canvas
+~~~~~~
+- Malheureusement, contrairement à ML, Canvas est plutôt lent dans le simulateur
+  (enfin, disons qu'il n'est pas nettement plus rapide que les appels directs 
+   aux fonctions de dessin, comme c'est le cas dans le vrai ML).
+
+Controls
+~~~~~~~~
+- Le comportement de deltax et deltay me semble parfois incorrect/étrange (voir 
+  la démo "drapeau rouge et blanc" dans les exemples).
+
+Font
+~~~~
+- Si le système de polices "correct" (càd les polices bitmap) utilisé ralentit 
+  trop votre application, vous pouvez passer à un système de polices natives, 
+  qui est plus limité mais plus rapide (consultez le fichier de configuration 
+  pour plus d'infos).
+  NOTE: ceci est seulement valable pour la version source de MLS. La version 
+        compilée n'utilise que les polices bitmap.
+  
+- Le système de polices bitmaps fonctionne uniquement avec les textes encodés en
+  latin-1. Cela implique que vos fichiers source Lua devraient être encodés de 
+  cette façon, pas en UTF-8.
+  
+- Au contraire, le système de polices natives semble uniquement fonctionner avec
+  les textes encodés en UTF-8, et rien ne sera affiché si vous utilisez des 
+  textes encodés en latin-1 qui contiennent des octets/caractères non 
+  compatibles UTF-8 (par ex. des caractères accentués). C'est dû au 
+  fonctionnement de la libraire wxWidgets, et ça signifie que vos fichiers 
+  source Lua feraient mieux d'être encodés en UTF-8 s'ils utilisent des textes 
+  contenant des caractères accentués ou spéciaux.
+
+INI
+~~~
+- Lorsque des types invalides sont détectés pendant save(), le fichier ini est 
+  inchangé s'il existait déjà. Je ne sais pas si ML efface le contenu d'un 
+  fichier existant lorsque des erreurs surviennent pendant la sauvegarde.
+
+Motion
+~~~~~~
+- Les fonctions de Motion sont implémentées, mais bien entendu le périphérique 
+  de "motion" est considéré absent.
+
+Rumble
+~~~~~~
+- Les fonctions Rumble sont implémentées, et le périphérique "rumble" est 
+  considéré comme toujours inséré, mais bien entendu ne produit aucun résultat
+  visible dans le simulateur.
+
+screen
+~~~~~~
+- En ML, le rafraichissement des écrans se fait à 30 images/seconde, dans le 
+  simulateur, vous pouvez le modifier.
+  
+- drawGradientRect() n'est pas "MicroLua-tement correct" lorsqu'OpenGL est
+  désactivé (trop dur à faire en wxWidgets).
+
+ScrollMap
+~~~~~~~~~
+- Il m'a semblé que lors d'un test avec le vrai ML, une "tile" était dessinée 
+  de façon incorrecte (elle était noire au lieu d'être blanche). Je n'ai pas 
+  essayé de reproduire ce comportement dans MLS.
+
+Sound
+~~~~~
+- Les méthodes de gestion du son sont bien présentes, donc ne provoquent pas
+  d'erreur lorsqu'elles sont appelées dans les scripts, mais pour l'instant le
+  son n'est pas joué. J'essayerai d'implémenter cela en SDL dans une prochaine
+  version.
+  
+Sprite
+~~~~~~
+- reset/start/stopAnimation() ne sont pas implémentés (il ne sont pas utilisés 
+  dans les exemples).
+  
+Wifi
+~~~~
+- createUDPSocket() n'est pas implémenté (pas de sockets UDP dans la lib que 
+  j'utilise, désolé).
+
+
+------------
+[6] Le futur
+------------
+En fonction de mon temps libre, je vais continuer à développer MLS. Voici 
+quelques trucs que j'aimerais faire:
+
+  - optimisations de vitesse si possible (les tint/rotate/scale d'images)
+  - implémenter le son (avec SDL ?)
+  - lire les touches associées aux contrôles DS à partir du fichier de 
+    configuration également
+  - script de lancement sur Mac qui donnerait le focus à la fenêtre => vraie app
+  - résoudre les problèmes d'encodage des systèmes de polices bitmap/natives 
+    (latin1/utf8)
+  - si la vitesse d'exécution reste insatisfaisante, peut-être essayer la lib 
+    Qt ou même réécrire le simulateur en Java avec une lib "Lua intégré", et 
+    Java2D pour la partie graphique (un peu folle peut-être cette idée?)
+
+Pour plus de "TODO"'s, regardez les sources, particulièrement clp/mls/Mls.lua. 
+Des balises @todo sont placées dans les commentaires.
+
+
+-----------
+[7] Contact
+-----------
+E-mail: Ced.le.pingouin@gmail.com
+
+Google Code: http://code.google.com/p/microlua-sim/
+
+Site web (téléchargement seulement):
+  http://www.cedlepingouin.com/mls/files/mls-0.4beta3-linux.zip
+  http://www.cedlepingouin.com/mls/files/mls-0.4beta3-win.zip
+  http://www.cedlepingouin.com/mls/files/mls-0.4beta3-mac.zip
+  http://www.cedlepingouin.com/mls/files/mls-0.4beta3-src.zip
+
+Dans les URL ci-dessus, vous pouvez remplacer le n° de version par celui que 
+vous désirez, car toutes les versions sont maintenant gardées sur le site.
+Notez toutefois que la version "mac" n'existe qu'à partir de la v0.3, et que 
+la version "src" n'existe qu'à partir de la v0.4.
+
+
+--------------------------
+[8] Remerciements et liens
+--------------------------
+Les développeurs de Lua pour ce langage simple et puissant (http://www.lua.org/)
+
+Risike pour Micro Lua DS (http://microlua.risike.com/)
+
+Killer01, Samy, Reylak, [TheDarkTiger], thermo_nono, Doc, Wolftousen, 
+snatcher-br, Quent42340, aurel2108, Grahack, BALROG et tous les fans de Micro 
+Lua DS qui fournissent scripts persos et conseils sur les forums de Micro Lua DS
+(http://microlua.xooit.fr/index.php)
+
+Dev-fr pour m'avoir fait prendre conscience que la scène homebrew DS se portait 
+pas mal (http://www.dev-fr.org/)
+
+Les développeurs de wxLua pour avoir rendu disponible en Lua la librairie 
+multi-plateformes wxWidgets
+(http://wxlua.sourceforge.net/)
+
+Les développeurs de wxWidgets (http://www.wxwidgets.org/)
+
+Google Code pour permettre gratuitement l'hébergement de projets libres, avec 
+dépôt SCM Subversion ou Mercurial, wiki, bugtracker etc.
+(http://code.google.com/ et http://code.google.com/hosting/)
+
+
+Les artistes suivants pour faire une musique aussi géniale:
+
+    Opeth, Danzig, The Gathering, Anathema, My Dying Bride, L7, Behemoth, 
+    The Old Dead Tree, Septic Flesh, Tool, Type O Negative, Backyard Babies, 
+    Hardcore Superstar, Beautiful Creatures, Ministry, Marilyn Manson, WASP, 
+    Mötley Crüe, Cradle of Filth, Dimmu Borgir, Satyricon, Emperor, Immortal, 
+    Theatre of Tragedy, Monster Magnet, Orphaned Land, Melechesh, Guns'n'Roses, 
+    Nile, Nashville Pussy, Turbonegro, Zazie, Aaron, et plein d'autres...
