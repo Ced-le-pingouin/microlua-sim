@@ -175,6 +175,7 @@ disponibles:
 | Hack Stylus.newPress (ML3/ML2)     | H        |
 | Plein écran (Windows seulement)    | F11      |
 | Augmenter le niveau de log         | F12      |
+| Afficher les raccourcis clavier    | Ctrl+K   |
 | Quitter MLS                        | Ctrl+Q   |
 +------------------------------------+----------+
 

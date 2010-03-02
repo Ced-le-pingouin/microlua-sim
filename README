@@ -159,6 +159,7 @@ available:
 | Stylus.newPress hack (ML3/ML2)     | H        |
 | Fullscreen mode (Windows only)     | F11      |
 | Increase log level                 | F12      |
+| Show key bindings summary          | Ctrl+K   |
 | Quit MLS                           | Ctrl+Q   |
 +------------------------------------+----------+
 
