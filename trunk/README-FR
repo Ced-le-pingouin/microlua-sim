@@ -108,7 +108,7 @@ copier le contenu d'un sous-dossier de "os_specific" dans la racine de MLS. Ces
 trois sous-dossiers sont, fort logiquement, "linux", "mac", et "win".
 
 Pour lancer votre script ML, tapez la commande suivante, lorsque vous vous 
-trouvez dans le dossier du simulateur:
+trouvez dans le dossier de MLS:
 
 Linux & Mac OS X: ./mls <nom-de-votre-script>
 Windows: mls <nom-de-votre-script>
@@ -229,9 +229,8 @@ fourni.
 ------------------------------------------------
 [5] Remarques, ce qui marche ou pas, limitations
 ------------------------------------------------
-Voici quelques remarques sur le simulateur en général, et sur chaque "composant"
-de Micro Lua DS que j'ai implémenté, avec des commentaires là où c'est 
-nécessaire.
+Voici quelques remarques sur MLS en général, et sur chaque "composant" de Micro
+Lua DS que j'ai implémenté, avec des commentaires là où c'est nécessaire.
 
 Général
 ~~~~~~~
@@ -248,7 +247,7 @@ Général
   excepté le son qui n'est pas joué. J'ai aussi testé quelques scripts trouvés
   sur les forums ML, où des fans sympas de ML créent et font partager des démos
   et des jeux, notamment un remake du jeu Seaquest (Atari 2600?) qui fonctionne
-  assez bien dans le simulateur (mais sans le son, donc).
+  assez bien dans MLS (mais sans le son, donc).
 
 - Les versions Windows et Mac OS X sont considérées comme beta, étant donné que 
   je développe et teste surtout sous Linux, mon OS principal. Des tests on été 
@@ -270,9 +269,9 @@ Général
 
 Canvas
 ~~~~~~
-- Malheureusement, contrairement à ML, Canvas est plutôt lent dans le simulateur
-  (enfin, disons qu'il n'est pas nettement plus rapide que les appels directs 
-   aux fonctions de dessin, comme c'est le cas dans le vrai ML).
+- Malheureusement, contrairement à ML, Canvas est plutôt lent dans MLS (enfin, 
+  disons qu'il n'est pas nettement plus rapide que les appels directs aux 
+  fonctions de dessin, comme c'est le cas dans le vrai ML).
 
 Controls
 ~~~~~~~~
@@ -315,12 +314,12 @@ Rumble
 ~~~~~~
 - Les fonctions Rumble sont implémentées, et le périphérique "rumble" est 
   considéré comme toujours inséré, mais bien entendu ne produit aucun résultat
-  visible dans le simulateur.
+  visible dans MLS.
 
 screen
 ~~~~~~
-- En ML, le rafraichissement des écrans se fait à 30 images/seconde, dans le 
-  simulateur, vous pouvez le modifier.
+- En ML, le rafraichissement des écrans se fait à 30 images/seconde, dans MLS, 
+  vous pouvez le modifier.
   
 - drawGradientRect() n'est pas "MicroLua-tement correct" lorsqu'OpenGL est
   désactivé (trop dur à faire en wxWidgets).
@@ -363,8 +362,8 @@ quelques trucs que j'aimerais faire:
   - résoudre les problèmes d'encodage des systèmes de polices bitmap/natives 
     (latin1/utf8)
   - si la vitesse d'exécution reste insatisfaisante, peut-être essayer la lib 
-    Qt ou même réécrire le simulateur en Java avec une lib "Lua intégré", et 
-    Java2D pour la partie graphique (un peu folle peut-être cette idée?)
+    Qt ou même réécrire MLS en Java avec une lib "Lua intégré", et Java2D pour 
+    la partie graphique (un peu folle peut-être cette idée?)
 
 Pour plus de "TODO"'s, regardez les sources, particulièrement clp/mls/Mls.lua. 
 Des balises @todo sont placées dans les commentaires.

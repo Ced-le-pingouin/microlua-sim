@@ -208,8 +208,8 @@ provided config file.
 ----------------------------------------------------
 [5] Remarks, what's done and what's not, limitations
 ----------------------------------------------------
-Below are some remarks on the sim as a whole, and on each "component" of Micro 
-Lua DS that I tried to implement, where comment is needed.
+Below are some remarks on MLS as a whole, and on each "component" of Micro Lua
+DS that I tried to implement, where comment is needed.
 
 General
 ~~~~~~~
@@ -224,8 +224,8 @@ General
 - All the demos provided with ML in the Examples directory are working, except 
   sound is not played. I also tried some scripts found on the great ML forums, 
   where nice ML enthusiasts create games and demos (see the links section at the
-  end of this text), notably a "Seaquest" remake which works very well in the 
-  sim (although without sound).
+  end of this text), notably a "Seaquest" remake which works very well in MLS
+  (although without sound).
   
 - The Windows and Mac versions are considered beta, since I usually test on 
   Linux, my main OS. Tests have been done on Ubuntu 8.10+, Windows XP, and
@@ -243,9 +243,9 @@ General
 
 Canvas
 ~~~~~~
-- It's sad, but contrary to the real Micro Lua, Canvas is rather slow in my 
-  simulator (well at least it's not significantly faster than direct calls to 
-  the drawing functions, as in the real ML).
+- It's sad, but contrary to the real Micro Lua, Canvas is rather slow in MLS 
+  (well at least it's not significantly faster than direct calls to the drawing
+  functions, as in the real ML).
 
 Controls
 ~~~~~~~~
@@ -284,7 +284,7 @@ Motion
 Rumble
 ~~~~~~
 - Rumble functions are implemented, and the rumble device is seen as always 
-  inserted, but obviously does nothing visible in the sim.
+  inserted, but obviously does nothing visible in MLS.
 
 screen
 ~~~~~~
@@ -297,7 +297,7 @@ screen
 ScrollMap
 ~~~~~~~~~
 - Some test I did on the real DS was drawing a tile with the wrong color (black
-  instead of white). I didn't try to reproduce that behaviour in the sim.
+  instead of white). I didn't try to reproduce that behaviour in MLS.
 
 Sound
 ~~~~~
@@ -317,15 +317,15 @@ Wifi
 --------------
 [6] The future
 --------------
-Depending on my free time, I'll continue to work on ML Simulator. Here are some 
-of the things I'd like to do:
+Depending on my free time, I'll continue to work on MLS. Here are some of the 
+things I'd like to do:
 
   - speed optimizations where possible (think tinted/rotated/scaled images)
   - implement sound (using SDL?)
   - read key bindings from the config file, too
   - better launch script on Mac OS X, would give focus to the window => real app
   - possible to fix encoding problems with bitmap/native fonts ? (latin1/utf8)
-  - if gfx speed is hopeless, maybe try Qt bindings, or maybe rewrite the sim
+  - if gfx speed is hopeless, maybe try Qt bindings, or maybe rewrite MLS 
     in Java with an embedded Lua lib and Java2D for the gfx bits (is this a 
     crazy idea?)
 

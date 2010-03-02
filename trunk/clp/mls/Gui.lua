@@ -144,7 +144,7 @@ function M:_createConsole()
     self._console = wx.wxFrame(
         wx.NULL, --self._window,
         wx.wxID_ANY,
-        self._windowTitle.." Console",
+        self._windowTitle.." - Console",
         wx.wxPoint(x, y),
         wx.wxSize(w, h),
         wx.wxDEFAULT_FRAME_STYLE
@@ -464,7 +464,8 @@ function M:showKeyBindings(keyBindings)
     -- no key bindings dialog yet? Create it
     if not self._keyBindingsWindow then
         -- create the dialog and its sizer
-        local dialog = wx.wxDialog(self._window, wx.wxID_ANY, "Key bindings")
+        local dialog = wx.wxDialog(self._window, wx.wxID_ANY, 
+                                   "MLS - Key bindings")
         local dialogSizer = wx.wxBoxSizer(wx.wxVERTICAL)
         
         -- create the grid, the rows/cols, labels, default sizes
