@@ -126,6 +126,7 @@ function Mls:ctr(scriptPath)
     Mls.openGlUseTextureRectangle = Mls.config:get(
         "open_gl_use_texture_rectangle", true
     )
+    Mls.openGlSimplePause = Mls.config:get("open_gl_simple_pause", false)
     
     -- ML modules manager
     local moduleManager = ModuleManager:new()
@@ -311,6 +312,7 @@ function Mls:getValidOptions()
         draw_gradient_rect_accuracy = { "number", 0, 256 },
         open_gl = { "boolean" },
         open_gl_use_texture_rectangle = { "boolean" },
+        open_gl_simple_pause = { "boolean" },
         rect_length = { "number", 0, 1 },
         
         -- debug options below
