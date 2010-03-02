@@ -1,3 +1,16 @@
+0.4 (?? ????? 2010)
+-------------------
+  * problèmes OpenGL résolus: plus de rectangles blancs à la place des images, 
+    ou d'images déformées, ou de FPS insupportablement bas (sur de vieilles 
+    cartes graphiques qui repassaient en rendu OpenGL logiciel)
+  * screen.drawTextBox() prend maintenant en charge les retours à la ligne
+  * nouvelle fenêtre "raccourcis clavier" dans le menu Help (ou Ctrl+K)
+  * zoom: dans certains cas, le retour au zoom 1x ne se faisait pas
+  * zoom: le changement du facteur de zoom est désactivé quand on est en plein 
+    écran
+  * le fichier de configuration fourni est mls.ini au lieu de mls.ini.dist (que
+    l'utilisateur devait renommer)
+
 0.4 beta 3 (21 février 2010)
 ----------------------------
   * support OpenGL pour l'affichage, activable par une variable dans le fichier
