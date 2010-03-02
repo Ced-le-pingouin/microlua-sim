@@ -32,6 +32,7 @@ local M = Class.new()
 M.MENU_OPEN  = wx.wxID_OPEN
 M.MENU_EXIT  = wx.wxID_EXIT
 M.MENU_ABOUT = wx.wxID_ABOUT
+M.MENU_SHOW_KEY_BINDINGS = wx.wxNewId()
 
 --- Constructor.
 -- Creates the main window, the status bars, and the surface representing the 
@@ -451,12 +452,69 @@ function M:showAboutBox(appInfo)
     wx.wxAboutBox(info)
 end
 
---- Sets the default shortcut (accelerator, in wxWidgets terminology) to an menu
+--- Shows a dialog with key bindings.
+--
+-- If the dialog doesn't exist yet, it is created.
+--
+-- @param keyBindings (array) The key bindings to display. Each one is itself an
+--                            array of two items. The first one is a string 
+--                            describing the action, the second one is a string
+--                            representing the key bound to this action
+function M:showKeyBindings(keyBindings)
+    -- no key bindings dialog yet? Create it
+    if not self._keyBindingsWindow then
+        -- create the dialog and its sizer
+        local dialog = wx.wxDialog(self._window, wx.wxID_ANY, "Key bindings")
+        local dialogSizer = wx.wxBoxSizer(wx.wxVERTICAL)
+        
+        -- create the grid, the rows/cols, labels, default sizes
+        local grid = wx.wxGrid(dialog, wx.wxID_ANY)
+        grid:CreateGrid(#keyBindings, 2)
+        grid:SetRowLabelSize(0)
+        grid:SetDefaultCellAlignment(wx.wxALIGN_CENTER, wx.wxALIGN_CENTER)
+        grid:SetColLabelValue(0, "Action")
+        grid:SetColLabelValue(1, "Key")
+        
+        -- fill the columns
+        for i, binding in ipairs(keyBindings) do
+            grid:SetCellValue(i - 1, 0, binding[1])
+            grid:SetCellValue(i - 1, 1, binding[2])
+        end
+        
+        -- autosize the columns, then set both to the width of the largest one
+        grid:AutoSize()
+        local minColSize = math.max(grid:GetColSize(0), grid:GetColSize(1))
+        grid:SetDefaultColSize(minColSize, true)
+        
+        -- the user won't be allowed to edit or resize the grid
+        grid:EnableEditing(false)
+        grid:EnableDragColSize(false)
+        grid:EnableDragRowSize(false)
+        grid:EnableDragGridSize(false)
+        
+        -- add the grid to the dialog sizer
+        dialogSizer:Add(grid, 1, wx.wxEXPAND)
+        
+        -- creates and add a dialog button sizer
+        local buttonSizer = dialog:CreateButtonSizer(wx.wxOK)
+        dialogSizer:Add(buttonSizer, 0, wx.wxCENTER)
+        
+        -- make the window fit its content
+        dialog:SetSizerAndFit(dialogSizer)
+        dialog:Center()
+        
+        self._keyBindingsWindow = dialog
+    end
+    
+    self._keyBindingsWindow:Show()
+end
+
+--- Sets the default shortcut (accelerator, in wxWidgets terminology) to a menu
 --  item.
 --
 -- On Windows and Mac, Open seems to have no default shortcut, so we create one.
--- This doesn't seem to bother Linux, Exit, Linux and Mac define one (Ctrl+Q and
--- Cmd+Q), and Windows has Alt+F4, so we're set
+-- This doesn't seem to bother Linux. For Exit, Linux and Mac define one (Ctrl+Q
+-- and Cmd+Q), and Windows has Alt+F4, so we're set
 --
 -- @param item (table) The menu item, as used by createMenus(), i.e. with at 
 --                     least the id and caption (already containing an optional
@@ -464,7 +522,7 @@ end
 --
 -- @see createMenus
 function M:_setDefaultShortcut(item)
-    if item.caption:find("\t", 1, true) ~= nil then
+    if item.caption:find("\t", 1, true) then
         return
     end
     
@@ -472,6 +530,8 @@ function M:_setDefaultShortcut(item)
         item.caption = item.caption .. "\tCTRL+O"
     elseif item.id == M.MENU_EXIT then
         item.caption = item.caption .. "\tCTRL+Q"
+    elseif item.id == M.MENU_SHOW_KEY_BINDINGS then
+        item.caption = item.caption .. "\tCTRL+K"
     end
 end
 

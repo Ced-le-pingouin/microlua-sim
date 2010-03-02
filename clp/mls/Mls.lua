@@ -108,6 +108,7 @@ function Mls:ctr(scriptPath)
     
     -- init vars and gui
     Mls._initVars()
+    Mls.keyBindings = Mls._loadKeyBindingsFromFile("README")
     Mls.gui = Mls._initGui(Mls.initialDirectory)
     
     -- logger
@@ -218,9 +219,14 @@ function Mls._initGui(path)
             caption = "&Help",
             items   = {
                 {
-                    caption = "&About",
-                    id = gui.MENU_ABOUT,
+                    caption  = "&About",
+                    id       = gui.MENU_ABOUT,
                     callback = Mls.onAbout
+                },
+                {
+                    caption  = "Show &key bindings",
+                    id       = gui.MENU_SHOW_KEY_BINDINGS,
+                    callback = Mls.onShowKeyBindings
                 }
             }
         }
@@ -238,6 +244,55 @@ function Mls._initTimer()
     Mls._timer = Timer.new()
     Mls._timer:start()
     Mls._startTime = Mls._timer:time()
+end
+
+--- Reads key bindings from a file.
+--
+-- The file should contains key bindings as the first two "tables", as in the 
+-- README. That is, a table begins with "+-----" then two lines for headers, and
+-- ends with "+-----". Everything between the header and the end of the "table"
+-- is seen as an "action - key binding" pair. Columns are drawn with "|", so 
+-- there are three "|" for each line of the "table".
+-- e.g. "|   Pause/resume   |    P   |"
+--
+-- @param fileName (string)
+--
+-- @return (array) Each item will itself be an array, where the first item is a
+--                 string that describes the action, and the second item is a
+--                 string that represents the key associated to it.
+--                 e.g. { { "Pause/resume", "P" }, { "Quit", "Ctrl+Q" } }
+function Mls._loadKeyBindingsFromFile(fileName)
+    local keyBindings = {}
+    
+    local file = io.open(fileName, "r")
+    
+    local maxTables = 2
+    local numTables = 0
+    local inTable = false
+    
+    while true do
+        local line = file:read()
+        if not line then break end
+        
+        if line:find("^%+%-%-%-%-%-") then
+            inTable = not inTable
+            
+            if inTable then
+                file:read()
+                file:read()
+            else
+                numTables = numTables + 1
+                if numTables >= maxTables then break end
+            end
+        elseif inTable then
+            local action, key = line:match("|%s+(.-)%s+|%s+(.-)%s+|")
+            table.insert(keyBindings, { action, key })
+        end
+    end
+    
+    file:close()
+    
+    return keyBindings
 end
 
 --- Returns the list of valid config options for MLS.
@@ -454,6 +509,11 @@ function Mls.onAbout()
     end)
     
     Mls.logger:debug("end About", "menu")
+end
+
+--- Shows the key bindings
+function Mls.onShowKeyBindings()
+    Mls.gui:showKeyBindings(Mls.keyBindings)
 end
 
 --- Requests the application to close.
