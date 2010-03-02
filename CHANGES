@@ -1,5 +1,6 @@
 0.4 (2 March 2010)
 ------------------
+  ! OpenGL is now the default display mode in mls.ini
   * OpenGL fixes: no more white rectangles instead of images, or garbled images,
     or unbearably low FPS (on older GPUs that switched to software rendering)
     If you still have problems with OpenGL, notably with Pause, take a look at
