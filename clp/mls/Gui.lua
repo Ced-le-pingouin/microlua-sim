@@ -232,6 +232,8 @@ function M:showWindow()
 end
 
 function M:incZoomFactor()
+    if self._window:IsFullScreen() then return end
+    
     local surfaceWidth, surfaceHeight = self._surface:GetSizeWH()
     local windowWidth, windowHeight = self._window:GetSizeWH()
     local decorationWidth = windowWidth - surfaceWidth
