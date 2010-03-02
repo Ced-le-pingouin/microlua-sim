@@ -189,7 +189,7 @@ function Mls._initGui(path)
     Mls.logger:info("initializing GUI")
     
     local gui = Gui:new(SCREEN_WIDTH, SCREEN_HEIGHT * 2, 
-                        "uLua DS Sim v"..Mls.VERSION, nil, path)
+                        "MLS "..Mls.VERSION, nil, path)
     
     gui:registerShutdownCallback(function()
         -- the events functions must always be called with current "Mls"
@@ -455,7 +455,7 @@ function Mls.onFileOpen()
     
     Mls.scriptManager:pauseScriptWhile(function()
         local file = Mls.gui:selectFile{
-            caption     = "Select a Lua script to run",
+            caption     = "MLS - Select a Lua script to run",
             defaultPath = "",
             defaultFile = "",
             defaultExt  = "lua",
@@ -482,7 +482,7 @@ function Mls.onAbout()
     
     Mls.scriptManager:pauseScriptWhile(function()
         Mls.gui:showAboutBox{
-            name = "Micro Lua Simulator",
+            name = "Micro Lua Simulator (aka MLS)",
             version = Mls.VERSION,
             description = "Run Micro Lua DS scripts on your computer",
             authors = { "Ced-le-pingouin <Ced.le.pingouin@gmail.com>" },
