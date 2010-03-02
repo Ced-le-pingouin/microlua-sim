@@ -232,16 +232,23 @@ function M:showWindow()
 end
 
 function M:incZoomFactor()
+    local surfaceWidth, surfaceHeight = self._surface:GetSizeWH()
+    local windowWidth, windowHeight = self._window:GetSizeWH()
+    local decorationWidth = windowWidth - surfaceWidth
+    local decorationHeight = windowHeight - surfaceHeight
+    
     -- zoom factor is based on width only, because aspect ratio is kept anyway
-    local zoomFactor = math.floor(
-        self._surface:GetSize():GetWidth() / self._width
-    )
+    local zoomFactor = math.floor(surfaceWidth / self._width)
     -- we increase zoom factor by integer for now (1x, 2x, ...)
     zoomFactor = zoomFactor + 1
     
-    -- compute new width and height
-    local newWidth = self._width * zoomFactor
-    local newHeight = self._height * zoomFactor
+    -- compute new width and height for the surface...
+    local newSurfaceWidth = self._width * zoomFactor
+    local newSurfaceHeight = self._height * zoomFactor
+    
+    -- ...and for the window
+    local newWindowWidth = newSurfaceWidth + decorationWidth
+    local newWindowHeight = newSurfaceHeight + decorationHeight
     
     --  get available "desktop" area
     local displayNum = wx.wxDisplay.GetFromWindow(self._window)
@@ -250,13 +257,13 @@ function M:incZoomFactor()
     local availableHeight = display:GetClientArea():GetHeight()
     
     -- if new width or height is larger than what's available, get back to 1x
-    if newWidth > availableWidth or newHeight > availableHeight then
-        newWidth, newHeight = self._width, self._height
+    if newWindowWidth > availableWidth or newWindowHeight > availableHeight then
+        newSurfaceWidth, newSurfaceHeight = self._width, self._height
         zoomFactor = 1
     end
     
     -- set min size for Layout, then Fit the window...
-    self._surface:SetMinSize(wx.wxSize(newWidth, newHeight))
+    self._surface:SetMinSize(wx.wxSize(newSurfaceWidth, newSurfaceHeight))
     self._window:Layout()
     wx.wxYield()
     self._window:Fit()
