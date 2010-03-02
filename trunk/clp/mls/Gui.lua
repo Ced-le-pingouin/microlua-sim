@@ -273,7 +273,7 @@ function M:incZoomFactor()
     -- ...but re-set min size to original after Layout/Fit
     self._surface:SetMinSize(wx.wxSize(self._width, self._height))
     
-    Mls.logger:info("setting screens' zoom factor to "..zoomFactor)
+    Mls.logger:info("setting screens' zoom factor to "..zoomFactor, "gui")
 end
 
 function M:switchFullScreen()
