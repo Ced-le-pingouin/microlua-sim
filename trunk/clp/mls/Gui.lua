@@ -483,12 +483,15 @@ function M:showKeyBindings(keyBindings)
         end
         
         -- decrease grid default fonts so it doesn't fill the whole screen
+        -- (font size = 11 on Mac, 8 on Windows and Linux)
+        local fontSize = Sys.getOS() == "Macintosh" and 11 or 8
+        
         local labelFont = grid:GetLabelFont()
-        labelFont:SetPointSize(labelFont:GetPointSize() - 2)
+        labelFont:SetPointSize(fontSize)
         grid:SetLabelFont(labelFont)
         
         local cellFont = grid:GetDefaultCellFont()
-        cellFont:SetPointSize(cellFont:GetPointSize() - 2)
+        cellFont:SetPointSize(fontSize)
         grid:SetDefaultCellFont(cellFont)
         
         -- autosize the columns, then set both to the width of the largest one
