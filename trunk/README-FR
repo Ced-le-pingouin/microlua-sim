@@ -218,9 +218,8 @@ de polices, OpenGL etc).
 Les commentaires sont autorisés dans ce fichier, il doivent débuter par le 
 caractère ";".
 
-Il y a un mls.ini en exemple dans la distribution, nommé mls.ini.dist. 
-Toutes ses options sont définies aux valeurs par défaut, mais vous pouvez le 
-renommer en mls.ini, et commencer à le modifier.
+Il y a un mls.ini en exemple dans la distribution. Toutes ses options sont 
+définies aux valeurs par défaut.
 
 Pour plus d'informations sur les options, consultez le fichier de configuration 
 fourni.
@@ -248,18 +247,6 @@ Général
   sur les forums ML, où des fans sympas de ML créent et font partager des démos
   et des jeux, notamment un remake du jeu Seaquest (Atari 2600?) qui fonctionne
   assez bien dans MLS (mais sans le son, donc).
-
-- Les versions Windows et Mac OS X sont considérées comme beta, étant donné que 
-  je développe et teste surtout sous Linux, mon OS principal. Des tests on été 
-  faits sous Ubuntu 8.10 et +, Windows XP, et Mac OS X 10.6 "Snow Leopard", le 
-  tout en version 32 bits. Je n'ai pas testé sous d'autres distribs Linux, ni 
-  sous Windows Vista ou 7, ni sous Mac OS X Léopard. Aussi, mon Windows XP est 
-  en fait virtualisé, donc je suppose que le résultat peut être différent sous 
-  un Windows XP natif.
-  
-  NOTE: j'ai récemment installé un Ubuntu en 64-bit, et MLS semble bien 
-        fonctionner, si ce n'est quelques messages d'avertissement concernant
-        ELFCLASS.
   
 - Je n'ai pas essayé de reproduire les limitations du vrai ML en ce qui concerne
   le chargement des images, des sons, la différence RAM/VRAM etc. Faites 
@@ -354,16 +341,12 @@ Wifi
 En fonction de mon temps libre, je vais continuer à développer MLS. Voici 
 quelques trucs que j'aimerais faire:
 
-  - optimisations de vitesse si possible (les tint/rotate/scale d'images)
   - implémenter le son (avec SDL ?)
   - lire les touches associées aux contrôles DS à partir du fichier de 
     configuration également
   - script de lancement sur Mac qui donnerait le focus à la fenêtre => vraie app
   - résoudre les problèmes d'encodage des systèmes de polices bitmap/natives 
     (latin1/utf8)
-  - si la vitesse d'exécution reste insatisfaisante, peut-être essayer la lib 
-    Qt ou même réécrire MLS en Java avec une lib "Lua intégré", et Java2D pour 
-    la partie graphique (un peu folle peut-être cette idée?)
 
 Pour plus de "TODO"'s, regardez les sources, particulièrement clp/mls/Mls.lua. 
 Des balises @todo sont placées dans les commentaires.
