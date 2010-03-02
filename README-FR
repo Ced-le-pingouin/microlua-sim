@@ -108,7 +108,7 @@ copier le contenu d'un sous-dossier de "os_specific" dans la racine de MLS. Ces
 trois sous-dossiers sont, fort logiquement, "linux", "mac", et "win".
 
 Pour lancer votre script ML, tapez la commande suivante, lorsque vous vous 
-trouvez dans le dossier de MLS:
+trouvez dans le dossier du simulateur:
 
 Linux & Mac OS X: ./mls <nom-de-votre-script>
 Windows: mls <nom-de-votre-script>
@@ -137,7 +137,7 @@ Dans cette version, les touches utilisées ne peuvent être modifiées. Les voic
 dire "pavé numérique")
 
 +-------------+---------------------------------+
-|     DS      |             Touche              |
+|     DS      |               PC                |
 +-------------+---------------------------------+
 | Haut (CD)   | I, Flèche haut ou 8 (PN)        |
 | Bas (CD)    | K, Flèche bas, 5 (PN) ou 2 (PN) |
@@ -156,28 +156,27 @@ dire "pavé numérique")
 A partir de la v0.4, des commandes indépendantes de la DS sont également 
 disponibles:
  
-+------------------------------------+----------+
-|               Action               |  Touche  |
-+------------------------------------+----------+
-| Ouvrir un script                   | Ctrl+O   |
-| Mettre le script en pause          | P        |
-| Redémarrerle script                | B        |
-| Recharger le script (du disque)    | Shift+B  |
-| Afficher/cacher la console         | C        |
-| Vider la console                   | DEL      |
-| Diminuer les FPS                   | F1       |
-| Augmenter les FPS                  | F2       |
-| Diminuer les UPS                   | F3       |
-| Augmenter les UPS                  | F4       |
-| drawGradientRect() simple/avancé   | F5       |
-| Ajuster la longueur des rectangles | F6       |
-| Basculer entre le zoom 1x et 2x    | F7       |
-| Hack Stylus.newPress (ML3/ML2)     | H        |
-| Plein écran (Windows seulement)    | F11      |
-| Augmenter le niveau de log         | F12      |
-| Afficher les raccourcis clavier    | Ctrl+K   |
-| Quitter MLS                        | Ctrl+Q   |
-+------------------------------------+----------+
++----------+-----------------------------------+
+|  Touche  |              Action               |
++----------+-----------------------------------+
+| Ctrl+O   | Ouvre un script                   |
+| P        | Met le script en pause            |
+| B        | Redémarre le script               |
+| Shift+B  | Recharge le script (du disque)    |
+| C        | Affiche/cache la console          |
+| DEL      | Vide la console                   |
+| F1       | Diminue les FPS                   |
+| F2       | Augmente les FPS                  |
+| F3       | Diminue les UPS                   |
+| F4       | Augmente les UPS                  |
+| F5       | drawGradientRect() simple/avancé  |
+| F6       | Ajuste la longueur des rectangles |
+| F7       | Bascule entre le zoom 1x et 2x    |
+| H        | Hack Stylus.newPress (ML3/ML2)    |
+| F11      | Plein écran (Windows seulement)   |
+| F12      | Augmente le niveau de log         |
+| Ctrl+Q   | Quitte MLS                        |
++----------+-----------------------------------+
 
 La touche Ctrl est remplacée par la touche Commande (="Pomme") sous Mac OS X.
 
@@ -229,8 +228,9 @@ fourni.
 ------------------------------------------------
 [5] Remarques, ce qui marche ou pas, limitations
 ------------------------------------------------
-Voici quelques remarques sur MLS en général, et sur chaque "composant" de Micro
-Lua DS que j'ai implémenté, avec des commentaires là où c'est nécessaire.
+Voici quelques remarques sur le simulateur en général, et sur chaque "composant"
+de Micro Lua DS que j'ai implémenté, avec des commentaires là où c'est 
+nécessaire.
 
 Général
 ~~~~~~~
@@ -247,7 +247,7 @@ Général
   excepté le son qui n'est pas joué. J'ai aussi testé quelques scripts trouvés
   sur les forums ML, où des fans sympas de ML créent et font partager des démos
   et des jeux, notamment un remake du jeu Seaquest (Atari 2600?) qui fonctionne
-  assez bien dans MLS (mais sans le son, donc).
+  assez bien dans le simulateur (mais sans le son, donc).
 
 - Les versions Windows et Mac OS X sont considérées comme beta, étant donné que 
   je développe et teste surtout sous Linux, mon OS principal. Des tests on été 
@@ -269,9 +269,9 @@ Général
 
 Canvas
 ~~~~~~
-- Malheureusement, contrairement à ML, Canvas est plutôt lent dans MLS (enfin, 
-  disons qu'il n'est pas nettement plus rapide que les appels directs aux 
-  fonctions de dessin, comme c'est le cas dans le vrai ML).
+- Malheureusement, contrairement à ML, Canvas est plutôt lent dans le simulateur
+  (enfin, disons qu'il n'est pas nettement plus rapide que les appels directs 
+   aux fonctions de dessin, comme c'est le cas dans le vrai ML).
 
 Controls
 ~~~~~~~~
@@ -314,12 +314,12 @@ Rumble
 ~~~~~~
 - Les fonctions Rumble sont implémentées, et le périphérique "rumble" est 
   considéré comme toujours inséré, mais bien entendu ne produit aucun résultat
-  visible dans MLS.
+  visible dans le simulateur.
 
 screen
 ~~~~~~
-- En ML, le rafraichissement des écrans se fait à 30 images/seconde, dans MLS, 
-  vous pouvez le modifier.
+- En ML, le rafraichissement des écrans se fait à 30 images/seconde, dans le 
+  simulateur, vous pouvez le modifier.
   
 - drawGradientRect() n'est pas "MicroLua-tement correct" lorsqu'OpenGL est
   désactivé (trop dur à faire en wxWidgets).
@@ -362,8 +362,8 @@ quelques trucs que j'aimerais faire:
   - résoudre les problèmes d'encodage des systèmes de polices bitmap/natives 
     (latin1/utf8)
   - si la vitesse d'exécution reste insatisfaisante, peut-être essayer la lib 
-    Qt ou même réécrire MLS en Java avec une lib "Lua intégré", et Java2D pour 
-    la partie graphique (un peu folle peut-être cette idée?)
+    Qt ou même réécrire le simulateur en Java avec une lib "Lua intégré", et 
+    Java2D pour la partie graphique (un peu folle peut-être cette idée?)
 
 Pour plus de "TODO"'s, regardez les sources, particulièrement clp/mls/Mls.lua. 
 Des balises @todo sont placées dans les commentaires.
@@ -377,10 +377,10 @@ E-mail: Ced.le.pingouin@gmail.com
 Google Code: http://code.google.com/p/microlua-sim/
 
 Site web (téléchargement seulement):
-  http://www.cedlepingouin.com/mls/files/mls-0.4-linux.zip
-  http://www.cedlepingouin.com/mls/files/mls-0.4-win.zip
-  http://www.cedlepingouin.com/mls/files/mls-0.4-mac.zip
-  http://www.cedlepingouin.com/mls/files/mls-0.4-src.zip
+  http://www.cedlepingouin.com/mls/files/mls-0.4beta3-linux.zip
+  http://www.cedlepingouin.com/mls/files/mls-0.4beta3-win.zip
+  http://www.cedlepingouin.com/mls/files/mls-0.4beta3-mac.zip
+  http://www.cedlepingouin.com/mls/files/mls-0.4beta3-src.zip
 
 Dans les URL ci-dessus, vous pouvez remplacer le n° de version par celui que 
 vous désirez, car toutes les versions sont maintenant gardées sur le site.

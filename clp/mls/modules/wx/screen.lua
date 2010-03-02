@@ -417,46 +417,34 @@ function M.drawTextBox(screenOffset, x0, y0, x1, y1, text, color)
     offscreenDC:DestroyClippingRegion()
     offscreenDC:SetClippingRegion(x0, y0, width, height)
     
-    -- get multiples lines, \n has to be treated
-    local lines = {}
-    for line in string.gmatch(text.."\n", "(.-)\n") do
-        lines[#lines + 1] = line
-    end
-    
-    if #lines == 1 and Font.getStringWidth(font, text) <= width then
+    if Font.getStringWidth(font, text) <= width then
         Font._printNoClip(screenOffset, font, x0, posY, text, color)
     else
-        for _, lineText in ipairs(lines) do
-            local line = {}
-            local lineWidth = 0
-            local wordExtent
-            
-            for word in lineText:gmatch("%s*%S+%s*") do
-                wordExtent = Font.getStringWidth(font, word)
-                lineWidth = lineWidth + wordExtent
-                if lineWidth <= width then
-                    table.insert(line, word)
-                else
-                    Font._printNoClip(screenOffset, font, x0, posY, 
-                                      table.concat(line), color)
-                    
-                    line = { word }
-                    lineWidth = wordExtent
-                    
-                    posY = posY + fontHeight
-                    if posY > y1 then break end
-                end
+        local line = {}
+        local lineWidth = 0
+        local wordExtent
+        
+        for word in text:gmatch("%s*%S+%s*") do
+            wordExtent = Font.getStringWidth(font, word)
+            lineWidth = lineWidth + wordExtent
+            if lineWidth <= width then
+                table.insert(line, word)
+            else
+                Font._printNoClip(screenOffset, font, x0, posY, 
+                                  table.concat(line), color)
+                
+                line = { word }
+                lineWidth = wordExtent
+                
+                posY = posY + fontHeight
+                if posY > y1 then break end
             end
-            
-            -- we still need this to print the last line
-            if posY <= y1 then
-                Font._printNoClip(
-                    screenOffset, font, x0, posY, table.concat(line), color
-                )
-            end
-            
-            posY = posY + fontHeight
-            if posY > y1 then break end
+        end
+        
+        -- we still need this to print the last line
+        if posY <= y1 then
+            Font._printNoClip(screenOffset, font, x0, posY, table.concat(line), 
+                              color)
         end
     end
     

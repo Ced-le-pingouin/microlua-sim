@@ -37,12 +37,6 @@ local Sys = require "clp.mls.Sys"
 
 local M = Class.new(screen_wx)
 
--- define some GL constants that aren't available in luaglut
-GL_TEXTURE_RECTANGLE_ARB          = 0x84F5
-GL_TEXTURE_BINDING_RECTANGLE_ARB  = 0x84F6
-GL_PROXY_TEXTURE_RECTANGLE_ARB    = 0x84F7
-GL_MAX_RECTANGLE_TEXTURE_SIZE_ARB = 0x84F8
-
 --- Module initialization function.
 --
 -- @param surface (wxPanel) The surface representing the screens, to which the 
@@ -99,17 +93,9 @@ function M:initModule(surface)
     -- init OpenGL viewport size
     glViewport(0, 0, SCREEN_WIDTH, M._height)
     
-    -- save GL extensions for later queries (spaces added at both ends to make
-    -- future searches easier without missing the first and last extension)
-    M._glExts = " "..glGetString(GL_EXTENSIONS).." "
-    
-    -- if rectangle textures are available, MLS will use these since they have
-    -- better support on older GPUs
-    M._initTextureType()
-    
     -- init some OpenGL variables and states
     glClearColor(0, 0, 0, 0)
-    glEnable(M.textureType)
+    glEnable(GL_TEXTURE_2D)
     glDisable(GL_DEPTH_TEST)
     glEnable(GL_BLEND)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
@@ -149,24 +135,17 @@ function M.blit(screenOffset, x, y, image, sourcex, sourcey, width, height)
     local x2 = x + width
     local y2 = y + height
     
-    local sourcex2 = sourcex + width - 0.01
-    local sourcey2 = sourcey + height - 0.01
-    sourcex = sourcex + 0.01
-    sourcey = sourcey + 0.01
-    
-    if M.normalizeTextureCoordinates then
-        local xRatio, yRatio = 1 / image._textureWidth, 1 / image._textureHeight
-        
-        sourcex = sourcex * xRatio
-        sourcey = sourcey * yRatio
-        sourcex2 = sourcex2 * xRatio
-        sourcey2 = sourcey2 * yRatio
-    end
+    local pixToTexX = 1 / image._width
+    local pixToTexY = 1 / image._height
+    local sourcex2 = ( sourcex + width - 0.01 ) * pixToTexX
+    local sourcey2 = ( sourcey + height - 0.01 ) * pixToTexY
+    sourcex = ( sourcex + 0.01 ) * pixToTexX
+    sourcey = ( sourcey + 0.01 ) * pixToTexY
     
     M.enableGlClipping(screenOffset)
     
-    glEnable(M.textureType)
-    glBindTexture(M.textureType, image._textureId[0])
+    glEnable(GL_TEXTURE_2D)
+    glBindTexture(GL_TEXTURE_2D, image._textureId[0])
     
     local tint = image._tint
     local r, g, b = tint:Red() / 255, tint:Green() / 255, tint:Blue() / 255
@@ -236,7 +215,7 @@ end
 function M.drawLine(screenOffset, x0, y0, x1, y1, color)
     M.enableGlClipping(screenOffset)
     
-    glDisable(M.textureType)
+    glDisable(GL_TEXTURE_2D)
     glColor3d(color:Red() / 255, color:Green() / 255, color:Blue() / 255)
     glBegin(GL_LINES)
         glVertex2d(x0, y0 + screenOffset)
@@ -255,7 +234,7 @@ end
 function M.drawRect(screenOffset, x0, y0, x1, y1, color)
     M.enableGlClipping(screenOffset)
     
-    glDisable(M.textureType)
+    glDisable(GL_TEXTURE_2D)
     glColor3d(color:Red() / 255, color:Green() / 255, color:Blue() / 255)
     glBegin(GL_LINE_LOOP)
         glVertex2d(x0, y0 + screenOffset)
@@ -276,7 +255,7 @@ end
 function M.drawFillRect(screenOffset, x0, y0, x1, y1, color)
     M.enableGlClipping(screenOffset)
     
-    glDisable(M.textureType)
+    glDisable(GL_TEXTURE_2D)
     glColor3d(color:Red() / 255, color:Green() / 255, color:Blue() / 255)
     glBegin(GL_QUADS)
         glVertex2d(x0, y0 + screenOffset)
@@ -301,7 +280,7 @@ function M.drawGradientRect(screenOffset, x0, y0, x1, y1,
                             color1, color2, color3, color4)
     M.enableGlClipping(screenOffset)
     
-    glDisable(M.textureType)
+    glDisable(GL_TEXTURE_2D)
     glBegin(GL_QUADS)
         glColor3d(color1:Red() / 255, color1:Green() / 255, color1:Blue() / 255)
         glVertex2d(x0, y0 + screenOffset)
@@ -364,7 +343,7 @@ function M:onStopDrawing()
     
     M.disableGlClipping()
     
-    glDisable(M.textureType)
+    glDisable(GL_TEXTURE_2D)
     
     glPushMatrix()
         for _, scale in ipairs(scales) do
@@ -388,7 +367,7 @@ function M:onStopDrawing()
         end
     glPopMatrix()
     
-    glEnable(M.textureType)
+    glEnable(GL_TEXTURE_2D)
 end
 
 function M.enableGlClipping(screenOffset)
@@ -458,37 +437,6 @@ function M._copyOffscreenFromPrevious()
     glRasterPos2d(0, M._height)
     -- copy pixels from front to current (=back)
     glCopyPixels(0, 0, M._displayWidth, M._displayHeight, GL_COLOR)
-end
-
---- Checks whether a specific OpenGL extension is available.
---
--- @param extension (string)
---
--- @return (boolean)
-function M._hasGlExt(extension)
-    return M._glExts:find(" "..extension.." ") ~= nil
-end
-
-function M._initTextureType()
-    if Mls.openGlUseTextureRectangle and M._hasTextureRectangleExt() then
-        Mls.logger:info("OpenGL: using texture rectangle extension", "screen")
-        
-        M.textureType = GL_TEXTURE_RECTANGLE_ARB
-        M.normalizeTextureCoordinates = false
-        M.usePowerOfTwoDimensions = false
-    else
-        Mls.logger:info("OpenGL: using standard 2D textures", "screen")
-        
-        M.textureType = GL_TEXTURE_2D
-        M.normalizeTextureCoordinates = true
-        M.usePowerOfTwoDimensions = true
-    end
-end
-
-function M._hasTextureRectangleExt()
-    return M._hasGlExt("GL_ARB_texture_rectangle")
-        or M._hasGlExt("GL_EXT_texture_rectangle")
-        or M._hasGlExt("GL_NV_texture_rectangle")
 end
 
 return M

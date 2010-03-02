@@ -345,7 +345,7 @@ function M:_format(message, level, category)
         ["%t"] = os.date("%X"),
         ["%l"] = M.getLevelName(level),
         ["%c"] = category,
-        ["%m"] = tostring(message)
+        ["%m"] = message
     }
     
     return self._logFormat:gsub("%%[dtlcm]", replTable)

@@ -84,7 +84,7 @@ local ScriptManager = require "clp.mls.ScriptManager"
 
 Mls = Class.new(Observable)
 
-Mls.VERSION = "0.4"
+Mls.VERSION = "0.4beta3"
 
 --- Constructor.
 -- Creates and initializes the app main window, and the ML simulated modules
@@ -108,7 +108,6 @@ function Mls:ctr(scriptPath)
     
     -- init vars and gui
     Mls._initVars()
-    Mls.keyBindings = Mls._loadKeyBindingsFromFile("README")
     Mls.gui = Mls._initGui(Mls.initialDirectory)
     
     -- logger
@@ -121,14 +120,9 @@ function Mls:ctr(scriptPath)
     __DEBUG_NO_REFRESH = Mls.config:get("debug_no_refresh", false)
     __DEBUG_LIMIT_TIME = Mls.config:get("debug_limit_time", 0)
     
-    -- OpenGL stuff
-    Mls.openGl = Mls.config:get("open_gl", false)
-    Mls.openGlUseTextureRectangle = Mls.config:get(
-        "open_gl_use_texture_rectangle", true
-    )
-    
     -- ML modules manager
     local moduleManager = ModuleManager:new()
+    Mls.openGl = Mls.config:get("open_gl", false)
     if Mls.openGl then
         moduleManager:addPrefix("gl.", true)
     end
@@ -189,7 +183,7 @@ function Mls._initGui(path)
     Mls.logger:info("initializing GUI")
     
     local gui = Gui:new(SCREEN_WIDTH, SCREEN_HEIGHT * 2, 
-                        "MLS "..Mls.VERSION, nil, path)
+                        "uLua DS Sim v"..Mls.VERSION, nil, path)
     
     gui:registerShutdownCallback(function()
         -- the events functions must always be called with current "Mls"
@@ -219,14 +213,9 @@ function Mls._initGui(path)
             caption = "&Help",
             items   = {
                 {
-                    caption  = "&About",
-                    id       = gui.MENU_ABOUT,
+                    caption = "&About",
+                    id = gui.MENU_ABOUT,
                     callback = Mls.onAbout
-                },
-                {
-                    caption  = "Show &key bindings",
-                    id       = gui.MENU_SHOW_KEY_BINDINGS,
-                    callback = Mls.onShowKeyBindings
                 }
             }
         }
@@ -246,55 +235,6 @@ function Mls._initTimer()
     Mls._startTime = Mls._timer:time()
 end
 
---- Reads key bindings from a file.
---
--- The file should contains key bindings as the first two "tables", as in the 
--- README. That is, a table begins with "+-----" then two lines for headers, and
--- ends with "+-----". Everything between the header and the end of the "table"
--- is seen as an "action - key binding" pair. Columns are drawn with "|", so 
--- there are three "|" for each line of the "table".
--- e.g. "|   Pause/resume   |    P   |"
---
--- @param fileName (string)
---
--- @return (array) Each item will itself be an array, where the first item is a
---                 string that describes the action, and the second item is a
---                 string that represents the key associated to it.
---                 e.g. { { "Pause/resume", "P" }, { "Quit", "Ctrl+Q" } }
-function Mls._loadKeyBindingsFromFile(fileName)
-    local keyBindings = {}
-    
-    local file = io.open(fileName, "r")
-    
-    local maxTables = 2
-    local numTables = 0
-    local inTable = false
-    
-    while true do
-        local line = file:read()
-        if not line then break end
-        
-        if line:find("^%+%-%-%-%-%-") then
-            inTable = not inTable
-            
-            if inTable then
-                file:read()
-                file:read()
-            else
-                numTables = numTables + 1
-                if numTables >= maxTables then break end
-            end
-        elseif inTable then
-            local action, key = line:match("|%s+(.-)%s+|%s+(.-)%s+|")
-            table.insert(keyBindings, { action, key })
-        end
-    end
-    
-    file:close()
-    
-    return keyBindings
-end
-
 --- Returns the list of valid config options for MLS.
 --
 -- @return (table)
@@ -310,7 +250,6 @@ function Mls:getValidOptions()
         stylus_hack = { "boolean" },
         draw_gradient_rect_accuracy = { "number", 0, 256 },
         open_gl = { "boolean" },
-        open_gl_use_texture_rectangle = { "boolean" },
         rect_length = { "number", 0, 1 },
         
         -- debug options below
@@ -455,7 +394,7 @@ function Mls.onFileOpen()
     
     Mls.scriptManager:pauseScriptWhile(function()
         local file = Mls.gui:selectFile{
-            caption     = "MLS - Select a Lua script to run",
+            caption     = "Select a Lua script to run",
             defaultPath = "",
             defaultFile = "",
             defaultExt  = "lua",
@@ -482,7 +421,7 @@ function Mls.onAbout()
     
     Mls.scriptManager:pauseScriptWhile(function()
         Mls.gui:showAboutBox{
-            name = "Micro Lua Simulator (aka MLS)",
+            name = "Micro Lua Simulator",
             version = Mls.VERSION,
             description = "Run Micro Lua DS scripts on your computer",
             authors = { "Ced-le-pingouin <Ced.le.pingouin@gmail.com>" },
@@ -509,11 +448,6 @@ function Mls.onAbout()
     end)
     
     Mls.logger:debug("end About", "menu")
-end
-
---- Shows the key bindings
-function Mls.onShowKeyBindings()
-    Mls.gui:showKeyBindings(Mls.keyBindings)
 end
 
 --- Requests the application to close.

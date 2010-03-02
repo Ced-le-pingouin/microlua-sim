@@ -32,7 +32,6 @@ local M = Class.new()
 M.MENU_OPEN  = wx.wxID_OPEN
 M.MENU_EXIT  = wx.wxID_EXIT
 M.MENU_ABOUT = wx.wxID_ABOUT
-M.MENU_SHOW_KEY_BINDINGS = wx.wxNewId()
 
 --- Constructor.
 -- Creates the main window, the status bars, and the surface representing the 
@@ -144,7 +143,7 @@ function M:_createConsole()
     self._console = wx.wxFrame(
         wx.NULL, --self._window,
         wx.wxID_ANY,
-        self._windowTitle.." - Console",
+        self._windowTitle.." Console",
         wx.wxPoint(x, y),
         wx.wxSize(w, h),
         wx.wxDEFAULT_FRAME_STYLE
@@ -233,25 +232,16 @@ function M:showWindow()
 end
 
 function M:incZoomFactor()
-    if self._window:IsFullScreen() then return end
-    
-    local surfaceWidth, surfaceHeight = self._surface:GetSizeWH()
-    local windowWidth, windowHeight = self._window:GetSizeWH()
-    local decorationWidth = windowWidth - surfaceWidth
-    local decorationHeight = windowHeight - surfaceHeight
-    
     -- zoom factor is based on width only, because aspect ratio is kept anyway
-    local zoomFactor = math.floor(surfaceWidth / self._width)
+    local zoomFactor = math.floor(
+        self._surface:GetSize():GetWidth() / self._width
+    )
     -- we increase zoom factor by integer for now (1x, 2x, ...)
     zoomFactor = zoomFactor + 1
     
-    -- compute new width and height for the surface...
-    local newSurfaceWidth = self._width * zoomFactor
-    local newSurfaceHeight = self._height * zoomFactor
-    
-    -- ...and for the window
-    local newWindowWidth = newSurfaceWidth + decorationWidth
-    local newWindowHeight = newSurfaceHeight + decorationHeight
+    -- compute new width and height
+    local newWidth = self._width * zoomFactor
+    local newHeight = self._height * zoomFactor
     
     --  get available "desktop" area
     local displayNum = wx.wxDisplay.GetFromWindow(self._window)
@@ -260,13 +250,13 @@ function M:incZoomFactor()
     local availableHeight = display:GetClientArea():GetHeight()
     
     -- if new width or height is larger than what's available, get back to 1x
-    if newWindowWidth > availableWidth or newWindowHeight > availableHeight then
-        newSurfaceWidth, newSurfaceHeight = self._width, self._height
+    if newWidth > availableWidth or newHeight > availableHeight then
+        newWidth, newHeight = self._width, self._height
         zoomFactor = 1
     end
     
     -- set min size for Layout, then Fit the window...
-    self._surface:SetMinSize(wx.wxSize(newSurfaceWidth, newSurfaceHeight))
+    self._surface:SetMinSize(wx.wxSize(newWidth, newHeight))
     self._window:Layout()
     wx.wxYield()
     self._window:Fit()
@@ -274,7 +264,7 @@ function M:incZoomFactor()
     -- ...but re-set min size to original after Layout/Fit
     self._surface:SetMinSize(wx.wxSize(self._width, self._height))
     
-    Mls.logger:info("setting screens' zoom factor to "..zoomFactor, "gui")
+    Mls.logger:info("setting screens' zoom factor to "..zoomFactor)
 end
 
 function M:switchFullScreen()
@@ -315,7 +305,7 @@ end
 --
 -- @param text (string)
 function M:writeToConsole(text)
-    self._consoleText:AppendText(tostring(text).."\n")
+    self._consoleText:AppendText(text .. "\n")
 end
 
 --- Clears the GUI console
@@ -452,70 +442,12 @@ function M:showAboutBox(appInfo)
     wx.wxAboutBox(info)
 end
 
---- Shows a dialog with key bindings.
---
--- If the dialog doesn't exist yet, it is created.
---
--- @param keyBindings (array) The key bindings to display. Each one is itself an
---                            array of two items. The first one is a string 
---                            describing the action, the second one is a string
---                            representing the key bound to this action
-function M:showKeyBindings(keyBindings)
-    -- no key bindings dialog yet? Create it
-    if not self._keyBindingsWindow then
-        -- create the dialog and its sizer
-        local dialog = wx.wxDialog(self._window, wx.wxID_ANY, 
-                                   "MLS - Key bindings")
-        local dialogSizer = wx.wxBoxSizer(wx.wxVERTICAL)
-        
-        -- create the grid, the rows/cols, labels, default sizes
-        local grid = wx.wxGrid(dialog, wx.wxID_ANY)
-        grid:CreateGrid(#keyBindings, 2)
-        grid:SetRowLabelSize(0)
-        grid:SetDefaultCellAlignment(wx.wxALIGN_CENTER, wx.wxALIGN_CENTER)
-        grid:SetColLabelValue(0, "Action")
-        grid:SetColLabelValue(1, "Key")
-        
-        -- fill the columns
-        for i, binding in ipairs(keyBindings) do
-            grid:SetCellValue(i - 1, 0, binding[1])
-            grid:SetCellValue(i - 1, 1, binding[2])
-        end
-        
-        -- autosize the columns, then set both to the width of the largest one
-        grid:AutoSize()
-        local minColSize = math.max(grid:GetColSize(0), grid:GetColSize(1))
-        grid:SetDefaultColSize(minColSize, true)
-        
-        -- the user won't be allowed to edit or resize the grid
-        grid:EnableEditing(false)
-        grid:EnableDragColSize(false)
-        grid:EnableDragRowSize(false)
-        grid:EnableDragGridSize(false)
-        
-        -- add the grid to the dialog sizer
-        dialogSizer:Add(grid, 1, wx.wxEXPAND)
-        
-        -- creates and add a dialog button sizer
-        local buttonSizer = dialog:CreateButtonSizer(wx.wxOK)
-        dialogSizer:Add(buttonSizer, 0, wx.wxCENTER)
-        
-        -- make the window fit its content
-        dialog:SetSizerAndFit(dialogSizer)
-        dialog:Center()
-        
-        self._keyBindingsWindow = dialog
-    end
-    
-    self._keyBindingsWindow:Show()
-end
-
---- Sets the default shortcut (accelerator, in wxWidgets terminology) to a menu
+--- Sets the default shortcut (accelerator, in wxWidgets terminology) to an menu
 --  item.
 --
 -- On Windows and Mac, Open seems to have no default shortcut, so we create one.
--- This doesn't seem to bother Linux. For Exit, Linux and Mac define one (Ctrl+Q
--- and Cmd+Q), and Windows has Alt+F4, so we're set
+-- This doesn't seem to bother Linux, Exit, Linux and Mac define one (Ctrl+Q and
+-- Cmd+Q), and Windows has Alt+F4, so we're set
 --
 -- @param item (table) The menu item, as used by createMenus(), i.e. with at 
 --                     least the id and caption (already containing an optional
@@ -523,7 +455,7 @@ end
 --
 -- @see createMenus
 function M:_setDefaultShortcut(item)
-    if item.caption:find("\t", 1, true) then
+    if item.caption:find("\t", 1, true) ~= nil then
         return
     end
     
@@ -531,8 +463,6 @@ function M:_setDefaultShortcut(item)
         item.caption = item.caption .. "\tCTRL+O"
     elseif item.id == M.MENU_EXIT then
         item.caption = item.caption .. "\tCTRL+Q"
-    elseif item.id == M.MENU_SHOW_KEY_BINDINGS then
-        item.caption = item.caption .. "\tCTRL+K"
     end
 end
 

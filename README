@@ -121,7 +121,7 @@ mouse button.
 In this version, the buttons<>keys bindings cannot be changed. They are:
 
 +-----------+-----------------------------+
-|    DS     |             Key             |
+|    DS     |             PC              |
 +-----------+-----------------------------+
 | Pad Up    | I, Up arrow or KP 8         |
 | Pad Down  | K, Down arrow, KP 5 or KP 2 |
@@ -135,33 +135,32 @@ In this version, the buttons<>keys bindings cannot be changed. They are:
 | Y         | S                           |
 | Start     | Q or F                      |
 | Select    | W or V                      |
-+-----------+-----------------------------+
++----------+------------------------------+
 
 Starting with v0.4, additional keys and combinations not related to the DS are 
 available:
 
-+------------------------------------+----------+
-|               Action               |    Key   |
-+------------------------------------+----------+
-| Open a script                      | Ctrl+O   |
-| Pause script                       | P        |
-| Restart script                     | B        |
-| Reload script (from disk)          | Shift+B  |
-| Show/hide console                  | C        |
-| Clear console                      | DEL      |
-| Decrease FPS                       | F1       |
-| Increase FPS                       | F2       |
-| Decrease UPS                       | F3       |
-| Increase UPS                       | F4       |
-| Simple/advanced drawGradientRect() | F5       |
-| Adjust rectangles length           | F6       |
-| Switch between 1x and 2x zoom      | F7       |
-| Stylus.newPress hack (ML3/ML2)     | H        |
-| Fullscreen mode (Windows only)     | F11      |
-| Increase log level                 | F12      |
-| Show key bindings summary          | Ctrl+K   |
-| Quit MLS                           | Ctrl+Q   |
-+------------------------------------+----------+
++----------+------------------------------------+
+|    Key   |               Action               |
++----------+------------------------------------+
+| Ctrl+O   | Open a script                      |
+| P        | Pause script                       |
+| B        | Restart script                     |
+| Shift+B  | Reload script (from disk)          |
+| C        | Show/hide console                  |
+| DEL      | Clear console                      |
+| F1       | Decrease FPS                       |
+| F2       | Increase FPS                       |
+| F3       | Decrease UPS                       |
+| F4       | Increase UPS                       |
+| F5       | Simple/advanced drawGradientRect() |
+| F6       | Adjust rectangles length           |
+| F7       | Switch between 1x and 2x zoom      |
+| H        | Stylus.newPress hack (ML3/ML2)     |
+| F11      | Fullscreen mode (Windows only)     |
+| F12      | Increase log level                 |
+| Ctrl+Q   | Quit MLS                           |
++----------+------------------------------------+
 
 The Ctrl key is replaced by Cmd (="apple") on Mac OS X.
 
@@ -208,8 +207,8 @@ provided config file.
 ----------------------------------------------------
 [5] Remarks, what's done and what's not, limitations
 ----------------------------------------------------
-Below are some remarks on MLS as a whole, and on each "component" of Micro Lua
-DS that I tried to implement, where comment is needed.
+Below are some remarks on the sim as a whole, and on each "component" of Micro 
+Lua DS that I tried to implement, where comment is needed.
 
 General
 ~~~~~~~
@@ -224,8 +223,8 @@ General
 - All the demos provided with ML in the Examples directory are working, except 
   sound is not played. I also tried some scripts found on the great ML forums, 
   where nice ML enthusiasts create games and demos (see the links section at the
-  end of this text), notably a "Seaquest" remake which works very well in MLS
-  (although without sound).
+  end of this text), notably a "Seaquest" remake which works very well in the 
+  sim (although without sound).
   
 - The Windows and Mac versions are considered beta, since I usually test on 
   Linux, my main OS. Tests have been done on Ubuntu 8.10+, Windows XP, and
@@ -243,9 +242,9 @@ General
 
 Canvas
 ~~~~~~
-- It's sad, but contrary to the real Micro Lua, Canvas is rather slow in MLS 
-  (well at least it's not significantly faster than direct calls to the drawing
-  functions, as in the real ML).
+- It's sad, but contrary to the real Micro Lua, Canvas is rather slow in my 
+  simulator (well at least it's not significantly faster than direct calls to 
+  the drawing functions, as in the real ML).
 
 Controls
 ~~~~~~~~
@@ -284,7 +283,7 @@ Motion
 Rumble
 ~~~~~~
 - Rumble functions are implemented, and the rumble device is seen as always 
-  inserted, but obviously does nothing visible in MLS.
+  inserted, but obviously does nothing visible in the sim.
 
 screen
 ~~~~~~
@@ -297,7 +296,7 @@ screen
 ScrollMap
 ~~~~~~~~~
 - Some test I did on the real DS was drawing a tile with the wrong color (black
-  instead of white). I didn't try to reproduce that behaviour in MLS.
+  instead of white). I didn't try to reproduce that behaviour in the sim.
 
 Sound
 ~~~~~
@@ -317,15 +316,15 @@ Wifi
 --------------
 [6] The future
 --------------
-Depending on my free time, I'll continue to work on MLS. Here are some of the 
-things I'd like to do:
+Depending on my free time, I'll continue to work on ML Simulator. Here are some 
+of the things I'd like to do:
 
   - speed optimizations where possible (think tinted/rotated/scaled images)
   - implement sound (using SDL?)
   - read key bindings from the config file, too
   - better launch script on Mac OS X, would give focus to the window => real app
   - possible to fix encoding problems with bitmap/native fonts ? (latin1/utf8)
-  - if gfx speed is hopeless, maybe try Qt bindings, or maybe rewrite MLS 
+  - if gfx speed is hopeless, maybe try Qt bindings, or maybe rewrite the sim
     in Java with an embedded Lua lib and Java2D for the gfx bits (is this a 
     crazy idea?)
 
@@ -341,10 +340,10 @@ E-mail: Ced.le.pingouin@gmail.com
 Google Code: http://code.google.com/p/microlua-sim/
 
 Website (download only):
-  http://www.cedlepingouin.com/mls/files/mls-0.4-linux.zip
-  http://www.cedlepingouin.com/mls/files/mls-0.4-win.zip
-  http://www.cedlepingouin.com/mls/files/mls-0.4-mac.zip
-  http://www.cedlepingouin.com/mls/files/mls-0.4-src.zip
+  http://www.cedlepingouin.com/mls/files/mls-0.4beta3-linux.zip
+  http://www.cedlepingouin.com/mls/files/mls-0.4beta3-win.zip
+  http://www.cedlepingouin.com/mls/files/mls-0.4beta3-mac.zip
+  http://www.cedlepingouin.com/mls/files/mls-0.4beta3-src.zip
 
 In the above URLs, you can replace the version number with the one you'd like
 to download, since all previous versions are now kept on the site.

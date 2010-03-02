@@ -53,10 +53,6 @@ for OS in linux win mac; do
     # archive we don't need them
     rm $DEST_DIR/*.bat
     
-    # users seem to prefer getting an mls.ini file directly, instead of renaming
-    # the .ini.dist file
-    mv $DEST_DIR/mls.ini.dist $DEST_DIR/mls.ini
-    
     # delete any previous archive with the same name
     rm -f $ARCHIVE_NAME
     # create the new archive
