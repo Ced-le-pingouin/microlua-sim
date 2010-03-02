@@ -1,6 +1,17 @@
+0.4 (?? ????? 2010)
+-------------------
+  * OpenGL fixes: no more white rectangles instead of images, or garbled images,
+    or unbearably low FPS (on older GPUs that switched to software rendering)
+  * screen.drawTextBox() now supports newlines
+  * new "key bindings" dialog in Help menu (or Ctrl+K)
+  * zoom: fix cases where the zoom factor wouldn't switch back to 1x
+  * zoom: disable zoom change while in fullscreen mode
+  * mls.ini config file is provided instead of mls.ini.dist (which had to be 
+    renamed by the user)
+
 0.4 beta 3 (21 February 2010)
 -----------------------------
-  * OpenGL support. It can ben enabled in the config file
+  * OpenGL support. It can be enabled in the config file
   * the main window can now be resized, and a shortcut key (F7) allows you to 
     switch between 1x and 2x zoom. On Windows, F11 enables/disables fullscreen 
     (a bit ugly because of the non integer zoom ratio).
