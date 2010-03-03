@@ -1,0 +1,175 @@
+0.4 (2 mars 2010)
+-----------------
+  ! OpenGL est maintenant le mode d'affichage par défaut dans mls.ini
+  * problèmes OpenGL résolus: plus de rectangles blancs à la place des images, 
+    ou d'images déformées, ou de FPS insupportablement bas (sur de vieilles 
+    cartes graphiques qui repassaient en rendu OpenGL logiciel)
+    Si vous rencontrez toujours des problèmes avec OpenGL, notamment avec la 
+    pause, jetez un oeil au fichier mls.ini, il contient des options 
+    supplémentaires pour OpenGL
+  * screen.drawTextBox() prend maintenant en charge les retours à la ligne
+  * nouvelle fenêtre "raccourcis clavier" dans le menu Help (ou Ctrl+K)
+  * zoom: dans certains cas, le retour au zoom 1x ne se faisait pas
+  * zoom: le changement du facteur de zoom est désactivé quand on est en plein 
+    écran
+  * le fichier de configuration fourni est mls.ini au lieu de mls.ini.dist (que
+    l'utilisateur devait renommer)
+
+0.4 beta 3 (21 février 2010)
+----------------------------
+  * support OpenGL pour l'affichage, activable par une variable dans le fichier
+    de configuration
+  * possibilité de redimensionner la fenêtre, et raccourci clavier F7 pour 
+    basculer entre zoom 1x et 2x. Sous Windows, F11 (dés)active le mode plein 
+    écran (un peu moche car zoom non entier).
+    ATTENTION: tout redimensionnement peut entraîner des ralentissments 
+               excessifs lorsque le mode OpenGL est inactif (sauf peut-être sous
+               Windows)
+  * possibilité de recharger un script modifié, à partir du disque (Shift+B)
+  * le dossier courant de départ est celui du script chargé
+  * raccourcis clavier: l'incrémentation/décrémentation des FPS/UPS fonctionne 
+    désormais par pas de 5 (au lieu de 1)
+  * raccourcis clavier: l'affichage ou pas de la console passe de F5 à F12
+  * les flèches directionnelles fonctionnent maintenant aussi sous Windows
+  * screen: possibilité d'ajuster la qualité de drawGradientRect() (touche F5 et
+    fichier de configuration). Cette option n'est pas utile en OpenGL
+  * screen: possibilité d'activer ou pas la "correction" de la taille des 
+    "fonctions rectangulaires" (touche F6 et fichier de configuration).
+    Cette option n'est pas utile en OpenGL
+  * screen.drawTextBox() a maintenant un clipping correct lorsqu'il déborde de
+    l'écran du haut vers celui du bas
+  * module() et require() devraient être mieux supportés dans les scripts 
+    chargés
+  * Font.print(): dans ML, le paramètre de couleur est ignoré (bug). Ce 
+    comportement est reproduit par le simulateur
+  * Image.load() n'accepte plus que les fichiers png/gif/jpg/jpeg
+  * newPress peut se comporter comme en ML2 ou ML3, au choix (touche H et 
+    fichier de configuration)
+  * Image.blit(): + compatible avec le comportement "bizarre" de ML lorsqu'une 
+    rotation est appliquée sur l'image (décalage à l'affichage ou pas)
+  * les accès de type _G["nom_de_variable"] ne fonctionnaient pas
+  * les UPS par défaut passent maintenant à 60 (au lieu de 55) dans le fichier 
+    de configuration fourni
+  * gestion du timing modifiée (pour l'instant j'en suis pas trop content :( )
+
+0.4 beta 2 (9 août 2009)
+------------------------
+  * Stylus: doubleClick est implémenté, released a maintenant un comportement
+    conforme à celui de Micro Lua
+  * screen.mirrorH()/mirrorV(): elles sont maintenant implémentées, car on a 
+    découvert que dans ML, elles n'étaient pas inactives: il faut simplement
+    leur passer un second paramètre booléen à true pour qu'elles aient un effet
+  * ScrollMap: getTile()/setTile() sont implémentées, et la transparence d'un 
+    scrollmap est maintenant respectée
+  * screen: les fonctions qui utilisent des rectangles dessinent maintenant ces
+    derniers à la bonne taille (avant ils étaient trop larges/hauts d'un pixel).
+  * implémenté un hack interne qui permet de détecter le chargement de la 
+    librairie StylusBox, et qui remplace sa fonction newPressinBox afin qu'elle
+    fonctionne dans MLS (dans ML3 elle ne marche pas non plus, seulement dans 
+    ML2)
+  * l'état du script courant (paused, etc.) est affiché dans une boite de 
+    couleur directement à l'écran de la DS, en + de la barre d'état (où il était
+    peu visible)
+  * raccourci pour effacer le contenu de la console (touche Delete)
+  * la console s'affiche automatiquement en cas d'erreur si elle n'est pas déjà 
+    visible
+  * une erreur en cas de chargement d'image n'affiche plus une fenêtre d'alerte,
+    mais apparaît directement dans la console
+  * messages d'erreur plus précis (ils affichent la pile d'appels)
+  * filtre "*.*" dans le dialogue de sélection de fichier, ça permet aux 
+    utilisateurs Linux de voir également les fichiers "*.LUA" (qui sont 
+    différents, pour Linux, de "*.lua")
+  * Windows: mls et mls-src ne plantent plus si on spécifie le chemin d'un 
+    script qui comporte des espaces en ligne de commande
+  * Windows: le fichier de lancement passe d'un .bat à un (faux) .exe, ce qui
+    permet de lui associer une icône
+  * Linux: les fichiers et dossiers avec les mauvaises minuscules/majuscules 
+    dans les dofile(), Image.load(), etc. sont maintenant toujours trouvés s'ils
+    existent (ex: essayer de charger "LIBFenetre.lua" alors que le fichier 
+    s'appelle en réalité "libFenetre.lua")
+
+0.4 beta 1 (2 août 2009)
+------------------------
+  ! Micro Lua Simulator est maintenant sous licence GPL v3. Ca signifie que vous
+    avez accès au code source, et pouvez le modifier, MAIS vous êtes obligé de
+    fournir les sources modifiées si vous décidez de redistribuer votre travail
+  * compatible avec la nouvelle version de Micro Lua, 3.0:
+    - Image.scale() fonctionne comme il devrait, càd qu'il ne se réinitialise 
+      pas après un blit()
+    - nouvelle variable: MICROLUA_VERSION
+    - nouvelles fonctions: render(), Font.getStringWidth()
+    - nouvelles classes/objets:
+      . Rumble (pour l'instant, considéré toujours inséré, mais n'a aucun effet
+        visible)
+      . Motion (considéré comme absent, les différentes fonctions de mesure 
+        retournent 0),
+      . DateTime
+      . Wifi (mais sans les sockets UDP)
+      . Sound (seulement une coquille vide pour l'instant)
+  * polices bitmap (càd conformes à l'affichage Micro Lua), mais plus lentes (et
+    seulement compatibles avec les textes encodés en latin-1)
+  * interface graphique et menus: vous pouvez charger des scripts à partir de là
+    et n'êtes plus obligé de fournir le nom d'un script initial en ligne de 
+    commande
+  * quelques raccourcis clavier pour changer les FPS/UPS, mettre le script en 
+    pause, le redémarrer...
+  * aussi ajouté les nombres du pavé numérique pour les déplacements haut, bas, 
+    gauche, droite, en plus des flèches "classiques"
+  * toute nouvelle console qui affiche les erreurs rencontrées dans les scripts 
+    au lieu de quitter MLS violemment. Les messages de log/debug de MLS sont 
+    également affichés dedans
+  * disparition des clignotements d'écran sous Windows (en tout cas chez moi)
+  * lecture de certaines options à partir d'un fichier de configuration
+  * les scripts et leurs fichiers additionnels (images, libs...) ne doivent plus
+    se trouver obligatoirement dans la racine de MLS pour être chargés 
+    correctement
+  * chargement de fichiers semi-insensible à la casse pour les systèmes 
+    non-Windows (différentes combinaisons majuscules/minuscules sont tentées 
+    pour le nom et l'extension)
+
+0.3 (11 mars 2009)
+------------------
+  * version Mac officiellement disponible. Elle semble plus lente que les 
+    versions Linux/Windows en terme d'images/seconde non limitées, mais atteint 
+    les 60fps dans Seaquest, donc je suppose que c'est bon pour l'instant
+  * scripts bash/batch pour lancer le simulateur plus facilement
+  * pas mal d'optimisations au niveau de l'affichage, particulièrement pour les
+    sprites et images non traitées (pas de tint/scale/rotate) => dans le mode 
+    démo du remake de Seaquest, j'ai noté une amélioration d'images/secondes de 
+    350+% sous Linux, et de 1700+% (!!!) sous Windows (bien entendu, j'ai 
+    désactivé temporairement le limiteur de fps pour obtenir ces chiffres)
+  * les images/seconde "d'affichage" sont limitées à 60, et les 
+    itérations/seconde ("frames internes") à 55 (mais les fps réellement 
+    atteints peuvent varier légèrement en fonction de l'OS, de 50 à 60+)
+  * en + des contrôles existants, j'ai réintégré les contrôles de la version 0.1
+    pour haut/bas/gauche/droite, car ils semblent bien fonctionner sous Linux et
+    Mac. Aussi, pour éliminer la différence QWERTY/AZERTY, R/T peuvent 
+    maintenant être utilisés pour L/R, et F/V pour Start/Select
+  * les fichiers README and CHANGES existent maintenant aussi en français
+
+0.2 (22 février 2009)
+---------------------
+  * la version Windows fonctionne, yesssss! (bien que lente, et pas testée à 
+    fond)
+  * changement interne: la boucle principale n'est plus exécutée dans le 
+    processus principal, elle se trouve dans une coroutine Lua. Ceci est mon 
+    premier essai, et ce changement a été fait pour la version Windows. Cela 
+    semble fonctionner sous Linux également, donc pour l'instant tout va bien
+  * modifié les contrôles: haut/bas/gauche/droite sont maintenant les touches
+    I/K/J/L, et Start/Select = Q/W. Ces changements ont été faits car wxWidgets
+    pour Windows ne semble pas détecter les pressions sur les touches fléchées 
+    de mon portable, et aussi les "codes" des touches "&" et "é" (Start et 
+    Select dans la version 0.1) étaient différents de ceux de Linux
+
+0.1 (18 février 2009)
+---------------------
+  * version initiale
+  * ne fonctionne pas sous Windows pour l'instant, pour une raison indéterminée
+  * l'utilisation des objets/méthodes de gestion du son ne provoque pas
+    d'erreur, mais les sons ne sont pas joués
+  * le système de polices est incorrect par rapport à Micro Lua DS
+  * certaines méthodes et comportements de Micro Lua DS ne sont pas encore 
+    implémentés
+  * tous les scripts sont limités à 30 images/seconde (y compris les "frames 
+    internes", pas seulement l'affichage)
+  * un peu lent

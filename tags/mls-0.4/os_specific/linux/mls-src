@@ -1,0 +1,2 @@
+#!/bin/sh
+LD_LIBRARY_PATH=./os_specific/linux:. ./os_specific/linux/wxlua mls.lua "$1"
