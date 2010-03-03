@@ -84,7 +84,7 @@ local ScriptManager = require "clp.mls.ScriptManager"
 
 Mls = Class.new(Observable)
 
-Mls.VERSION = "0.4"
+Mls.VERSION = "0.5"
 
 --- Constructor.
 -- Creates and initializes the app main window, and the ML simulated modules

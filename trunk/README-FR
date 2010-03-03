@@ -1,4 +1,4 @@
-Micro Lua DS Simulator 0.4 (par Ced-le-pingouin)
+Micro Lua DS Simulator 0.5 (par Ced-le-pingouin)
 ===============================================
 Note: dans le texte ci-dessous, j'utilise parfois l'abbréviation ML pour parler 
       de Micro Lua DS, et "le simulateur" ou MLS pour faire référence à mon 
@@ -360,10 +360,10 @@ E-mail: Ced.le.pingouin@gmail.com
 Google Code: http://code.google.com/p/microlua-sim/
 
 Site web (téléchargement seulement):
-  http://www.cedlepingouin.com/mls/files/mls-0.4-linux.zip
-  http://www.cedlepingouin.com/mls/files/mls-0.4-win.zip
-  http://www.cedlepingouin.com/mls/files/mls-0.4-mac.zip
-  http://www.cedlepingouin.com/mls/files/mls-0.4-src.zip
+  http://www.cedlepingouin.com/mls/files/mls-0.5-linux.zip
+  http://www.cedlepingouin.com/mls/files/mls-0.5-win.zip
+  http://www.cedlepingouin.com/mls/files/mls-0.5-mac.zip
+  http://www.cedlepingouin.com/mls/files/mls-0.5-src.zip
 
 Dans les URL ci-dessus, vous pouvez remplacer le n° de version par celui que 
 vous désirez, car toutes les versions sont maintenant gardées sur le site.
