@@ -51,7 +51,7 @@ function M.setFakeRoot(fakeRoot)
     -- find the file separator used, and make sure it ends the fake root for
     -- future concatenation
     if type(fakeRoot) == "string" then
-        local fileSeparator = fakeRoot:match("[/\\]")
+        local fileSeparator = fakeRoot:match("[/\\]") or "/"
         if fakeRoot:sub(-1) ~= fileSeparator then
             fakeRoot = fakeRoot .. fileSeparator
         end
@@ -71,7 +71,11 @@ end
 function M.convertRoot(path)
     if not M.fakeRoot then return path end
     
-    return (path:gsub("^/", M.fakeRoot))
+    local convertedPath = path:gsub("^/", M.fakeRoot)
+    local fileSeparator = convertedPath:match("[/\\]") or "/"
+    convertedPath = (convertedPath:gsub("[/\\]", fileSeparator))
+    
+    return convertedPath
 end
 
 --- Builds a path from multiple parts.
@@ -280,7 +284,7 @@ function M.getFile(path, usePath)
         Mls.logger:debug("file not found, trying additional paths", "file")
         
         for _, currentPath in ipairs(M.path) do
-            local tempPath = currentPath.."/"..path
+            local tempPath = currentPath..fileSeparator..path
             local p, found = M.getFile(tempPath, false)
             if found then return p, found end
         end
