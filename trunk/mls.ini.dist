@@ -1,4 +1,13 @@
 [mls]
+;; Set the "fake root", i.e. a folder on your machine that simulates the SD card
+;; root on the DS. This allows you to put your "/lua" folder anywhere on the 
+;; disk, and test the scripts in it as if they were on the SD card, without 
+;; having to modify your script
+;;
+;; If fake_root isn't defined here (or commented), the default is the MLS folder
+;;
+;fake_root = 
+
 ;; Display refresh rate in frames/ second(number): controls the perceived 
 ;; animation smoothness
 ;;

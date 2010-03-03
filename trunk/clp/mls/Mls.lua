@@ -106,6 +106,9 @@ function Mls:ctr(scriptPath)
     
     Mls.logger:setLevel(Mls.config:get("debug_log_level", Logger.WARN))
     
+    -- set "fake root"
+    Sys.setFakeRoot(Mls.config:get("fake_root", Mls.initialDirectory))
+    
     -- init vars and gui
     Mls._initVars()
     Mls.keyBindings = Mls._loadKeyBindingsFromFile("README")
@@ -305,15 +308,16 @@ function Mls:getValidOptions()
     Mls.logger:info("reading allowed config options")
     
     return {
+        fake_root = { "string" },
         fps = { "number", 0 },
         ups = { "number", 0 },
         bitmap_fonts = { "boolean" },
         stylus_hack = { "boolean" },
+        rect_length = { "number", 0, 1 },
         draw_gradient_rect_accuracy = { "number", 0, 256 },
         open_gl = { "boolean" },
         open_gl_use_texture_rectangle = { "boolean" },
         open_gl_simple_pause = { "boolean" },
-        rect_length = { "number", 0, 1 },
         
         -- debug options below
         debug_log_level = { "number", Logger.TRACE, Logger.FATAL },
