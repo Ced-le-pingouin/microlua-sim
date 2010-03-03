@@ -28,15 +28,50 @@ local Class = require "clp.Class"
 
 local M = Class.new()
 
+M.fakeRoot = nil
 M.path = {}
 
----
--- Gets the OS the app is currently running on.
+--- Gets the OS the app is currently running on.
 --
 -- @return (string) The name of the OS family ("Windows", "Unix" or "Macintosh")
 function M.getOS()
     local platform = wx.wxPlatformInfo.Get()
     return platform:GetOperatingSystemFamilyName()
+end
+
+--- Defines a "fake root" for convertRoot() to use.
+--
+-- @param fakeRoot (string)
+--
+-- @see convertRoot
+function M.setFakeRoot(fakeRoot)
+    assert(type(fakeRoot) == "nil" or type(fakeRoot) == "string",
+           "setFakeRoot() only accepts strings or nil!")
+    
+    -- find the file separator used, and make sure it ends the fake root for
+    -- future concatenation
+    if type(fakeRoot) == "string" then
+        local fileSeparator = fakeRoot:match("[/\\]")
+        if fakeRoot:sub(-1) ~= fileSeparator then
+            fakeRoot = fakeRoot .. fileSeparator
+        end
+    end
+    
+    M.fakeRoot = fakeRoot
+end
+
+--- Converts a given absolute path, replacing the root (/) with a predefined 
+-- location (set by setFakeRoot()).
+--
+-- @param path (string)
+--
+-- @return (string) The path, with its root location converted if needed
+--
+-- @see setFakeRoot
+function M.convertRoot(path)
+    if not M.fakeRoot then return path end
+    
+    return (path:gsub("^/", M.fakeRoot))
 end
 
 --- Builds a path from multiple parts.
