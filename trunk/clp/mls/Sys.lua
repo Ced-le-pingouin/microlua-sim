@@ -65,17 +65,20 @@ end
 --
 -- @param path (string)
 --
--- @return (string) The path, with its root location converted if needed
+-- @return (string, boolean) (string) The path, with its root location converted
+--                                    if needed
+--                           (boolean) true if the path was absolute and a 
+--                                     conversion was needed
 --
 -- @see setFakeRoot
 function M.convertRoot(path)
     if not M.fakeRoot then return path end
     
-    local convertedPath = path:gsub("^/", M.fakeRoot)
+    local convertedPath, replaced = path:gsub("^/", M.fakeRoot)
     local fileSeparator = convertedPath:match("[/\\]") or "/"
     convertedPath = (convertedPath:gsub("[/\\]", fileSeparator))
     
-    return convertedPath
+    return convertedPath, (replaced > 0)
 end
 
 --- Builds a path from multiple parts.
@@ -236,12 +239,16 @@ function M.getFile(path, usePath)
     
     if usePath == nil then usePath = true end
     
+    -- what kind of path is it, Windows-like or Unix-like ?
+    local fileSeparator = path:match("[/\\]") or "/"
+    
+    -- absolute paths are converted to use the fake root
+    local pathWasConverted = false
+    path, pathWasConverted = M.convertRoot(path)
+    
     -- if we're on a case-sensitive OS, we'll try to detect if a path/file/dir 
     -- with the same name but different case exists
     if M.getOS() ~= "Windows" then
-        -- what kind of path is it, Windows-like or Unix-like ?
-        local fileSeparator = path:match("[/\\]") or "/"
-        
         -- every directory from the path is separated, as we'll check each part
         -- to see if it exists in the previous part (which is a directory)
         local parts = {}
@@ -273,6 +280,12 @@ function M.getFile(path, usePath)
             currentDir = currentDir .. fileSeparator .. p
         end
         
+        -- if the path was absolute, there's a duplicate file separator at the
+        -- beginning now, due to the first concatenation above. It doesn't hurt
+        -- for finding folders/files, but it's ugly, se we remove it
+        currentDir, n = currentDir:gsub("^([/\\])", "%1")
+        print(currentDir)
+        
         -- if found = true, it means we made it to the last part of the path, so
         -- the path is correct
         if found then return currentDir, found end
@@ -280,7 +293,7 @@ function M.getFile(path, usePath)
     
     -- when we're sure the provided path doesn't exist, should we try it with 
     -- additional prepended paths from this class ?
-    if usePath and path:sub(1,1) ~= fileSeparator then
+    if usePath and path:sub(1,1) ~= fileSeparator and not pathWasConverted then
         Mls.logger:debug("file not found, trying additional paths", "file")
         
         for _, currentPath in ipairs(M.path) do
