@@ -663,6 +663,47 @@ function M._require(modname)
     return callerEnv[modname]
 end
 
+-- FILE FUNCTIONS THAT COULD BE REPLACED IN ORDER TO BE "FAKE ROOTED"
+--
+-- V dofile(filename)
+-- loadfile([filename])
+-- require(modname)
+-- package.loadlib(libname, funcname)
+-- io.input([file])
+-- io.lines([filename])
+-- io.open(filename [, mode])
+-- io.output([file])
+-- io.popen(prog [, mode])
+-- io.execute([command])
+-- os.remove(filename)
+-- os.rename(oldname, newname)
+
+function M._io_lines(filename)
+    filename = Sys.getFile(filename)
+    
+    return _G.io.lines(filename)
+end
+
+function M._io_open(filename, mode)
+    filename = Sys.getFile(filename)
+    
+    return _G.io.open(filename, mode)
+end
+
+function M._os_remove(filename)
+    filename = Sys.getFile(filename)
+    
+    return _G.os.remove(filename)
+end
+
+function M._os_rename(oldname, newname)
+    oldname = Sys.getFile(oldname)
+    newname = Sys.getFile(newname)
+    
+    return _G.os.rename(oldname, newname)
+end
+
+
 --- Replacement for a function from the StylusBox library; this function checks
 --  if the stylus was clicked inside a given "box".
 --
