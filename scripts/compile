@@ -88,7 +88,7 @@ LIB_LIST="
 "
 
 ## reset any existing temp file
-rm "$TMP_MLS_SCRIPT"
+rm "$TMP_MLS_SCRIPT" 2> /dev/null
 touch "$TMP_MLS_SCRIPT"
 
 ## concatenate all source files in one unique temp file
