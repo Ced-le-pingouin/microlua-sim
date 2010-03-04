@@ -527,13 +527,13 @@ function M:_replaceLuaFunctions(env)
         -- ? require(modname) : already replaced above
         -- package.loadlib(libname, funcname)
         -- io.input([file])
-        --"io.input",
+        "io.input",
         -- io.lines([filename])
         "io.lines",
         -- io.open(filename [, mode])
         "io.open",
         -- io.output([file])
-        --"io.output",
+        "io.output",
         -- io.popen(prog [, mode])
         -- io.execute([command])
         -- os.remove(filename)
@@ -712,7 +712,13 @@ function M._require(modname)
 end
 
 -------------------------------------------------------------------------------
--- FILE FUNCTIONS THAT COULD BE REPLACED IN ORDER TO BE "FAKE ROOTED"
+-- FILE FUNCTIONS THAT SHOULD BE REPLACED IN ORDER TO BE "FAKE ROOTED"
+function M._io_input(file)
+    file = Sys.getFile(file)
+    
+    return io._input(file)
+end
+
 function M._io_lines(filename)
     filename = Sys.getFile(filename)
     
@@ -723,6 +729,12 @@ function M._io_open(filename, mode)
     filename = Sys.getFile(filename)
     
     return io._open(filename, mode)
+end
+
+function M._io_output(file)
+    file = Sys.getFile(file)
+    
+    return io._output(file)
 end
 
 function M._os_remove(filename)
