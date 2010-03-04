@@ -101,7 +101,7 @@ function M.buildPath(...)
     local finalPath = table.concat(parts, fileSeparator)
     
     -- remove duplicate and final separators
-    finalPath = finalPath:gsub("([/\\]+)", "%1")
+    finalPath = finalPath:gsub("\\\\+", "\\"):gsub("//+", "/")
     finalPath = finalPath:gsub("[/\\]$", "")
     
     return finalPath
@@ -283,8 +283,7 @@ function M.getFile(path, usePath)
         -- if the path was absolute, there's a duplicate file separator at the
         -- beginning now, due to the first concatenation above. It doesn't hurt
         -- for finding folders/files, but it's ugly, se we remove it
-        currentDir, n = currentDir:gsub("^([/\\])", "%1")
-        print(currentDir)
+        currentDir = currentDir:gsub("^\\\\+", "\\"):gsub("^//+", "/")
         
         -- if found = true, it means we made it to the last part of the path, so
         -- the path is correct
