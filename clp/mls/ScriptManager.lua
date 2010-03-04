@@ -494,7 +494,34 @@ function M:_setFunctionEnvironmentToEmpty(func)
     env.require = M._require
     env._G = env
     self:_changeMlsFunctionsEnvironment(env)
-
+    
+    -- replace all Lua functions accepting a filename parameter with our own 
+    -- versions, so the "fake root" system can be applied to the parameter
+    local ioFunctions = {
+        -- V dofile(filename) : already replaced above
+        -- loadfile([filename])
+        -- require(modname) : already replaced above
+        -- package.loadlib(libname, funcname)
+        -- io.input([file])
+        -- io.lines([filename])
+        "io.lines"
+        -- io.open(filename [, mode])
+        -- io.output([file])
+        -- io.popen(prog [, mode])
+        -- io.execute([command])
+        -- os.remove(filename)
+        -- os.rename(oldname, newname)
+    }
+    
+    for _, ioFunc in ipairs(ioFunctions) do
+        local modName, funcName = ioFunc:match("([%w_]+)\.([%w_]+)")
+        local customFuncName = "_"..modName.."_"..funcName
+        local backupFuncName = "_"..funcName
+        
+        _G[modName][backupFuncName] = _G[modName][funcName]
+        env[modName][funcName] = M[customFuncName]
+    end
+    
     --method2 (problem with keys ?)
     --setmetatable(env, { __index = _G })
     
@@ -664,43 +691,30 @@ function M._require(modname)
 end
 
 -- FILE FUNCTIONS THAT COULD BE REPLACED IN ORDER TO BE "FAKE ROOTED"
---
--- V dofile(filename)
--- loadfile([filename])
--- require(modname)
--- package.loadlib(libname, funcname)
--- io.input([file])
--- io.lines([filename])
--- io.open(filename [, mode])
--- io.output([file])
--- io.popen(prog [, mode])
--- io.execute([command])
--- os.remove(filename)
--- os.rename(oldname, newname)
 
 function M._io_lines(filename)
     filename = Sys.getFile(filename)
     
-    return _G.io.lines(filename)
+    return io._lines(filename)
 end
 
 function M._io_open(filename, mode)
     filename = Sys.getFile(filename)
     
-    return _G.io.open(filename, mode)
+    return io._open(filename, mode)
 end
 
 function M._os_remove(filename)
     filename = Sys.getFile(filename)
     
-    return _G.os.remove(filename)
+    return os._remove(filename)
 end
 
 function M._os_rename(oldname, newname)
     oldname = Sys.getFile(oldname)
     newname = Sys.getFile(newname)
     
-    return _G.os.rename(oldname, newname)
+    return os._rename(oldname, newname)
 end
 
 
