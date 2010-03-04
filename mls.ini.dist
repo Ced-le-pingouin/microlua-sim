@@ -4,7 +4,8 @@
 ;; disk, and test the scripts in it as if they were on the SD card, without 
 ;; having to modify your script
 ;;
-;; If fake_root isn't defined here (or commented), the default is the MLS folder
+;; If fake_root isn't defined here (or if it's commented), the default is a 
+;; "sdcard" folder located in the MLS folder
 ;;
 ;fake_root = 
 
