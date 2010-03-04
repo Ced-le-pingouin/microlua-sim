@@ -125,7 +125,7 @@ if [ "$PLAIN_TEXT" -eq 0 ]; then
         mv -f luac.out "$COMPILED_MLS_SCRIPT"
 
     else
-        ./os_specific/linux/lua -c "$COMPILED_MLS_SCRIPT"
+        ./lua -c "$COMPILED_MLS_SCRIPT"
         mv -f "$COMPILED_MLS_SCRIPT.compiled" "$COMPILED_MLS_SCRIPT"
     fi
 fi
