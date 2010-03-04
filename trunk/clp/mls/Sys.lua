@@ -233,6 +233,8 @@ end
 --
 -- @return (string, boolean)
 function M.getFile(path, usePath)
+    if type(path) ~= "string" then return path, false end
+    
     Mls.logger:debug("searching file "..path, "file")
     
     -- whatever the OS, if the provided path exists as is, no need to do complex
