@@ -489,28 +489,57 @@ function M:_setFunctionEnvironmentToEmpty(func)
     -- method 1 (! we need to fix dofile() being always global, and to force 
     -- already globally defined functions to *execute* inside the custom env !)
     for k, v in pairs(_G) do env[k] = v end
+    self:_replaceLuaFunctions(env)
+    self:_changeMlsFunctionsEnvironment(env)
+    -- finally, we set env._G to env itself, so _G["varname"] works in scripts
+    env._G = env
+    
+    -- to test for the custom env (_G doesn't have this variable)
+    env.__custom = "true"
+    self._mainLoopEnvironment = env
+    setfenv(func, env)
+end
+
+--- Replaces original Lua functions with MLS' versions in a custom environment.
+--
+-- Some functions (module, require, dofile) need to operate at the environment 
+-- level, whereas in Lua they're always global.
+--
+-- Some other functions (io.lines and the like) deal with files, so we need to
+-- change them to support MLS "fake root" system, where absolute paths need to 
+-- be relocated to the fake root.
+--
+-- @param env (table) The custom environment that will get the replaced
+--                    functions
+function M:_replaceLuaFunctions(env)
+    -- replace code inclusion functions because in Lua, they always work at the 
+    -- original global level, but we need versions that work at the custom env
+    -- level
     env.dofile = M._dofile
     env.module = M._module
     env.require = M._require
-    env._G = env
-    self:_changeMlsFunctionsEnvironment(env)
     
-    -- replace all Lua functions accepting a filename parameter with our own 
-    -- versions, so the "fake root" system can be applied to the parameter
+    -- replace all Lua functions accepting filename parameters with our own 
+    -- versions, so the "fake root" system can be applied to the parameters
     local ioFunctions = {
         -- V dofile(filename) : already replaced above
         -- loadfile([filename])
-        -- require(modname) : already replaced above
+        -- ? require(modname) : already replaced above
         -- package.loadlib(libname, funcname)
         -- io.input([file])
+        --"io.input",
         -- io.lines([filename])
-        "io.lines"
+        "io.lines",
         -- io.open(filename [, mode])
+        "io.open",
         -- io.output([file])
+        --"io.output",
         -- io.popen(prog [, mode])
         -- io.execute([command])
         -- os.remove(filename)
+        "os.remove",
         -- os.rename(oldname, newname)
+        "os.rename"
     }
     
     for _, ioFunc in ipairs(ioFunctions) do
@@ -521,14 +550,6 @@ function M:_setFunctionEnvironmentToEmpty(func)
         _G[modName][backupFuncName] = _G[modName][funcName]
         env[modName][funcName] = M[customFuncName]
     end
-    
-    --method2 (problem with keys ?)
-    --setmetatable(env, { __index = _G })
-    
-    -- to test for the custom env (_G doesn't have this variable)
-    env.__custom = "true"
-    self._mainLoopEnvironment = env
-    setfenv(func, env)
 end
 
 --- Copies needed global variables and functions to a custom environment table.
@@ -690,8 +711,8 @@ function M._require(modname)
     return callerEnv[modname]
 end
 
+-------------------------------------------------------------------------------
 -- FILE FUNCTIONS THAT COULD BE REPLACED IN ORDER TO BE "FAKE ROOTED"
-
 function M._io_lines(filename)
     filename = Sys.getFile(filename)
     
@@ -716,6 +737,7 @@ function M._os_rename(oldname, newname)
     
     return os._rename(oldname, newname)
 end
+-------------------------------------------------------------------------------
 
 
 --- Replacement for a function from the StylusBox library; this function checks
