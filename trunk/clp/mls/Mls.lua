@@ -107,7 +107,8 @@ function Mls:ctr(scriptPath)
     Mls.logger:setLevel(Mls.config:get("debug_log_level", Logger.WARN))
     
     -- set "fake root"
-    Sys.setFakeRoot(Mls.config:get("fake_root", Mls.initialDirectory))
+    local fakeRootDefault = Sys.buildPath(Mls.initialDirectory, "sdcard")
+    Sys.setFakeRoot(Mls.config:get("fake_root", fakeRootDefault))
     
     -- init vars and gui
     Mls._initVars()
