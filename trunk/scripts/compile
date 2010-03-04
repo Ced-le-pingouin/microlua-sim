@@ -87,8 +87,11 @@ LIB_LIST="
     clp/mls/modules/wx/Wifi.lua
 "
 
-## concatenate all source files in one unique temp file 
+## reset any existing temp file
+rm "$TMP_MLS_SCRIPT"
 touch "$TMP_MLS_SCRIPT"
+
+## concatenate all source files in one unique temp file
 for LIB_FILE in $LIB_LIST; do
     MODULE_NAME=`basename "$LIB_FILE" | cut -f1 -d.`
     ## some modules have "suffixes", and MLS' module loader will choose the right one to use
@@ -130,7 +133,7 @@ if [ "$PLAIN_TEXT" -eq 0 ]; then
     fi
 fi
 
-## remove the temp file and intermediate compiled script
+## remove the temp file
 rm "$TMP_MLS_SCRIPT"
 
 ## back to original dir
