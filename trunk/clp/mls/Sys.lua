@@ -72,7 +72,11 @@ end
 --
 -- @see setFakeRoot
 function M.convertRoot(path)
-    if not M.fakeRoot then return path end
+    -- if fake root isn't defined, do nothing
+    if not M.fakeRoot then return path, false end
+    
+    -- prevent double fake root substitution
+    if path:find("^"..M.fakeRoot) then return path, false end
     
     local convertedPath, replaced = path:gsub("^/", M.fakeRoot)
     local fileSeparator = convertedPath:match("[/\\]") or "/"
