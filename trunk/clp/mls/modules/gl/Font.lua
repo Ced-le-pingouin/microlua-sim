@@ -45,15 +45,17 @@ function M.destroy(font)
     glDeleteTextures(1, font._textureId:ptr())
 end
 
-function M.print(screenOffset, font, x, y, text, color, _useColor)
+function M.print(screenNum, font, x, y, text, color, _useColor)
     if not _useColor then color = nil end
     
-    screen.enableGlClipping(screenOffset)
+    screen.enableGlClipping(screenNum)
     
-    M._printNoClip(screenOffset, font, x, screenOffset + y, text, color)
+    y = screen.offset[screenNum] + y
+    
+    M._printNoClip(screenNum, font, x, y, text, color)
 end
 
-function M._printNoClip(screenOffset, font, x, y, text, color)
+function M._printNoClip(screenNum, font, x, y, text, color)
     if type(text) == "number" then text = tostring(text) end
     if #text == 0 then return end
     if not color then color = Color.WHITE end

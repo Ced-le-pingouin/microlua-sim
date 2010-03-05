@@ -117,10 +117,10 @@ end
 --
 -- @param scrollmap (ScrollMap) The scrollmap to draw
 --
--- @todo The official doc doesn't mention the screenOffset param, so check this
+-- @todo The official doc doesn't mention the screenNum param, so check this
 -- @todo Oddly, on my DS, ML draws the white tiles in the modified Map example 
 --       as black (or transparent?). My implementation doesn't do that right now
-function M.draw(screenOffset, scrollmap)
+function M.draw(screenNum, scrollmap)
     local posX, posY = -scrollmap._scrollX, -scrollmap._scrollY
     local width  = scrollmap._width
     local height = scrollmap._height
@@ -130,7 +130,7 @@ function M.draw(screenOffset, scrollmap)
     
     local startPosX = posX
     
-    local offscreenDC = screen._getOffscreenDC(screenOffset)
+    local offscreenDC = screen._getOffscreenDC(screenNum)
     
     -- if setTile() has been used, the mask of the new tile won't probably be
     -- the same as the replaced tile, so we should re-create the mask of the
@@ -142,8 +142,9 @@ function M.draw(screenOffset, scrollmap)
     
     while posY < SCREEN_HEIGHT do
         while posX < SCREEN_WIDTH do
-            offscreenDC:DrawBitmap(scrollmap._bitmap, posX, screenOffset + posY,
-                                   true)
+            offscreenDC:DrawBitmap(
+                scrollmap._bitmap, posX, screen.offset[screenNum] + posY, true
+            )
             
             posX = posX + width
         end

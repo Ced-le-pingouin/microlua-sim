@@ -121,7 +121,7 @@ end
 
 --- Prints a text with a special font [ML 2+ API].
 --
--- @param screenOffset (number) The screen to draw to (SCREEN_UP or SCREEN_DOWN)
+-- @param screenNum (number) The screen to draw to (SCREEN_UP or SCREEN_DOWN)
 -- @param font (Font) The font to use
 -- @param x (number) The x coordinate to draw to
 -- @param y (number) The y coordinate to draw to
@@ -130,17 +130,18 @@ end
 -- @param _useColor (boolean) This is an INTERNAL parameter to reproduce a ML 
 --                            bug, where color is ignore when using Font.print, 
 --                            but used when using the print functions in screen
-function M.print(screenOffset, font, x, y, text, color, _useColor)
+function M.print(screenNum, font, x, y, text, color, _useColor)
     if not _useColor then color = nil end
     
-    local offscreenDC = screen._getOffscreenDC(screenOffset)
+    local offscreenDC = screen._getOffscreenDC(screenNum)
     
-    M._printNoClip(screenOffset, font, x, screenOffset + y, text, color)
+    M._printNoClip(screenNum, font, x, screen.offset[screenNum] + y, text, 
+                   color)
 end
 
 --- Prints a text, without using clipping at screen limits.
 --
--- @param screenOffset (number) The screen to draw to (SCREEN_UP or SCREEN_DOWN)
+-- @param screenNum (number) The screen to draw to (SCREEN_UP or SCREEN_DOWN)
 -- @param font (Font) The font to use
 -- @param x (number) The x coordinate to draw to
 -- @param y (number) The y coordinate to draw to
@@ -152,7 +153,7 @@ end
 -- @todo Since I use lua length operator and process *bytes* (NOT characters) to
 --       display characters, only ASCII texts will work correctly 
 -- @todo Is this the correct use of addedSpace ?
-function M._printNoClip(screenOffset, font, x, y, text, color)
+function M._printNoClip(screenNum, font, x, y, text, color)
     if type(text) == "number" then text = tostring(text) end
     if #text == 0 then return end
     if not color then color = Color.WHITE end

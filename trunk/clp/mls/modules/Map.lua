@@ -103,7 +103,7 @@ end
 --
 -- @todo Pre-compute the x,y positions of a tile inside the tile sheet, put them
 --       them in a table, and use it in draw() for sourcex, sourcey
-function M.draw(screenOffset, map, x, y, width, height, _scrollByPixel, _repeat)
+function M.draw(screenNum, map, x, y, width, height, _scrollByPixel, _repeat)
     local scrollX, scrollY = map._scrollX, map._scrollY
     if _scrollByPixel then
         x = x - (scrollX % map._tileWidth)
@@ -149,7 +149,7 @@ function M.draw(screenOffset, map, x, y, width, height, _scrollByPixel, _repeat)
             local sourcey = math.floor(tileNum / map._tilesPerRow)
                             * map._tileHeight
             
-            screen.blit(screenOffset, posX, posY, map._tilesImage, 
+            screen.blit(screenNum, posX, posY, map._tilesImage, 
                         sourcex, sourcey, 
                         map._tileWidth, map._tileHeight)
             

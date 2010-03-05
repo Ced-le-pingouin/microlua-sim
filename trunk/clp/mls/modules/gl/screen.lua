@@ -137,7 +137,7 @@ end
 -- @param sourcey (number) The coordinates in the source image to draw
 -- @param width (number) The width of the rectangle to draw
 -- @param height (number) The height of the rectangle to draw
-function M.blit(screenOffset, x, y, image, sourcex, sourcey, width, height)
+function M.blit(screenNum, x, y, image, sourcex, sourcey, width, height)
     if width == 0 or height == 0 then return end
     
     if not sourcex then sourcex = 0 end
@@ -145,7 +145,7 @@ function M.blit(screenOffset, x, y, image, sourcex, sourcey, width, height)
     if not width then width  = image._width end
     if not height then height = image._height end
     
-    y = y + screenOffset
+    y = y + M.offset[screenNum]
     local x2 = x + width
     local y2 = y + height
     
@@ -163,7 +163,7 @@ function M.blit(screenOffset, x, y, image, sourcex, sourcey, width, height)
         sourcey2 = sourcey2 * yRatio
     end
     
-    M.enableGlClipping(screenOffset)
+    M.enableGlClipping(screenNum)
     
     glEnable(M.textureType)
     glBindTexture(M.textureType, image._textureId[0])
@@ -233,8 +233,10 @@ end
 -- @param x1 (number) The x coordinate of the end point
 -- @param y1 (number) The y coordinate of the end point
 -- @param color (Color) The color of the line
-function M.drawLine(screenOffset, x0, y0, x1, y1, color)
-    M.enableGlClipping(screenOffset)
+function M.drawLine(screenNum, x0, y0, x1, y1, color)
+    local screenOffset = M.offset[screenNum]
+    
+    M.enableGlClipping(screenNum)
     
     glDisable(M.textureType)
     glColor3d(color:Red() / 255, color:Green() / 255, color:Blue() / 255)
@@ -252,8 +254,10 @@ end
 -- @param x1 (number) The x coordinate of the bottom right corner
 -- @param y1 (number) The y coordinate of the bottom right corner
 -- @param color (Color) The color of the rectangle
-function M.drawRect(screenOffset, x0, y0, x1, y1, color)
-    M.enableGlClipping(screenOffset)
+function M.drawRect(screenNum, x0, y0, x1, y1, color)
+    local screenOffset = M.offset[screenNum]
+    
+    M.enableGlClipping(screenNum)
     
     glDisable(M.textureType)
     glColor3d(color:Red() / 255, color:Green() / 255, color:Blue() / 255)
@@ -273,8 +277,10 @@ end
 -- @param x1 (number) The x coordinate of the bottom right corner
 -- @param y1 (number) The y coordinate of the bottom right corner
 -- @param color (Color) The color of the rectangle
-function M.drawFillRect(screenOffset, x0, y0, x1, y1, color)
-    M.enableGlClipping(screenOffset)
+function M.drawFillRect(screenNum, x0, y0, x1, y1, color)
+    local screenOffset = M.offset[screenNum]
+    
+    M.enableGlClipping(screenNum)
     
     glDisable(M.textureType)
     glColor3d(color:Red() / 255, color:Green() / 255, color:Blue() / 255)
@@ -299,7 +305,9 @@ end
 -- @param color4 (Color)
 function M.drawGradientRect(screenOffset, x0, y0, x1, y1, 
                             color1, color2, color3, color4)
-    M.enableGlClipping(screenOffset)
+    local screenOffset = M.offset[screenNum]
+    
+    M.enableGlClipping(screenNum)
     
     glDisable(M.textureType)
     glBegin(GL_QUADS)
@@ -391,8 +399,8 @@ function M:onStopDrawing()
     glEnable(M.textureType)
 end
 
-function M.enableGlClipping(screenOffset)
-    glClipPlane(GL_CLIP_PLANE0, M._clipPlanes[screenOffset]:ptr())
+function M.enableGlClipping(screenNum)
+    glClipPlane(GL_CLIP_PLANE0, M._clipPlanes[screenNum]:ptr())
     glEnable(GL_CLIP_PLANE0)
 end
 
@@ -434,13 +442,13 @@ end
 -- @param x (number) The x coordinate where to draw
 -- @param y (number) The y coordinate where to draw
 -- @param color (Color) The color of the point
-function M._drawPoint(screenOffset, x, y, color)
-    M.enableGlClipping(screenOffset)
+function M._drawPoint(screenNum, x, y, color)
+    M.enableGlClipping(screenNum)
     
     glcolor3d(color:Red() / 255, color:Green() / 255, color:Blue() / 255)
     glBegin(GL_POINTS)
         glColor3d()
-        glVertex2d(x, y + screenOffset)
+        glVertex2d(x, y + M.offset[screenNum])
     glEnd()
 end
 

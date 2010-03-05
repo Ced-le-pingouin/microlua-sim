@@ -84,11 +84,11 @@ end
 --
 -- @todo Pre-compute the x,y positions of a frame inside the sprite sheet in
 --       new(), put them in a table, and use it here for sourcex, sourcey
-function M:drawFrame(screenOffset, x, y, nbFrame)
+function M:drawFrame(screenNum, x, y, nbFrame)
     local sourcex = (nbFrame % self._framesPerRow) * self._frameWidth
     local sourcey = math.floor(nbFrame / self._framesPerRow) * self._frameHeight
 
-    screen.blit(screenOffset, x, y, self._image, sourcex, sourcey, 
+    screen.blit(screenNum, x, y, self._image, sourcex, sourcey, 
                 self._frameWidth, self._frameHeight)
 end
 
@@ -112,10 +112,10 @@ end
 -- @param x (number) The X coordinate where to draw the frame
 -- @param y (number) The Y coordinate where to draw the frame
 -- @param nbAnim (number) The number of the animation to play
-function M:playAnimation(screenOffset, x, y, nbAnim)
+function M:playAnimation(screenNum, x, y, nbAnim)
     local anim = self._animations[nbAnim]
 
-    self:drawFrame(screenOffset, x, y, anim.frames[anim.currentFrame])
+    self:drawFrame(screenNum, x, y, anim.frames[anim.currentFrame])
     
     if anim.status == M._ANIM_PLAYING and self._timer:time() > anim.nextUpdate
     then
