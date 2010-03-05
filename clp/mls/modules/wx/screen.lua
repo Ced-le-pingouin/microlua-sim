@@ -67,8 +67,10 @@ end
 --- Initializes global variables for the screen module.
 function M._initVars()
     NB_FPS         = 0
-    SCREEN_UP      = 0
-    SCREEN_DOWN    = SCREEN_HEIGHT
+    SCREEN_UP      = 1
+    SCREEN_DOWN    = 0
+    
+    M.offset = { [SCREEN_UP] = 0, [SCREEN_DOWN] = 192 }
 end
 
 function M._initTimer()
@@ -153,8 +155,8 @@ end
 -- @param y (number) The y coordinate where to draw
 -- @param text (string) The text to print
 -- @param color (Color) A color of the text
-function M.print(screenOffset, x, y, text, color)
-	Font.print(screenOffset, Font._defaultFont, x, y, text, color, true)
+function M.print(screenNum, x, y, text, color)
+	Font.print(screenNum, Font._defaultFont, x, y, text, color, true)
 end
 
 --- Prints a text on the screen [ML 2+ API].
@@ -165,8 +167,8 @@ end
 -- @param text (string) The text to print
 -- @param color (Color) The color of the text
 -- @param font (Font) A special font
-function M.printFont(screenOffset, x, y, text, color, font)
-    Font.print(screenOffset, font, x, y, text, color, true)
+function M.printFont(screenNum, x, y, text, color, font)
+    Font.print(screenNum, font, x, y, text, color, true)
 end
 
 --- Blits an image on the screen [ML 2+ API].
@@ -179,7 +181,7 @@ end
 -- @param sourcey (number) The coordinates in the source image to draw
 -- @param width (number) The width of the rectangle to draw
 -- @param height (number) The height of the rectangle to draw
-function M.blit(screenOffset, x, y, image, sourcex, sourcey, width, height)
+function M.blit(screenNum, x, y, image, sourcex, sourcey, width, height)
     if width == 0 or height == 0 then return end
     
     Image._doTransform(image)
@@ -190,9 +192,10 @@ function M.blit(screenOffset, x, y, image, sourcex, sourcey, width, height)
         height = image._bitmap:GetHeight()
     end
     
-    local offscreenDC = M._getOffscreenDC(screenOffset)
+    local offscreenDC = M._getOffscreenDC(screenNum)
     
-    offscreenDC:Blit(x + image._offset.x, screenOffset + y + image._offset.y, 
+    offscreenDC:Blit(x + image._offset.x, 
+                     M.offset[screenNum] + y + image._offset.y, 
                      width, height, image._DC, sourcex, sourcey, wx.wxCOPY, 
                      true)
 end
@@ -208,8 +211,9 @@ end
 --
 -- @todo In wxWidgets, (x1,y1) is not included in a drawn line, see if Microlua
 --       behaves like that, and adjust arguments if it doesn't
-function M.drawLine(screenOffset, x0, y0, x1, y1, color)
-    local offscreenDC = M._getOffscreenDC(screenOffset)
+function M.drawLine(screenNum, x0, y0, x1, y1, color)
+    local offscreenDC = M._getOffscreenDC(screenNum)
+    local screenOffset = M.offset[screenNum]
     
     M._pen:SetColour(color)
     offscreenDC:SetPen(M._pen)
@@ -225,19 +229,19 @@ end
 -- @param x1 (number) The x coordinate of the bottom right corner
 -- @param y1 (number) The y coordinate of the bottom right corner
 -- @param color (Color) The color of the rectangle
-function M.drawRect(screenOffset, x0, y0, x1, y1, color)
+function M.drawRect(screenNum, x0, y0, x1, y1, color)
     -- @note This is only to prevent "bad" code from crashing in the case where
     -- it (unfortunately) doesn't crash in the real ML. If "color" has not been
     -- created with Color.new() but is a number, it is valid in ML, since it
     -- uses RGB15 format to store its colors. @see Color
     --if type(color) == "number" then color = wx.wxColour(color, 0, 0) end
     
-    local offscreenDC = M._getOffscreenDC(screenOffset)
+    local offscreenDC = M._getOffscreenDC(screenNum)
     
     M._pen:SetColour(color)
     offscreenDC:SetPen(M._pen)
     offscreenDC:SetBrush(wx.wxTRANSPARENT_BRUSH)
-    offscreenDC:DrawRectangle(x0, y0 + screenOffset, 
+    offscreenDC:DrawRectangle(x0, y0 + M.offset[screenNum], 
                               (x1 - x0) + M._rectAdditionalLength,
                               (y1 - y0) + M._rectAdditionalLength)
 end
@@ -250,14 +254,14 @@ end
 -- @param x1 (number) The x coordinate of the bottom right corner
 -- @param y1 (number) The y coordinate of the bottom right corner
 -- @param color (Color) The color of the rectangle
-function M.drawFillRect(screenOffset, x0, y0, x1, y1, color)
-    local offscreenDC = M._getOffscreenDC(screenOffset)
+function M.drawFillRect(screenNum, x0, y0, x1, y1, color)
+    local offscreenDC = M._getOffscreenDC(screenNum)
     
     M._pen:SetColour(color)
     offscreenDC:SetPen(M._pen)
     M._brush:SetColour(color)
     offscreenDC:SetBrush(M._brush)
-    offscreenDC:DrawRectangle(x0, y0 + screenOffset, 
+    offscreenDC:DrawRectangle(x0, y0 + M.offset[screenNum], 
                               (x1 - x0) + M._rectAdditionalLength,
                               (y1 - y0) + M._rectAdditionalLength)
 end
@@ -277,7 +281,7 @@ end
 -- @param color2 (Color)
 -- @param color3 (Color)
 -- @param color4 (Color)
-function M.drawGradientRectSimple(screenOffset, x0, y0, x1, y1, 
+function M.drawGradientRectSimple(screenNum, x0, y0, x1, y1, 
                                   color1, color2, color3, color4)
     -- @hack for calls that use numbers instead of Colors
     if type(color1) == "number" then color1 = wx.wxColour(color1, 0, 0) end
@@ -301,13 +305,14 @@ function M.drawGradientRectSimple(screenOffset, x0, y0, x1, y1,
         direction = wx.wxRIGHT
     end
     
-    local offscreenDC = M._getOffscreenDC(screenOffset)
+    local offscreenDC = M._getOffscreenDC(screenNum)
     
     local w = (x1 - x0) + M._rectAdditionalLength
     local h = (y1 - y0) + M._rectAdditionalLength
     
-    offscreenDC:GradientFillLinear(wx.wxRect(x0, y0 + screenOffset, w, h),
-                                   c1, c2, direction)
+    offscreenDC:GradientFillLinear(
+        wx.wxRect(x0, y0 + M.offset[screenNum], w, h), c1, c2, direction
+    )
 end
 
 --- Draws a gradient rectangle on the screen [ML 2+ API][under the name 
@@ -325,7 +330,7 @@ end
 -- @param color2 (Color)
 -- @param color3 (Color)
 -- @param color4 (Color)
-function M.drawGradientRectAdvanced(screenOffset, x0, y0, x1, y1, 
+function M.drawGradientRectAdvanced(screenNum, x0, y0, x1, y1, 
                                     color1, color2, color3, color4)
     -- @hack for calls that use numbers instead of Colors
     if type(color1) == "number" then color1 = wx.wxColour(color1, 0, 0) end
@@ -333,6 +338,8 @@ function M.drawGradientRectAdvanced(screenOffset, x0, y0, x1, y1,
     if type(color3) == "number" then color3 = wx.wxColour(color3, 0, 0) end
     if type(color4) == "number" then color4 = wx.wxColour(color4, 0, 0) end
     --
+    
+    local screenOffset = M.offset[screenNum]
     
     local w = (x1 - x0) + M._rectAdditionalLength
     local h = (y1 - y0) + M._rectAdditionalLength
@@ -404,7 +411,9 @@ end
 -- @param y1 (number) The y coordinate of the bottom right corner
 -- @param text (string) The text to print
 -- @param color (Color) The color of the text box
-function M.drawTextBox(screenOffset, x0, y0, x1, y1, text, color)
+function M.drawTextBox(screenNum, x0, y0, x1, y1, text, color)
+    local screenOffset = M.offset[screenNum]
+    
     y0 = screenOffset + y0
     if y1 > SCREEN_HEIGHT then y1 = SCREEN_HEIGHT end
     y1 = screenOffset + y1
@@ -632,8 +641,8 @@ end
 -- @param x (number) The x coordinate where to draw
 -- @param y (number) The y coordinate where to draw
 -- @param color (Color) The color of the point
-function M._drawPoint(screenOffset, x, y, color)
-    local offscreenDC = M._getOffscreenDC(screenOffset)
+function M._drawPoint(screenNum, x, y, color)
+    local offscreenDC = M._getOffscreenDC(screenNum)
     
     M._pen:SetColour(color)
     offscreenDC:SetPen(M._pen)
@@ -657,15 +666,16 @@ end
 --- Returns the device context (wxWidgets-specific) of the offscreen surface,
 --  with clipping limiting further drawing operations to one screen.
 --
--- @param screenOffset (number) The screen to limit drawing operations to 
---                              (SCREEN_UP or SCREEN_DOWN)
+-- @param screenNum (number) The screen to limit drawing operations to 
+--                           (SCREEN_UP or SCREEN_DOWN)
 --
 -- @return (wxMemoryDC)
-function M._getOffscreenDC(screenOffset)
+function M._getOffscreenDC(screenNum)
     local offscreenDC = M.offscreenDC
     
     offscreenDC:DestroyClippingRegion()
-    offscreenDC:SetClippingRegion(0, screenOffset, SCREEN_WIDTH, SCREEN_HEIGHT)
+    offscreenDC:SetClippingRegion(0, M.offset[screenNum], 
+                                  SCREEN_WIDTH, SCREEN_HEIGHT)
     
     return offscreenDC
 end

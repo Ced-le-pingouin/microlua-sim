@@ -247,14 +247,14 @@ end
 -- @param canvas (Canvas) The canvas to draw
 -- @param x (number) The x coordinate where to draw
 -- @param y (number) The y coordinate where to draw
-function M.draw(screenOffset, canvas, x, y)
+function M.draw(screenNum, canvas, x, y)
     local objects = canvas._objects
 
     for _, object in ipairs(objects) do
         local o = object
         local a = o.args
         
-        object.func(screenOffset, x + a[o[ATTR_X1]], y + a[o[ATTR_Y1]], 
+        object.func(screenNum, x + a[o[ATTR_X1]], y + a[o[ATTR_Y1]], 
                     unpack(a, 3))
     end
 end
