@@ -114,24 +114,26 @@ end
 --- All drawing instructions must be between this and stopDrawing() [ML 2 API].
 --
 -- @deprecated
-function M.startDrawing()
+function M.startDrawing2D()
     Mls.logger:trace("startDrawing called", "screen")
     
     M.static().clearOffscreenSurface()
 end
+M.startDrawing = M.startDrawing2D
 
 --- All drawing instructions must be between startDrawing() and this [ML 2 API].
 --
 -- @eventSender
 --
 -- @deprecated
-function M.stopDrawing()
+function M.endDrawing()
     Mls.logger:trace("stopDrawing called", "screen")
     
     Mls:notify("stopDrawing")
     
     M.static()._switchOffscreen()
 end
+M.stopDrawing = M.endDrawing
 
 --- Refreshes the screen (replaces start- and stopDrawing()) [ML 3+ API].
 function M.render()
@@ -461,6 +463,28 @@ function M.drawTextBox(screenOffset, x0, y0, x1, y1, text, color)
     end
     
     offscreenDC:DestroyClippingRegion()
+end
+
+--- Does nothing in MLS.
+--
+-- This function isn't documented for users, but it is "exported" in ML, so boot
+-- scripts could use it, and we have to make it available
+-- 
+function M.init()
+end
+
+--- Checks the screen we're currently drawing on.
+--
+-- @return (boolean) True for top screen, false for bottom screen
+function M.getMainLcd()
+    -- normally SCREEN_UP is 1, and SCREEN_DOWN is 0, but they can be switched
+    return SCREEN_UP ~= 0
+end
+
+function waitForVBL()
+end
+
+function setSpaceBetweenScreens(space)
 end
 
 --- Sets the version of drawGradientRect that will be used, and in case it is 
