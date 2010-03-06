@@ -135,4 +135,42 @@ function M.listDirectory(path)
     return fullTable
 end
 
+--- Gets a "part" of current time (i.e. year, month etc).
+--
+-- @param whichPart (number) A numeric value that defines which part of the time
+--                           you want to get. The values are:
+--                               0 = the year
+--                               1 = the month
+--                               2 = the hour
+--                               3 = the day
+--                               4 = the minute
+--                               5 = the second
+--
+-- @return (number) The part you asked for
+function getCurrentTime(whichPart)
+    local time = os.date("*t")
+    
+    if whichPart == 0 then     -- TIME_YEAR
+        return time.year
+    elseif whichPart == 1 then -- TIME_MONTH
+        return time.month
+    elseif whichPart == 2 then -- TIME_DAY
+        return time.day
+    elseif whichPart == 3 then -- TIME_HOUR
+        return time.hour
+    elseif whichPart == 4 then -- TIME_MINUTE
+        return time.min
+    elseif whichPart == 5 then -- TIME_SECOND
+        return time.sec
+    --[[
+    elseif whichPart == 6 then -- TIME_WEEKDAY
+        return time.wday
+    elseif whichPart == 7 then -- TIME_YEARDAY
+        return time.yday
+    --]]
+    end
+    
+    error("Bad parameter")
+end
+
 return M
