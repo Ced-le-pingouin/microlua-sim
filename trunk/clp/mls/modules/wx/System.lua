@@ -147,7 +147,7 @@ end
 --                               5 = the second
 --
 -- @return (number) The part you asked for
-function getCurrentTime(whichPart)
+function M.getCurrentTime(whichPart)
     local time = os.date("*t")
     
     if whichPart == 0 then     -- TIME_YEAR
