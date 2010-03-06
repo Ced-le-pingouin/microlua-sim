@@ -173,4 +173,6 @@ function getCurrentTime(whichPart)
     error("Bad parameter")
 end
 
+ds_system = M
+
 return M
