@@ -54,13 +54,13 @@ LIB_LIST="
     clp/Observable.lua
     clp/Logger.lua
     clp/Math.lua
+    clp/mls/Timer.lua
     clp/mls/Mls.lua
     clp/mls/Sys.lua
     clp/mls/Config.lua
     clp/mls/Gui.lua
     clp/mls/ScriptManager.lua
     clp/mls/ModuleManager.lua
-    clp/mls/modules/wx/Timer.lua
     clp/mls/modules/wx/screen.lua
     clp/mls/modules/gl/screen.lua
     clp/mls/modules/wx/Color.lua
@@ -84,6 +84,7 @@ LIB_LIST="
     clp/mls/modules/Sound.lua
     clp/mls/modules/Sprite.lua
     clp/mls/modules/wx/System.lua
+    clp/mls/modules/wx/Timer.lua
     clp/mls/modules/wx/Wifi.lua
 "
 
@@ -93,18 +94,30 @@ touch "$TMP_MLS_SCRIPT"
 
 ## concatenate all source files in one unique temp file
 for LIB_FILE in $LIB_LIST; do
-    MODULE_NAME=`basename "$LIB_FILE" | cut -f1 -d.`
-    ## some modules have "suffixes", and MLS' module loader will choose the right one to use
-    MODULE_SUFFIX=`echo "$LIB_FILE" | grep "/\(wx\|gl\)/" | cut -f4 -d/`
-    if [ "$MODULE_SUFFIX" != "" ]; then
-        MODULE_NAME="${MODULE_NAME}_${MODULE_SUFFIX}"
-    fi
+    ## module name will be the path of the module with "/" replaced with "_"
+    MODULE_NAME=`echo "$LIB_FILE" | cut -f1 -d.`
+    MODULE_NAME=`echo "$MODULE_NAME" | sed -e "s/\//_/g"`
     ## get the initial content (script) of the module
     LIB_FILE_CONTENT=`cat "$LIB_FILE"`
     ## replace "local M = " with "<module name> = "
     LIB_FILE_CONTENT=`echo "$LIB_FILE_CONTENT" | sed -e "s/local M =/$MODULE_NAME ="/`
     ## when "M.", "M:", or "M[" is found, replace the "M" with "<module name>"
     LIB_FILE_CONTENT=`echo "$LIB_FILE_CONTENT" | sed -re "s/\bM([.:\[])/$MODULE_NAME\1/g"`
+    ## find all the "local <local module name> = require "<module path>"
+    LIB_REQUIRES=`echo "$LIB_FILE_CONTENT" | grep "^local.*= require"`
+    LIB_REQUIRES=`echo "$LIB_REQUIRES" | sed -re 's/^local ([[:alnum:]_]+) = require "([[:alnum:]_.]+)".*$/\1,\2/g'`
+    ## this loop replaces all occurences of a local module (e.g. Gui) with its
+    ## unique name (clp_mls_Gui)
+    for LIB_REQUIRE in $LIB_REQUIRES; do
+        ORIGINAL_LOCAL_MODULE_NAME=`echo "$LIB_REQUIRE" | cut -f1 -d, `
+        NEW_LOCAL_MODULE_NAME=`echo "$LIB_REQUIRE" | cut -f2 -d, | sed -e "s/\./_/g"`
+        ## occurences like "Gui.", "Gui:", "Gui["
+        LOCAL_MODULE_REGEX="s/\b${ORIGINAL_LOCAL_MODULE_NAME}([.:\[])/${NEW_LOCAL_MODULE_NAME}\1/g"
+        LIB_FILE_CONTENT=`echo "$LIB_FILE_CONTENT" | sed -re "$LOCAL_MODULE_REGEX"`
+        ## special case: inheritance
+        LOCAL_MODULE_REGEX="s/Class\.new\(${ORIGINAL_LOCAL_MODULE_NAME}\)/Class\.new\(${NEW_LOCAL_MODULE_NAME}\)/g"
+        LIB_FILE_CONTENT=`echo "$LIB_FILE_CONTENT" | sed -re "$LOCAL_MODULE_REGEX"`
+    done
     ## concatenate current lib's modified content with previous content
     echo "$LIB_FILE_CONTENT" >> "$TMP_MLS_SCRIPT"
     echo "" >> "$TMP_MLS_SCRIPT"
@@ -118,7 +131,7 @@ echo "" >> "$TMP_MLS_SCRIPT"
 
 ## remove require()s and module definition commands
 REMOVE_REQUIRE='^.*require \"clp'
-REMOVE_MODULE_RETURN='^\s*return M\s*$'
+REMOVE_MODULE_RETURN='^[[:space:]]*return M[[:space:]]*$'
 grep -v "$REMOVE_REQUIRE" "$TMP_MLS_SCRIPT" | grep -v "$REMOVE_MODULE_RETURN" > "$COMPILED_MLS_SCRIPT"
 
 ## compile the only resulting file either with luac or lua AIO ("-c" option)
@@ -126,7 +139,6 @@ if [ "$PLAIN_TEXT" -eq 0 ]; then
     if [ "$LUAC" -eq 1 ]; then
         luac -s "$COMPILED_MLS_SCRIPT"
         mv -f luac.out "$COMPILED_MLS_SCRIPT"
-
     else
         ./lua -c "$COMPILED_MLS_SCRIPT"
         mv -f "$COMPILED_MLS_SCRIPT.compiled" "$COMPILED_MLS_SCRIPT"

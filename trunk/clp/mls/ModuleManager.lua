@@ -157,14 +157,14 @@ end
 --
 -- @param module (string) The name of the module to register. Its Lua "class" 
 --                        should have been declared in the big single "compiled"
---                        file, and will generally have the same name as the 
---                        module, or be suffixed, e.g. with "_wx" or "_gl"
+--                        file, prefixed with its location 
+--                        (e.g. clp_mls_modules_wx_Color for Color)
 -- @param prefixes (table) An optional list of prefixes that are usually used in
 --                         the source version of MLS. In this function, the 
---                         prefixes will be turned into suffixes, as they do not
---                         stand for the directories in which the lua scripts 
---                         are supposed to be, but rather for suffixes for the 
---                         names of Lua "classes", based on the module names
+--                         prefixes will themselves be prefixed with the 
+--                         expected modules location, only with slashes replaced
+--                         with underscores (i.e. clp_mls_modules_, then any 
+--                         given prefix)
 function M:_registerCompiledModule(module, prefixes)
     Mls.logger:debug("registering compiled module "..module, "module")
     
@@ -177,23 +177,27 @@ function M:_registerCompiledModule(module, prefixes)
     -- we have to put one of the two Font implementations in global variable
     -- Font => only the bitmap one is available in this version
     if module == "Font" then
-        Font = Font_Bitmap_wx
+        Font = clp_mls_modules_wx_Font_Bitmap
     end
     
     -- in the compiled version, modules are already set on _G, so we consider
     -- them already loaded...
     
-    -- ...but we need to choose the right module name (compiled modules have 
-    -- their "prefix" as a suffix in their name)
+    -- ...but we need to choose the right module name (clp_mls_modules_ + prefix
+    -- + module name)
+    
+    -- add the empty prefix, to find non-wx non-gl modules, last
+    table.insert(prefixes, "")
     for _, prefix in ipairs(prefixes) do
         prefix = prefix:gsub("\.$", "")
-        local suffix = (prefix ~= "" and "_"..prefix or prefix)
-        local suffixedModuleName = module..suffix
+        local moduleName = "clp_mls_modules_"..
+                           (prefix ~= "" and prefix.."_" or "")..
+                           module
         
-        Mls.logger:debug(module..": trying to register with suffix '"..suffix.."'", "module")
+        Mls.logger:debug(module..": trying to register with prefix '"..prefix.."'", "module")
         
-        if _G[suffixedModuleName] then
-            _G[module] = _G[suffixedModuleName]
+        if _G[moduleName] then
+            _G[module] = _G[moduleName]
             break
         end
     end
