@@ -9,6 +9,26 @@
 ;;
 ;fake_root = 
 
+;; Enable MLS libs emulation, i.e. tells it to make Controls and System 
+;; available (in ML, these don't exist, they're named ds_controls and ds_system)
+;; as well as some other functions (e.g. startDrawing, stopDrawing...)
+;;
+;; It also removes some libs, such as Debug, Sprite...
+;;
+;; This option is needed to make MLS behave more like ML (when set to 0), where 
+;; some features aren't coded in C, but reside in externals libs written in Lua
+;;
+;; Disabling this will allow ML developers to modify and test ML libs, and will
+;; allow MLS not to change too often, since only ML C code would need to be 
+;; emulated (not the libs).
+;;
+;; Eventually this option will disappear, and be considered always off
+;;
+;;  0 = MLS libs emulation disabled (you'll need ML libs in sdcard/lua/libs
+;;  1 = MLS libs emulation enabled
+;;
+emulate_libs = 1
+
 ;; Display refresh rate in frames/ second(number): controls the perceived 
 ;; animation smoothness
 ;;
@@ -68,8 +88,8 @@ draw_gradient_rect_accuracy = 0
 
 ;; Use OpenGL for drawing operations
 ;;
-;; 0 = no
-;; 1 = yes
+;;  0 = no
+;;  1 = yes
 ;;
 open_gl = 1
 
@@ -77,9 +97,9 @@ open_gl = 1
 ;; standard 2D textures (which then will be loaded with power of two dimensions)
 ;; ?
 ;;
-;; 0 = no  = use standard - power of two - 2D textures for images
-;; 1 = yes = use any texture_rectangle extension found on the GPU. If there are
-;;           none, falls back to standard 2D textures
+;;  0 = no  = use standard - power of two - 2D textures for images
+;;  1 = yes = use any texture_rectangle extension found on the GPU. If there are
+;;            none, falls back to standard 2D textures
 open_gl_use_texture_rectangle = 1
 
 ;; Use simple ("dumb") pause method in OpenGL mode
@@ -90,8 +110,8 @@ open_gl_use_texture_rectangle = 1
 ;; If "normal" pause causes trouble for you, try setting this to 1, then you'll 
 ;; get the "dumb" pause method
 ;;
-;; 0 = no  = use normal pause (displays the last frame while paused)
-;; 1 = yes = use simple/dumb pause (displays a black background while paused)
+;;  0 = no  = use normal pause (displays the last frame while paused)
+;;  1 = yes = use simple/dumb pause (displays a black background while paused)
 ;;
 open_gl_simple_pause = 0
 
