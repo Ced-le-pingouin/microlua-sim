@@ -30,7 +30,7 @@ local Class = require "clp.Class"
 local M = Class.new()
 
 --- Constructor.
-function M:ctr(modules, prefixes)
+function M:ctr(modules, prefixes, emulateLibs)
     self._modules = modules or {
         -- MUST be loaded first because other modules depend on it!
         "Timer", "screen", "Color", "Image", "Font",
@@ -42,6 +42,9 @@ function M:ctr(modules, prefixes)
     
     -- prefixes used to load modules. These are tried first, then unprefixed
     self._prefixes = prefixes or { "wx." }
+    
+    -- if MLS is to emulate libs, additional adjustments will be done
+    self._emulateLibs = emulateLibs
 end
 
 --- Adds a prefix to the ones to be looked for when loading modules.
@@ -54,6 +57,11 @@ function M:addPrefix(prefix, prepend)
     local pos = prepend and 1 or #self._prefixes + 1
     
     table.insert(self._prefixes, pos, prefix)
+end
+
+--- Enables or disables MLS libs emulation.
+function M:enableLibsEmulation(emulateLibs)
+    self._emulateLibs = emulateLibs
 end
 
 --- Loads and initializes simulated ML modules.
