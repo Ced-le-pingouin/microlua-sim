@@ -47,13 +47,13 @@ local sourceFiles = {
     "clp/Observable.lua",
     "clp/Logger.lua",
     "clp/Math.lua",
+    "clp/mls/Timer.lua",
     "clp/mls/Mls.lua",
     "clp/mls/Sys.lua",
     "clp/mls/Config.lua",
     "clp/mls/Gui.lua",
     "clp/mls/ScriptManager.lua",
     "clp/mls/ModuleManager.lua",
-    "clp/mls/modules/wx/Timer.lua",
     "clp/mls/modules/wx/screen.lua",
     "clp/mls/modules/gl/screen.lua",
     "clp/mls/modules/wx/Color.lua",
@@ -77,6 +77,7 @@ local sourceFiles = {
     "clp/mls/modules/Sound.lua",
     "clp/mls/modules/Sprite.lua",
     "clp/mls/modules/wx/System.lua",
+    "clp/mls/modules/wx/Timer.lua",
     "clp/mls/modules/wx/Wifi.lua"
 }
 
@@ -91,12 +92,11 @@ local tempFileHandle = io.open(tempFile, "w+")
 
 -- concatenate all source files into one unique temp file
 for _, file in ipairs(sourceFiles) do
-    local moduleName = file:match("/([%w_-]-)\.[%w_-]-$")
-    -- some modules have "suffixes", and MLS' module loader will choose the right one to use
-    local moduleSuffix = file:match("/modules/([^/]+)/")
-    if moduleSuffix then
-        moduleName = moduleName.."_"..moduleSuffix
-    end
+    -- module name will be the path of the module with "/" replaced with "_"
+    local moduleName = file:sub(1, -5):gsub("/", "_")
+    
+    local fileContent = ""
+    local localModulesReplacements = {}
     
     for line in io.lines(file) do
         -- replace "local M = " with "<module name> = "
@@ -104,12 +104,38 @@ for _, file in ipairs(sourceFiles) do
         -- when "M.", "M:", or "M[" is found, replace the M with <module name>
         line = line:gsub("%f[%w_]M([.:%[])", moduleName.."%1")
         
+        -- if the line is a require for a local module, store it for later
+        local originalLocalModuleName, newLocalModuleName =
+            line:match('local ([%w_]+) = require "([%w_.]+)"')
+        if originalLocalModuleName then
+            newLocalModuleName = newLocalModuleName:gsub("%.", "_")
+            localModulesReplacements[originalLocalModuleName] = newLocalModuleName
+        end
+        
         -- concatenate current lib's modified content with previous content
         if isLineNeeded(line) then
-            tempFileHandle:write(line.."\n")
+            fileContent = fileContent .. line .. "\n"
         end
     end
-    tempFileHandle:write("\n")
+    fileContent = fileContent .. "\n"
+    
+    -- replace all local modules occurences (e.g. Gui) with their unique name
+    -- (clp_mls_Gui)
+    for originalLocalModuleName, newLocalModuleName in pairs(localModulesReplacements) do
+        -- occurences like "Gui.", "Gui:", "Gui["
+        fileContent = fileContent:gsub(
+            "%f[%w_]"..originalLocalModuleName.."([.:%[])", 
+            newLocalModuleName.."%1"
+        )
+        -- special case: inheritance
+        fileContent = fileContent:gsub(
+            "Class%.new%("..originalLocalModuleName.."%)", 
+            "Class%.new%("..newLocalModuleName.."%)"
+        )
+    end
+    
+    -- write filtered file content to temp file
+    tempFileHandle:write(fileContent)
 end
 
 -- create a special flag to detect the compiled version of MLS
@@ -135,7 +161,9 @@ if not plainText then
         os.execute("./lua -c "..tempFile)
         os.rename(tempFile..".compiled", finalFile)
     end
+    
+    -- remove temp file
+    os.remove(tempFile)
+else
+    os.rename(tempFile, finalFile)
 end
-
--- remove temp file
-os.remove(tempFile)
