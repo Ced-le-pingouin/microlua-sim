@@ -24,6 +24,7 @@
 --  along with Micro Lua DS Simulator.  If not, see <http://www.gnu.org/licenses/>.
 
 local Class = require "clp.Class"
+local Timer = require "clp.mls.Timer"
 --local Sys = require "clp.mls.Sys"
 
 local M = Class.new()

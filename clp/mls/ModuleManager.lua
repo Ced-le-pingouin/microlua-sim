@@ -33,11 +33,11 @@ local M = Class.new()
 function M:ctr(modules, prefixes, emulateLibs)
     self._modules = modules or {
         -- MUST be loaded first because other modules depend on it!
-        "Timer", "screen", "Color", "Image", "Font",
+        "screen", "Color", "Image", "Font",
         -- from here the order doesn't matter
         "Canvas", "Controls", "DateTime", "Debug", "INI",
         "Keyboard", "Map", "Mod", "Motion", "Rumble", "ScrollMap", "Sound",
-        "Sprite", "System", "Wifi"
+        "Sprite", "System", "Timer", "Wifi"
     }
     
     -- prefixes used to load modules. These are tried first, then unprefixed

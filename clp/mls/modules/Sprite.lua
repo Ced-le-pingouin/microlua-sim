@@ -29,6 +29,7 @@
 
 local Class = require "clp.Class"
 local Sys = require "clp.mls.Sys"
+local Timer = require "clp.mls.Timer"
 
 local M = Class.new()
 
