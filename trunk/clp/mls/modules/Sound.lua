@@ -24,6 +24,7 @@
 --  along with Micro Lua DS Simulator.  If not, see <http://www.gnu.org/licenses/>.
 
 local Class = require "clp.Class"
+local Timer = require "clp.mls.Timer"
 --local Sys = require "clp.mls.Sys"
 
 local M = Class.new()
@@ -32,7 +33,7 @@ function M:initModule()
     PLAY_LOOP = 0
     PLAY_ONCE = 1
     
-    M._timer   = Timer.new()
+    M._timer = Timer.new()
     
     M:resetModule()
 end
