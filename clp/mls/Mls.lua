@@ -110,6 +110,9 @@ function Mls:ctr(scriptPath)
     local fakeRootDefault = Sys.buildPath(Mls.initialDirectory, "sdcard")
     Sys.setFakeRoot(Mls.config:get("fake_root", fakeRootDefault))
     
+    -- check if MLS should emulate all libs, or rely on an external libs.lua
+    local emulateLibs = Mls.config:get("emulate_libs", true)
+    
     -- init vars and gui
     Mls._initVars()
     Mls.keyBindings = Mls._loadKeyBindingsFromFile("README")
@@ -310,6 +313,7 @@ function Mls:getValidOptions()
     
     return {
         fake_root = { "string" },
+        emulate_libs = { "boolean" },
         fps = { "number", 0 },
         ups = { "number", 0 },
         bitmap_fonts = { "boolean" },
