@@ -32,8 +32,13 @@ local M = Class.new()
 --
 -- @param emulateLibs (boolean) True if libs.lua must be emulated
 function M:initModule(emulateLibs)
+    M._currentDirectoryList = nil
+    
     if emulateLibs then
         M.changeDirectory = M.changeCurrentDirectory
+        -- argh, ds_system and System both have a function of the same name, but
+        -- they're different
+        System.listDirectory = M._listDirectoryFull
     end
 end
 
@@ -90,7 +95,59 @@ function M.makeDirectory(name)
     wx.wxMkdir(name)
 end
 
+--- List the next entry in a directory listing [ML 2+ API].
+--
+-- If the function has been called on a directory, and not all the entries have
+-- been returned by successive calls yet, the listing continues, ignoring the 
+-- path parameter. Otherwise the function returns the first entry in the 
+-- directory represented in path.
+--
+-- @param path (string) The path of the directory to list
+--
+-- @return (string) The next entry for the directory, prefixed with "*" if it 
+--                  is itself a directory.
+--                  If there is no more entries for the directory that was
+--                  currently being listed, returns "##"
+--
+-- @see _listDirectoryFull
+function M.listDirectory(path)
+    local dir = M._currentDirectoryList
+    local found, file
+    
+    -- no listing was in progress
+    if not dir then
+        dir = wx.wxDir(path)
+        
+        found, file = dir:GetFirst(
+            "",
+            wx.wxDIR_DOTDOT + wx.wxDIR_FILES + wx.wxDIR_DIRS + wx.wxDIR_HIDDEN
+        )
+    -- we're listing a directory opened by a previous call, and we're not done
+    else
+        found, file = dir:GetNext()
+    end
+    
+    if found then
+        local isDir = wx.wxDirExists(
+            wx.wxFileName(dir:GetName(), file):GetFullPath()
+        )
+        file = (isDir and "*" or "")..file
+        
+        M._currentDirectoryList = dir
+    else
+        file = "##"
+        
+        M._currentDirectoryList = nil
+    end
+    
+    return file
+end
+
 --- List all files and folders of a directory [ML 2+ API].
+--
+-- NOTE: this is the "libs.lua emulated" version of System.listDirectory(), and
+--       ds_system.listDirectory() should always be available as the original
+--       version, even when libs emulation is enabled
 --
 -- @param path (string) The path of the directory to list
 --
@@ -98,7 +155,7 @@ end
 --                 itself a table of files or directories, with key/value items.
 --                 These keys are "name" (string, the file/directory name) and
 --                 "isDir" (boolean, tells if an entry is a directory)
-function M.listDirectory(path)
+function M._listDirectoryFull(path)
     local dotTable  = {}
     local dirTable  = {}
     local fileTable = {}
@@ -134,7 +191,7 @@ function M.listDirectory(path)
             end
             
             found, file = dir:GetNext()
-        until not found 
+        until not found
     end
     
     local fullTable = dotTable
