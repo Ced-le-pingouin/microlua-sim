@@ -33,14 +33,18 @@ local M = Class.new()
 --
 -- @param emulateLibs (boolean) True if libs.lua must be emulated
 function M:initModule(emulateLibs)
-    M._currentDirectoryList = nil
-    
     if emulateLibs then
         M.changeDirectory = M.changeCurrentDirectory
         -- argh, ds_system and System both have a function of the same name, but
         -- they're different
         System.listDirectory = M._listDirectoryFull
     end
+    
+    self:resetModule()
+end
+
+function M:resetModule()
+    M._currentDirectoryList = nil
 end
 
 --- Gets the current working directory [ML 2+ API].
