@@ -47,7 +47,8 @@ end
 --
 -- @return (string)
 function M.currentDirectory()
-    return ( Sys.convertFakeRootToRoot(wx.wxGetCwd()) ) .. "/"
+    local dir = ( Sys.convertFakeRootToRoot(wx.wxGetCwd().."/") )
+    return dir:gsub("//", "/")
 end
 
 --- Changes the current working directory [ML 2+ API].

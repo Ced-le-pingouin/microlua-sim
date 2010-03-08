@@ -262,8 +262,10 @@ function M.getFile(path, usePath)
     Mls.logger:debug("searching file "..path, "file")
     
     -- whatever the OS, if the provided path exists as is, no need to do complex
-    -- stuff, we return
-    if wx.wxFileExists(path) or wx.wxDirExists(path) then
+    -- stuff, we return. Note that we skip "/" because we want to continue to
+    -- fake root conversion in that case (a "/" in a script will most probably
+    -- mean the fake root)
+    if path ~= "/" and (wx.wxFileExists(path) or wx.wxDirExists(path)) then
         return path, true
     end
     
