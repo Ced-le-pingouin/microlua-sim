@@ -293,9 +293,9 @@ function M._initAttrConstants()
         "ATTR_X1", "ATTR_Y1", "ATTR_X2", "ATTR_Y2", "ATTR_X3", "ATTR_Y3", 
         "ATTR_COLOR",
         "ATTR_COLOR1", "ATTR_COLOR2", "ATTR_COLOR3", "ATTR_COLOR4", 
-        "ATTR_TEXT", "ATTR_IMAGE", "ATTR_FONT", "ATTR_VISIBLE", "ATTR_NIL"
+        "ATTR_TEXT", "ATTR_VISIBLE", "ATTR_FONT", "ATTR_IMAGE"
     }) do
-        _G[constName] = val
+        _G[constName] = val - 1
     end
 end
 
