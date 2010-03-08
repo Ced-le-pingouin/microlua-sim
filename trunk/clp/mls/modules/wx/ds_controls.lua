@@ -44,9 +44,14 @@ function M:initModule(emulateLibs)
     M._receiver = Mls.gui:getSurface()
     M._stylusHack = false
     M._screenRatio = 1
+    M._keyNames = { "A", "B", "X", "Y", "L", "R", "Start", "Select", 
+	                "Left", "Right", "Up", "Down" }
     
+	M._emulateLibs = emulateLibs
+	
     M._initKeyBindings()
     M._bindEvents()
+    M._createReadFunctions()
     
     Mls:attach(self, "screenResize", self.onScreenResize)
     
@@ -56,6 +61,12 @@ end
 function M:resetModule()
     M._clearBothStates()
     M._copyInternalStateToExternalState()
+    
+    -- if we must emulate lua.libs, then Keys and Stylus are available globally
+    if M._emulateLibs then
+        Stylus = M.Stylus
+        Keys = M.Keys
+    end
 end
 
 --- Reads the controls and updates all control structures [ML 2+ API].
@@ -124,18 +135,17 @@ end
 -- This resets both internal (realtime) and external (as last read by read()) 
 -- states
 function M._clearBothStates()
-    Stylus = {
+    M.Stylus = {
 	    X = 0, Y = 0, held = false, released = false, doubleClick = false
 	}
 	M._Stylus = {
         X = 0, Y = 0, held = false, released = false, doubleClick = false
     }
 	
-	Keys  = { newPress = {}, held = {}, released = {} }
+	M.Keys  = { newPress = {}, held = {}, released = {} }
 	M._Keys = { held = {} }
-	for _, k in ipairs({ "A", "B", "X", "Y", "L", "R", "Start", "Select", 
-	                    "Left", "Right", "Up", "Down" }) do
-	   Keys.held[k] = false
+	for _, k in ipairs(M._keyNames) do
+	   M.Keys.held[k] = false
 	   M._Keys.held[k] = false
 	end
 end
@@ -143,10 +153,10 @@ end
 --- Copies internal state (realtime, kept by underlying input lib) to external 
 --  state ("public" state read by the read() function).
 function M._copyInternalStateToExternalState()
-    Stylus.newPress = not Stylus.held and M._Stylus.held
-    Stylus.held     = M._Stylus.held
-    Stylus.released = M._Stylus.released
-    Stylus.doubleClick = M._Stylus.doubleClick
+    M.Stylus.newPress = not M.Stylus.held and M._Stylus.held
+    M.Stylus.held     = M._Stylus.held
+    M.Stylus.released = M._Stylus.released
+    M.Stylus.doubleClick = M._Stylus.doubleClick
     -- no consecutive double clicks allowed, so we reset the "internal" one
     M._Stylus.doubleClick = false
     -- ...and Stylus.released is only a one shot if true, so set it to false
@@ -154,27 +164,27 @@ function M._copyInternalStateToExternalState()
     
     -- hack for StylusBox-like techniques
     if M._stylusHack then
-        Stylus.newPress = not Stylus.held
+        M.Stylus.newPress = not M.Stylus.held
     end
     
-    if Stylus.newPress then
-        Stylus.deltaX = 0
-        Stylus.deltaY = 0
+    if M.Stylus.newPress then
+        M.Stylus.deltaX = 0
+        M.Stylus.deltaY = 0
     else
-        Stylus.deltaX = M._Stylus.X - Stylus.X
-        Stylus.deltaY = M._Stylus.Y - Stylus.Y
+        M.Stylus.deltaX = M._Stylus.X - M.Stylus.X
+        M.Stylus.deltaY = M._Stylus.Y - M.Stylus.Y
     end 
     
-    if Stylus.held then
-        Stylus.X = M._Stylus.X
-        Stylus.Y = M._Stylus.Y
+    if M.Stylus.held then
+        M.Stylus.X = M._Stylus.X
+        M.Stylus.Y = M._Stylus.Y
     end
     
     for k, _ in pairs(M._Keys.held) do
-        Keys.newPress[k] = not Keys.held[k]
-                            and M._Keys.held[k]
-        Keys.held[k]     = M._Keys.held[k]
-        Keys.released[k] = not M._Keys.held[k]
+        M.Keys.newPress[k] = not M.Keys.held[k]
+                             and M._Keys.held[k]
+        M.Keys.held[k]     = M._Keys.held[k]
+        M.Keys.released[k] = not M._Keys.held[k]
     end
 end
 
@@ -187,6 +197,26 @@ function M._bindEvents()
     M._receiver:Connect(wx.wxEVT_LEFT_DCLICK, M._onMouseDoubleClickEvent)
     M._receiver:Connect(wx.wxEVT_LEFT_UP, M._onMouseUpEvent)
     M._receiver:Connect(wx.wxEVT_MOTION, M._onMouseMoveEvent)
+end
+
+--- Creates all the "read" functions, for external script to use and read keys
+-- and stylus status after a Controls.read().
+function M._createReadFunctions()
+    local stylusVars = { 
+        "X", "Y", "held", "released", "doubleClick", "deltaX", "deltaY"
+    }
+    
+    for _, var in ipairs(stylusVars) do
+        M["stylus"..var:gsub("^%a", string.upper)] = function()
+            return M.Stylus[var]
+        end
+    end
+    
+    for _, k in ipairs(M._keyNames) do
+        M["held"..k] = function()
+            return M.Keys[k]
+        end
+    end
 end
 
 --- Event handler used to detect pressed buttons/pad.
