@@ -98,8 +98,6 @@ end
 --
 -- @see setFakeRoot
 function M.convertFakeRootToRoot(path)
-    print(path, M.fakeRoot)
-    
     -- if fake root isn't defined, do nothing
     if not M.fakeRoot then return path, false end
     
