@@ -481,7 +481,7 @@ function M.drawTextBox(screenNum, x0, y0, x1, y1, text, color)
         end
     end
     
-    offscreenDC:DestroyClippingRegion()
+    if offscreenDC then offscreenDC:DestroyClippingRegion() end
 end
 
 --- Does nothing in MLS.
