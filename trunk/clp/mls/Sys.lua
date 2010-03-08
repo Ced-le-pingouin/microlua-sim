@@ -71,7 +71,7 @@ end
 --                                     conversion was needed
 --
 -- @see setFakeRoot
-function M.convertRoot(path)
+function M.convertRootToFakeRoot(path)
     -- if fake root isn't defined, do nothing
     if not M.fakeRoot then return path, false end
     
@@ -81,6 +81,32 @@ function M.convertRoot(path)
     local convertedPath, replaced = path:gsub("^/", M.fakeRoot)
     local fileSeparator = convertedPath:match("[/\\]") or "/"
     convertedPath = (convertedPath:gsub("[/\\]", fileSeparator))
+    
+    return convertedPath, (replaced > 0)
+end
+
+--- Converts a given absolute path, replacing a predefined location (set by 
+-- setFakeRoot()) with a simple "/", to convert back a complete absolute local 
+-- path to an absolute ML "sdcard root" if applicable.
+--
+-- @param path (string)
+--
+-- @return (string, boolean) (string) The path, with its root location converted
+--                                    if needed
+--                           (boolean) true if the path was absolute and a 
+--                                     conversion was needed
+--
+-- @see setFakeRoot
+function M.convertFakeRootToRoot(path)
+    print(path, M.fakeRoot)
+    
+    -- if fake root isn't defined, do nothing
+    if not M.fakeRoot then return path, false end
+    
+    local convertedPath, replaced = path:gsub("^"..M.fakeRoot, "/")
+    if replaced > 0 then
+        convertedPath = convertedPath:gsub("\\", "/")
+    end
     
     return convertedPath, (replaced > 0)
 end
@@ -250,7 +276,7 @@ function M.getFile(path, usePath)
     
     -- absolute paths are converted to use the fake root
     local pathWasConverted = false
-    path, pathWasConverted = M.convertRoot(path)
+    path, pathWasConverted = M.convertRootToFakeRoot(path)
     
     -- if we're on a case-sensitive OS, we'll try to detect if a path/file/dir 
     -- with the same name but different case exists
