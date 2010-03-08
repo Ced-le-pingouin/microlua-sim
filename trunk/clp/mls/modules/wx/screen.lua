@@ -38,10 +38,11 @@ M.MAX_OFFSCREENS = 2
 
 --- Module initialization function.
 --
--- @param surface (wxPanel) The surface representing the screens, to which the 
---                          the offscreen surface will be blit
-function M:initModule(surface)
-    M._surface = surface or Mls.gui:getSurface()
+-- @param emulateLibs (boolean) True if libs.lua must be emulated. For screen, 
+--                              it means that start/stopDrawing() and render()
+--                              should be available globally
+function M:initModule(emulateLibs)
+    M._surface = Mls.gui:getSurface()
     M._height = M._surface:GetSize():GetHeight()
     
     M._displayWidth = SCREEN_WIDTH
@@ -53,12 +54,18 @@ function M:initModule(surface)
     
     M._initVars()
     M._initTimer()
-    M._initOffscreenSurfaces()
+    M.static()._initOffscreenSurfaces()
     M._bindEvents()
     
     M._drawGradientRectNumBlocks = 20
     M.setDrawGradientRectAccuracy(0)
     M.setRectAdditionalLength(1)
+    
+    if emulateLibs then
+        startDrawing = M.static().startDrawing
+        stopDrawing = M.static().stopDrawing
+        render = M.static().render
+    end
 end
 
 function M:resetModule()
