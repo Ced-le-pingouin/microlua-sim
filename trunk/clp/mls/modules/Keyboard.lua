@@ -183,14 +183,14 @@ end
 
 --- Handles the actual keys detection.
 function M._processInput()
-    if not Stylus.held then
+    if not ds_controls.Stylus.held then
         if M._keyPressed then
             M._processKey(unpack(M._keyPressed))
         end
         
         M._keyPressed = nil
     else
-        local x, y  = Stylus.X, Stylus.Y
+        local x, y  = ds_controls.Stylus.X, ds_controls.Stylus.Y
         local lines = M._keyLinePos
         
         M._keyPressed = nil
