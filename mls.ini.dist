@@ -9,6 +9,14 @@
 ;;
 ;fake_root = 
 
+;; Script that should be automatically launched by MLS.
+;;
+;; This option is more geared towards developers who need to test ML boot 
+;; scripts, because the boot script will be launched every time, and it make MLS
+;; completely ignore any command-line script parameter you give
+;;
+;boot_script = /lua/libs/libs.lua
+
 ;; Enable MLS libs emulation, i.e. tells it to make Controls and System 
 ;; available (in ML, these don't exist, they're named ds_controls and ds_system)
 ;; as well as some other functions (e.g. startDrawing, stopDrawing...)

@@ -167,10 +167,13 @@ function Mls:ctr(scriptPath)
     )
     screen.setRectAdditionalLength(Mls.config:get("rect_length", 0))
     
-    -- and finally load the script given at the command line if needed
+    -- and finally load the script given at the command line if needed, or the
+    -- "boot script" that is defined in the config file
     Mls.scriptManager:init()
+    
+    scriptPath = Mls.config:get("boot_script", scriptPath)
     if scriptPath then
-        Mls.scriptManager:loadAndStartScript(scriptPath)
+        Mls.scriptManager:loadAndStartScript(Sys.getFile(scriptPath))
     end
     
     -- in case some module has changed GUI components, we re-set the focus
@@ -314,6 +317,7 @@ function Mls:getValidOptions()
     
     return {
         fake_root = { "string" },
+        boot_script = { "string" },
         emulate_libs = { "boolean" },
         fps = { "number", 0 },
         ups = { "number", 0 },
