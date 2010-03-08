@@ -214,7 +214,7 @@ function M._createReadFunctions()
     
     for _, k in ipairs(M._keyNames) do
         M["held"..k] = function()
-            return M.Keys[k]
+            return M.Keys.held[k]
         end
     end
 end
