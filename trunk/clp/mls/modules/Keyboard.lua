@@ -80,7 +80,7 @@ function M.input(maxLength, normalColor, pressedColor, bgColorUp, bgColorDown,
         
         M._processInput()
         M._drawScreens()
-    until Keys.newPress.Start
+    until ds_controls.Keys.newPress.Start
     
     return M._text
 end
