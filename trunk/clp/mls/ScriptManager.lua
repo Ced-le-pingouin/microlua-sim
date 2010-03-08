@@ -519,6 +519,7 @@ function M:_replaceLuaFunctions(env)
     env.dofile = M._dofile
     env.module = M._module
     env.require = M._require
+    env.pcall = M._pcall
     
     -- replace all Lua functions accepting filename parameters with our own 
     -- versions, so the "fake root" system can be applied to the parameters
@@ -598,6 +599,10 @@ function M:_changeFunctionsEnvironment(obj, env)
         
         self:_changeFunctionsEnvironment(obj.__parent, env)
     end
+end
+
+function M._pcall(f, ...)
+    return true, f(...)
 end
 
 --- "Environment-aware" dofile() replacement.
