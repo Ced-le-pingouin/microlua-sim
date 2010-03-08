@@ -35,7 +35,7 @@
 ;;  0 = MLS libs emulation disabled (you'll need ML libs in sdcard/lua/libs
 ;;  1 = MLS libs emulation enabled
 ;;
-emulate_libs = 1
+;emulate_libs = 1
 
 ;; Display refresh rate in frames/ second(number): controls the perceived 
 ;; animation smoothness

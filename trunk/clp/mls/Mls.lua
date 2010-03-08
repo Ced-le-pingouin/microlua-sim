@@ -107,9 +107,23 @@ function Mls:ctr(scriptPath)
     
     Mls.logger:setLevel(Mls.config:get("debug_log_level", Logger.WARN))
     
+    
+    -- a boot script is launched if no command-line script is given
+    local bootScript = Mls.config:get("boot_script", "/lua/libs/libs.lua")
+    if scriptPath then
+        bootScript = nil
+    else
+        scriptPath = bootScript
+    end
+    
+    -- should MLS emulate libs? (the default is no if a boot script is used)
+    local emulateLibs = not bootScript
+    emulateLibs = Mls.config:get("emulate_libs", emulateLibs)
+    
     -- set "fake root"
     local fakeRootDefault = Sys.buildPath(Mls.initialDirectory, "sdcard")
     Sys.setFakeRoot(Mls.config:get("fake_root", fakeRootDefault))
+    
     
     -- init vars and gui
     Mls._initVars()
@@ -139,7 +153,6 @@ function Mls:ctr(scriptPath)
         moduleManager:addPrefix("gl.", true)
     end
     
-    local emulateLibs = Mls.config:get("emulate_libs", true)
     moduleManager:enableLibsEmulation(emulateLibs)
     
     -- script manager
@@ -171,7 +184,6 @@ function Mls:ctr(scriptPath)
     -- "boot script" that is defined in the config file
     Mls.scriptManager:init()
     
-    scriptPath = Mls.config:get("boot_script", scriptPath)
     if scriptPath then
         Mls.scriptManager:loadAndStartScript(Sys.getFile(scriptPath))
     end
