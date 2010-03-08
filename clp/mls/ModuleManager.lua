@@ -125,6 +125,11 @@ function M:loadModules(modules, prefixes)
             loadedModule:initModule(self._emulateLibs)
         end
     end
+    
+    -- this is not a "module", but it was defined until ML 3.0 beta, and 
+    -- libs.lua was using it
+    -- @todo remove this when it's not needed anymore
+    _G.os.initTimer = function() end
 end
 
 --- Resets all loaded modules.
