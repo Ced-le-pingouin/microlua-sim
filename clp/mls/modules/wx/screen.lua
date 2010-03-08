@@ -433,8 +433,10 @@ function M.drawTextBox(screenNum, x0, y0, x1, y1, text, color)
     local fontHeight = Font.getCharHeight(font)
     
     local offscreenDC = M.offscreenDC
-    offscreenDC:DestroyClippingRegion()
-    offscreenDC:SetClippingRegion(x0, y0, width, height)
+    if offscreenDC then
+        offscreenDC:DestroyClippingRegion()
+        offscreenDC:SetClippingRegion(x0, y0, width, height)
+    end
     
     -- get multiples lines, \n has to be treated
     local lines = {}
