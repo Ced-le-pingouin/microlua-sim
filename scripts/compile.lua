@@ -77,7 +77,7 @@ local sourceFiles = {
     "clp/mls/modules/Sound.lua",
     "clp/mls/modules/Sprite.lua",
     "clp/mls/modules/wx/System.lua",
-    "clp/mls/modules/wx/Timer.lua",
+    "clp/mls/modules/Timer.lua",
     "clp/mls/modules/wx/Wifi.lua"
 }
 
