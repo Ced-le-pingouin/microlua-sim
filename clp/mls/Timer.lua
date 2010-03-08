@@ -1,9 +1,16 @@
 -------------------------------------------------------------------------------
 -- Micro Lua Timer module simulation, based on wxWidgets.
 --
+-- NOTE: ML modules are normally defined in clp/mls/modules, but we need a Timer
+-- for MLS, and since the ML Timer module can be disabled (if libs emulation is 
+-- turned off), we define the present global Timer class for MLS, with the same
+-- API as ML Timer, so we can use inheritance for the ML module, when libs 
+-- emulation is enabled.
+--
 -- @class module
 -- @name clp.mls.Timer
 -- @author Ced-le-pingouin <Ced.le.pingouin@gmail.com>
+-- @see clp.mls.modules.wx.Timer
 -------------------------------------------------------------------------------
 
 --  Copyright (C) 2009-2010 Cédric FLOQUET
