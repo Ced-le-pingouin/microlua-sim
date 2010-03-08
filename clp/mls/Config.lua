@@ -116,7 +116,7 @@ function M:_validateOption(value, validationRules)
         if min and value < min then value = min end
         if max and value > max then value = max end
     end
-
+    
     return value
 end
 
@@ -131,7 +131,8 @@ end
 -- @todo support for multiple sections
 function M:get(optionName, defaultValue)
     local value = self.options[optionName]
-    return (value == nil) and defaultValue or value
+    if (value == nil) then value = defaultValue end
+    return value
 end
 
 return M
