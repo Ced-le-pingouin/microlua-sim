@@ -63,7 +63,7 @@ local sourceFiles = {
     "clp/mls/modules/wx/Font_Bitmap.lua",
     "clp/mls/modules/gl/Font.lua",
     "clp/mls/modules/Canvas.lua",
-    "clp/mls/modules/wx/Controls.lua",
+    "clp/mls/modules/wx/ds_controls.lua",
     "clp/mls/modules/DateTime.lua",
     "clp/mls/modules/Debug.lua",
     "clp/mls/modules/INI.lua",
@@ -76,7 +76,7 @@ local sourceFiles = {
     "clp/mls/modules/gl/ScrollMap.lua",
     "clp/mls/modules/Sound.lua",
     "clp/mls/modules/Sprite.lua",
-    "clp/mls/modules/wx/System.lua",
+    "clp/mls/modules/wx/ds_system.lua",
     "clp/mls/modules/Timer.lua",
     "clp/mls/modules/wx/Wifi.lua"
 }

@@ -111,9 +111,6 @@ function Mls:ctr(scriptPath)
     local fakeRootDefault = Sys.buildPath(Mls.initialDirectory, "sdcard")
     Sys.setFakeRoot(Mls.config:get("fake_root", fakeRootDefault))
     
-    -- check if MLS should emulate all libs, or rely on an external libs.lua
-    local emulateLibs = Mls.config:get("emulate_libs", true)
-    
     -- init vars and gui
     Mls._initVars()
     Mls.keyBindings = Mls._loadKeyBindingsFromFile("README")
@@ -142,6 +139,9 @@ function Mls:ctr(scriptPath)
         moduleManager:addPrefix("gl.", true)
     end
     
+    local emulateLibs = Mls.config:get("emulate_libs", true)
+    moduleManager:enableLibsEmulation(emulateLibs)
+    
     -- script manager
     local fps = Mls.config:get("fps", 60)
     local ups = Mls.config:get("ups", 60)
@@ -161,7 +161,7 @@ function Mls:ctr(scriptPath)
     Mls._initTimer()
     
     -- hacks and config options
-    Controls.setStylusHack(Mls.config:get("stylus_hack", false))
+    ds_controls.setStylusHack(Mls.config:get("stylus_hack", false))
     screen.setDrawGradientRectAccuracy(
         Mls.config:get("draw_gradient_rect_accuracy", 0)
     )
@@ -382,7 +382,7 @@ function Mls:onKeyDown(event, key, shift)
     elseif key == wx.WXK_C then
         Mls.gui:showOrHideConsole()
     elseif key == wx.WXK_H then
-        Controls.switchStylusHack()
+        ds_controls.switchStylusHack()
     elseif key == wx.WXK_DELETE or key == wx.WXK_NUMPAD_DELETE then
         Mls.gui:clearConsole()
     elseif key == wx.WXK_F1 then

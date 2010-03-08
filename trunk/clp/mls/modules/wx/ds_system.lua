@@ -1,8 +1,8 @@
 -------------------------------------------------------------------------------
--- Micro Lua System module simulation, based on wxWidgets.
+-- Micro Lua ds_system module simulation, based on wxWidgets.
 --
 -- @class module
--- @name clp.mls.modules.wx.System
+-- @name clp.mls.modules.wx.ds_system
 -- @author Ced-le-pingouin <Ced.le.pingouin@gmail.com>
 -------------------------------------------------------------------------------
 
