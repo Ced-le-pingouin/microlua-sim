@@ -10,7 +10,7 @@
 -- @class module
 -- @name clp.mls.Timer
 -- @author Ced-le-pingouin <Ced.le.pingouin@gmail.com>
--- @see clp.mls.modules.wx.Timer
+-- @see clp.mls.modules.Timer
 -------------------------------------------------------------------------------
 
 --  Copyright (C) 2009-2010 Cédric FLOQUET

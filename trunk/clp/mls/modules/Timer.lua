@@ -6,7 +6,7 @@
 -- the ML Timer module API, so for the present class we simply use inheritance.
 --
 -- @class module
--- @name clp.mls.modules.wx.Timer
+-- @name clp.mls.modules.Timer
 -- @author Ced-le-pingouin <Ced.le.pingouin@gmail.com>
 -- @see clp.mls.Timer
 -------------------------------------------------------------------------------
