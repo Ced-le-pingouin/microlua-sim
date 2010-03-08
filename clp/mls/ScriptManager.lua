@@ -322,7 +322,7 @@ function M:loadScript(scriptPath)
     -- sets script path as an additional path to find files (for dofile(), 
     -- Image.load()...)
     local scriptDir, scriptFile = Sys.getPathComponents(scriptPath)
-    if scriptDir ~= "" then System.changeDirectory(scriptDir) end
+    if scriptDir ~= "" then ds_system.changeDirectory(scriptDir) end
     
     self._scriptPath = scriptPath
     self._scriptFile = scriptFile
@@ -570,9 +570,9 @@ function M:_changeMlsFunctionsEnvironment(env)
         -- tables containing functions (obsolete ML 2.0 objects)
         "Keyboard", "Mod",
         -- tables containing functions
-        "Mls", "Canvas", "Color", "Controls", "DateTime", "Debug", 
+        "Mls", "Canvas", "Color", "ds_controls", "DateTime", "Debug", 
         "Font_Bitmap", "Font_Native", "Image", "INI", "Map", "Motion", "Rumble",
-        "screen", "ScrollMap", "Sound", "Sprite", "System", "Timer", "Wifi"
+        "screen", "ScrollMap", "Sound", "Sprite", "ds_system", "Timer", "Wifi"
     }
     
     for _, funcName in ipairs(functionsToChange) do

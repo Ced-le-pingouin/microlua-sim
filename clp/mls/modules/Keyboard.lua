@@ -76,7 +76,7 @@ function M.input(maxLength, normalColor, pressedColor, bgColorUp, bgColorDown,
     M._keyPressed = nil
     
     repeat
-        Controls.read()
+        ds_controls.read()
         
         M._processInput()
         M._drawScreens()

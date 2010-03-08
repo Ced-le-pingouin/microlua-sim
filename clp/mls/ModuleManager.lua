@@ -35,9 +35,19 @@ function M:ctr(modules, prefixes, emulateLibs)
         -- MUST be loaded first because other modules depend on it!
         "screen", "Color", "Image", "Font",
         -- from here the order doesn't matter
-        "Canvas", "Controls", "DateTime", "Debug", "INI",
+        "Canvas", "ds_controls", "DateTime", "Debug", "INI",
         "Keyboard", "Map", "Mod", "Motion", "Rumble", "ScrollMap", "Sound",
-        "Sprite", "System", "Timer", "Wifi"
+        "Sprite", "ds_system", "Timer", "Wifi"
+    }
+    
+    self._emulatedModules = {
+        ds_controls = "Controls",
+        Timer = true,
+        Debug = true,
+        ds_system = "System",
+        DateTime = true,
+        Sprite = true,
+        INI = true
     }
     
     -- prefixes used to load modules. These are tried first, then unprefixed
@@ -61,6 +71,9 @@ end
 
 --- Enables or disables MLS libs emulation.
 function M:enableLibsEmulation(emulateLibs)
+    local emulationState = emulateLibs and "enabled" or "DISABLED"
+    Mls.logger:info("uLua libs.lua emulation is "..emulationState, "module")
+    
     self._emulateLibs = emulateLibs
 end
 
@@ -93,7 +106,26 @@ function M:loadModules(modules, prefixes)
         end
         
         local loadedModule = _G[module]
-        if loadedModule.initModule then
+        
+        local isModuleEmulated = self._emulatedModules[module]
+        local mustInitModule = true
+        
+        if self._emulateLibs then
+            if type(isModuleEmulated) == "string" then
+                Mls.logger:debug(module.." will also be emulated as "..isModuleEmulated, "module")
+                
+                _G[isModuleEmulated] = _G[module]
+            end
+        else
+            if isModuleEmulated == true then
+                Mls.logger:debug(module.." won't be available since libs.lua emulation is disabled!", "module")
+                
+                _G[module] = nil
+                mustInitModule = false
+            end
+        end
+        
+        if mustInitModule and loadedModule.initModule then
             Mls.logger:debug(module.." initializing", "module")
             
             loadedModule:initModule()

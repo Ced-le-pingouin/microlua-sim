@@ -1,8 +1,8 @@
 -------------------------------------------------------------------------------
--- Micro Lua Controls module simulation, based on wxWidgets.
+-- Micro Lua ds_controls module simulation, based on wxWidgets.
 --
 -- @class module
--- @name clp.mls.modules.wx.Controls
+-- @name clp.mls.modules.wx.ds_controls
 -- @author Ced-le-pingouin <Ced.le.pingouin@gmail.com>
 --
 -- @todo Handle stylus doubleclick. I don't know the exact behaviour of this
