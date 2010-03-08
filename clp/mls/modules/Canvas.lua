@@ -65,7 +65,8 @@ function M.newLine(...) --(x1, y1, x2, y2, color)
         func = screen.drawLine,
         args = { ... },
         [ATTR_X1] = 1, [ATTR_Y1] = 2, [ATTR_X2] = 3, [ATTR_Y2] = 4, 
-        [ATTR_COLOR] = 5
+        [ATTR_COLOR] = 5,
+        mustAdjustX2Y2 = true
     }
 end
 
@@ -102,7 +103,8 @@ function M.newRect(...) --(x1, y1, x2, y2, color)
         func = screen.drawRect,
         args = { ... },
         [ATTR_X1] = 1, [ATTR_Y1] = 2, [ATTR_X2] = 3, [ATTR_Y2] = 4, 
-        [ATTR_COLOR] = 5
+        [ATTR_COLOR] = 5,
+        mustAdjustX2Y2 = true
     }
 end
 
@@ -122,7 +124,8 @@ function M.newFillRect(...) --(x1, y1, x2, y2, color)
         func = screen.drawFillRect,
         args = { ... },
         [ATTR_X1] = 1, [ATTR_Y1] = 2, [ATTR_X2] = 3, [ATTR_Y2] = 4, 
-        [ATTR_COLOR] = 5
+        [ATTR_COLOR] = 5,
+        mustAdjustX2Y2 = true
     }
 end
 
@@ -143,7 +146,8 @@ function M.newGradientRect(...) --(x1, y1, x2, y2, color1, color2, color3, color
         args = { ... },
         [ATTR_X1] = 1, [ATTR_Y1] = 2, [ATTR_X2] = 3, [ATTR_Y2] = 4,
         [ATTR_COLOR1] = 5, [ATTR_COLOR2] = 6, [ATTR_COLOR3] = 7, 
-        [ATTR_COLOR4] = 8        
+        [ATTR_COLOR4] = 8,
+        mustAdjustX2Y2 = true
     }
 end
 
@@ -202,7 +206,8 @@ function M.newTextBox(...) --(x1, y1, x2, y2, text, color)
         func = screen.drawTextBox,
         args = { ... },
         [ATTR_X1] = 1, [ATTR_Y1] = 2, [ATTR_X2] = 3, [ATTR_Y2] = 4, 
-        [ATTR_TEXT] = 5        
+        [ATTR_TEXT] = 5,
+        mustAdjustX2Y2 = true
     }
 end
 
@@ -254,8 +259,18 @@ function M.draw(screenNum, canvas, x, y)
         local o = object
         local a = o.args
         
-        object.func(screenNum, x + a[o[ATTR_X1]], y + a[o[ATTR_Y1]], 
-                    unpack(a, 3))
+        if not o.mustAdjustX2Y2 then
+            object.func(
+                screenNum, x + a[o[ATTR_X1]], y + a[o[ATTR_Y1]], unpack(a, 3)
+            )
+        else
+            object.func(
+                screenNum, 
+                x + a[o[ATTR_X1]], y + a[o[ATTR_Y1]],
+                x + a[o[ATTR_X2]], y + a[o[ATTR_Y2]],
+                unpack(a, 5)
+            )
+        end
     end
 end
 
