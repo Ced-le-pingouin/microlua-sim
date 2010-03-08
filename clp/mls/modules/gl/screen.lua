@@ -45,11 +45,12 @@ GL_MAX_RECTANGLE_TEXTURE_SIZE_ARB = 0x84F8
 
 --- Module initialization function.
 --
--- @param surface (wxPanel) The surface representing the screens, to which the 
---                          the offscreen surface will be blit
-function M:initModule(surface)
-    local surface = surface or Mls.gui:getSurface()
-    M.parent().initModule(M.parent(), surface)
+-- @param emulateLibs (boolean) True if libs.lua must be emulated. For screen, 
+--                              it means that start/stopDrawing() and render()
+--                              should be available globally
+function M:initModule(emulateLibs)
+    local surface = Mls.gui:getSurface()
+    M.super().initModule(M.parent(), emulateLibs)
     
     -- on Mac, we can't create a context explicitely, since there's no function
     -- in wx.wxGLContext (not even a constructor)
@@ -125,6 +126,14 @@ function M:initModule(surface)
     cpDown[0], cpDown[1], cpDown[2], cpDown[3] = 0, 1, 0, -192
     M._clipPlanes[SCREEN_UP] = cpUp
     M._clipPlanes[SCREEN_DOWN] = cpDown
+end
+
+--- Initializes an offscreen surface for double buffering.
+--
+-- In OpenGL mode, this does nothing. But we redefine it, because it's called in
+-- screen (wx) initModule(), and it creates two surfaces that would be useless
+-- in OpenGL.
+function M._initOffscreenSurfaces()
 end
 
 --- Blits an image on the screen [ML 2+ API].

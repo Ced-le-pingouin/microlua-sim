@@ -99,12 +99,6 @@ function M:loadModules(modules, prefixes)
             self:_registerCompiledModule(module, prefixes)
         end
         
-        if module == "screen" then
-            _G.startDrawing = screen.startDrawing
-            _G.stopDrawing = screen.stopDrawing
-            _G.render = screen.render
-        end
-        
         local loadedModule = _G[module]
         
         local isModuleEmulated = self._emulatedModules[module]
@@ -128,7 +122,7 @@ function M:loadModules(modules, prefixes)
         if mustInitModule and loadedModule.initModule then
             Mls.logger:debug(module.." initializing", "module")
             
-            loadedModule:initModule()
+            loadedModule:initModule(self._emulateLibs)
         end
     end
 end

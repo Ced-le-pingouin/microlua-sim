@@ -247,7 +247,7 @@ end
 
 --- Draws the screens.
 function M._drawScreens()
-    startDrawing()
+    screen.startDrawing()
     
     -- up
     screen.drawFillRect(SCREEN_UP, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 
@@ -261,7 +261,7 @@ function M._drawScreens()
     
     M._drawKeyboard()
         
-    stopDrawing()
+    screen.stopDrawing()
 end
 
 --- Draws the entered text, splitting lines at carriage returns.

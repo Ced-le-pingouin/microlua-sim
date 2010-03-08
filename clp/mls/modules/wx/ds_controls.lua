@@ -39,10 +39,9 @@ end
 
 --- Module initialization function.
 --
--- @param receiver (wxPanel) The surface that the module will bind to, and 
---                           listen for input events
-function M:initModule(receiver)
-    M._receiver = receiver or Mls.gui:getSurface()
+-- @param emulateLibs (boolean) True if libs.lua must be emulated
+function M:initModule(emulateLibs)
+    M._receiver = Mls.gui:getSurface()
     M._stylusHack = false
     M._screenRatio = 1
     
