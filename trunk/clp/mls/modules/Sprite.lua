@@ -29,7 +29,7 @@
 
 local Class = require "clp.Class"
 local Sys = require "clp.mls.Sys"
-local Timer = require "clp.mls.Timer"
+local Timer = require "clp.mls.modules.wx.Timer"
 
 local M = Class.new()
 

@@ -79,7 +79,7 @@ local Logger = require "clp.Logger"
 local Sys = require "clp.mls.Sys"
 local Config = require "clp.mls.Config"
 local Gui = require "clp.mls.Gui"
-local Timer = require "clp.mls.Timer"
+local Timer = require "clp.mls.modules.wx.Timer"
 local ModuleManager = require "clp.mls.ModuleManager"
 local ScriptManager = require "clp.mls.ScriptManager"
 
