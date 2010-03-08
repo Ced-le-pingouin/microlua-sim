@@ -249,7 +249,9 @@ function M:_endMainLoopIteration()
     
     self:_updateUps()
     
-    coroutine.yield()
+    if M._isInsidePcall == 0 then
+        coroutine.yield()
+    end
 end
 
 --- Refreshes the screen at the specified FPS.
@@ -338,6 +340,7 @@ end
 function M:stopScript()
     self._mainLoopCoroutine = nil
     self._mainLoopEnvironment = nil
+    M._isInsidePcall = 0
     --self:_changeMlsFunctionsEnvironment(_G)
     collectgarbage("collect")
     
@@ -602,7 +605,13 @@ function M:_changeFunctionsEnvironment(obj, env)
 end
 
 function M._pcall(f, ...)
-    return true, f(...)
+    M._isInsidePcall = M._isInsidePcall + 1
+    
+    local retVals = { pcall(f, ...) }
+    
+    M._isInsidePcall = M._isInsidePcall - 1
+    
+    return unpack(retVals)
 end
 
 --- "Environment-aware" dofile() replacement.
