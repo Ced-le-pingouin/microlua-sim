@@ -28,6 +28,15 @@ local Class = require "clp.Class"
 
 local M = Class.new()
 
+--- Module initialization function.
+--
+-- @param emulateLibs (boolean) True if libs.lua must be emulated
+function M:initModule(emulateLibs)
+    if emulateLibs then
+        M.changeDirectory = M.changeCurrentDirectory
+    end
+end
+
 --- Gets the current working directory [ML 2+ API].
 --
 -- @return (string)
