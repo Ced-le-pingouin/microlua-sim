@@ -135,11 +135,21 @@ function M:_loadModule(module, prefixes)
     for _, prefix in ipairs(prefixes) do
         Mls.logger:debug(module..": searching with prefix '"..prefix.."'", "module")
         
-        loaded, result = pcall(require, "clp.mls.modules."..prefix..module)
+        local moduleName = "clp.mls.modules."..prefix..module
+        loaded, result = pcall(require, moduleName)
+        
+        -- module was found and loaded, we end the loop
         if loaded then break end
         
-        -- @todo: sometimes it's not that the module is not found, an error has
-        --        occured, so maybe we should display it
+        -- if module wasn't loaded, is it because it was found but had errors, 
+        -- i.e. the error message is NOT "module not found"...
+        -- (then we end the loop => error)
+        if not result:find("^module '"..moduleName.."' not found:") then
+            break
+        end
+        
+        -- ...or because it wasn't found with that prefix ? (then it's "normal"
+        -- and we continue the loop, searching for other prefixes)
         Mls.logger:debug(module.." not found with prefix '"..prefix.."'", "module")
     end
     
