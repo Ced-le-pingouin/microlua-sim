@@ -498,10 +498,10 @@ function M.getMainLcd()
     return SCREEN_UP ~= 0
 end
 
-function waitForVBL()
+function M.waitForVBL()
 end
 
-function setSpaceBetweenScreens(space)
+function M.setSpaceBetweenScreens(space)
 end
 
 --- Sets the version of drawGradientRect that will be used, and in case it is 
