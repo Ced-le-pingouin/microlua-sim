@@ -38,7 +38,7 @@ end
 --- Changes the current working directory [ML 2+ API].
 --
 -- @param path (string) The path of the directory
-function M.changeDirectory(path)
+function M.changeCurrentDirectory(path)
     Mls.logger:debug("changing current directory to "..path, "system")
     
     wx.wxSetWorkingDirectory(path)
