@@ -25,6 +25,7 @@
 
 require "wx"
 local Class = require "clp.Class"
+local Sys = require "clp.mls.Sys"
 
 local M = Class.new()
 
@@ -46,7 +47,8 @@ end
 --
 -- @return (string)
 function M.currentDirectory()
-    return wx.wxGetCwd()
+    return ( Sys.convertFakeRootToRoot(wx.wxGetCwd()) )
+    --return wx.wxGetCwd()
 end
 
 --- Changes the current working directory [ML 2+ API].
@@ -55,7 +57,7 @@ end
 function M.changeCurrentDirectory(path)
     Mls.logger:debug("changing current directory to "..path, "system")
     
-    wx.wxSetWorkingDirectory(path)
+    wx.wxSetWorkingDirectory(Sys.getFile(path))
 end
 
 --- Removes a file or an empty folder [ML 2+ API].
@@ -92,7 +94,7 @@ end
 function M.makeDirectory(name)
     Mls.logger:debug("creating directory "..name, "system")
     
-    wx.wxMkdir(name)
+    wx.wxMkdir(Sys.getFile(name))
 end
 
 --- List the next entry in a directory listing [ML 2+ API].
@@ -111,6 +113,8 @@ end
 --
 -- @see _listDirectoryFull
 function M.listDirectory(path)
+    path = Sys.getFile(path)
+    
     local dir = M._currentDirectoryList
     local found, file
     
@@ -156,6 +160,8 @@ end
 --                 These keys are "name" (string, the file/directory name) and
 --                 "isDir" (boolean, tells if an entry is a directory)
 function M._listDirectoryFull(path)
+    path = Sys.getFile(path)
+    
     local dotTable  = {}
     local dirTable  = {}
     local fileTable = {}
