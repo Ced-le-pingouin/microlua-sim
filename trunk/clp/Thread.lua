@@ -45,6 +45,7 @@ M._numThreads = 0
 M._maxId = 0
 
 M._threads = {}
+M._processedThreads = {}
 --setmetatable(M._threads, { __mode = "kv" })
 
 M._currentThread = nil
@@ -156,11 +157,11 @@ function M._getNextId()
     return id
 end
 
-function M.processThreads()
-    return coroutine.resume(M._threadManagerCoroutine)
+function M.processThreads(async)
+    return coroutine.resume(M._threadManagerCoroutine, async)
 end
 
-function M._threadManagerLoop()
+function M._threadManagerLoop(async)
     while M._numThreads > 0 do
         local thread = M._chooseNextThread()
         
@@ -170,7 +171,7 @@ function M._threadManagerLoop()
             M._removeThread(thread)
         end
         
-        --coroutine.yield()
+        if async then coroutine.yield() end
     end
 end
 
@@ -187,20 +188,20 @@ function M._addThread(thread)
 end
 
 function M._chooseNextThread()
-    local chosen
-    
-    local pos = math.random(M._numThreads)
-    
-    local i = 1
-    for _, thread in pairs(M._threads) do
-        if i == pos then
-            chosen = thread
-            break
-        end
-        i = i + 1
+    -- current thread has just been served, so it goes in the processed list
+    local ct = M._currentThread
+    if ct then
+        M._processedThreads[ct] = ct
+        M._threads[ct] = nil
     end
     
-    return chosen
+    -- is the (ready) threads empty? If yes, then switch the lists
+    if (next(M._threads) == nil) then
+        M._threads, M._processedThreads = M._processedThreads, M._threads
+    end
+    
+    -- get the first non processed thread left in the ready list
+    return (next(M._threads))
 end
 
 function M._resumeThread(thread)
