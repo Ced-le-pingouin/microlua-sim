@@ -249,7 +249,7 @@ function M:_endMainLoopIteration()
     
     self:_updateUps()
     
-    if M._isInsidePcall == 0 then
+    if self._isInsidePcall == 0 then
         coroutine.yield()
     end
 end
@@ -340,7 +340,7 @@ end
 function M:stopScript()
     self._mainLoopCoroutine = nil
     self._mainLoopEnvironment = nil
-    M._isInsidePcall = 0
+    self._isInsidePcall = 0
     --self:_changeMlsFunctionsEnvironment(_G)
     collectgarbage("collect")
     
@@ -522,7 +522,7 @@ function M:_replaceLuaFunctions(env)
     env.dofile = M._dofile
     env.module = M._module
     env.require = M._require
-    env.pcall = M._pcall
+    env.pcall = function(f, ...) return self:_pcall(f, ...) end
     
     -- replace all Lua functions accepting filename parameters with our own 
     -- versions, so the "fake root" system can be applied to the parameters
@@ -604,12 +604,12 @@ function M:_changeFunctionsEnvironment(obj, env)
     end
 end
 
-function M._pcall(f, ...)
-    M._isInsidePcall = M._isInsidePcall + 1
+function M:_pcall(f, ...)
+    self._isInsidePcall = self._isInsidePcall + 1
     
     local retVals = { pcall(f, ...) }
     
-    M._isInsidePcall = M._isInsidePcall - 1
+    self._isInsidePcall = self._isInsidePcall - 1
     
     return unpack(retVals)
 end
