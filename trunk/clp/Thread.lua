@@ -63,8 +63,8 @@ function M:ctr(func, name)
     self._priority = M.PRIORITY_NORMAL
 end
 
-function M:start(params)
-    if params ~= nil then self._params = params end
+function M:start(...)
+    self._params = { ... }
     
     M._addThread(self)
     
@@ -110,12 +110,6 @@ function M:setFunction(func)
     self.run = func
     
     return self
-end 
-
-function M:setParams(params)
-    self._params = params
-    
-    return self
 end
 
 function M:setName(name)
@@ -142,6 +136,8 @@ function M.yield()
 end
 
 function M.sleep(secs)
+    if not secs then secs = 0 end
+    
     M._currentThread._sleepUntil = os.time() + secs
     coroutine.yield()
 end
@@ -207,7 +203,11 @@ end
 function M._resumeThread(thread)
     M._currentThread = thread
     
-    return coroutine.resume(thread._co, thread._params)
+    if os.time() >= thread._sleepUntil then
+        return coroutine.resume(thread._co, unpack(thread._params))
+    else
+        return true
+    end
 end
 
 function M._removeThread(thread)
