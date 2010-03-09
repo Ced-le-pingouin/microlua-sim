@@ -1,11 +1,12 @@
 local Thread = require "clp.Thread"
 
-local f = function(max)
+local f = function(max, sleepSecs)
     for i = 1, max do
         print(string.format("%s : %d/%d",
                             Thread.currentThread():getName(), i, max))
         
         Thread.yield()
+        --Thread.sleep(sleepSecs)
     end
 end
 
