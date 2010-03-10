@@ -312,7 +312,7 @@ end
 -- @param color2 (Color)
 -- @param color3 (Color)
 -- @param color4 (Color)
-function M.drawGradientRect(screenOffset, x0, y0, x1, y1, 
+function M.drawGradientRect(screenNum, x0, y0, x1, y1, 
                             color1, color2, color3, color4)
     local screenOffset = M.offset[screenNum]
     
