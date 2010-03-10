@@ -47,7 +47,8 @@ function M:ctr(modules, prefixes, emulateLibs)
         ds_system = "System",
         DateTime = true,
         Sprite = true,
-        INI = true
+        INI = true,
+        Keyboard = true
     }
     
     -- prefixes used to load modules. These are tried first, then unprefixed
