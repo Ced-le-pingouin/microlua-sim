@@ -528,6 +528,14 @@ function M:_replaceLuaFunctions(env)
     env.dofile = M._dofile
     env.module = M._module
     env.require = M._require
+    
+    -- os.time() in ML has a much more precise granularity (milliseconds)
+    if not os._time then
+        os._time = os.time
+    end
+    os.time = function() return self:_os_time() end
+    
+    -- pcall needs a custom version to allow yields in its executing function
     env.pcall = function(f, ...) return self:_pcall(f, ...) end
     
     -- replace all Lua functions accepting filename parameters with our own 
@@ -616,6 +624,14 @@ function M:_changeFunctionsEnvironment(obj, env)
         
         self:_changeFunctionsEnvironment(obj.__parent, env)
     end
+end
+
+--- Replacement function for Lua's os.time(), since the ML version works with
+-- milliseconds rather than seconds.
+--
+-- @param return (number)
+function M:_os_time()
+    return self._timer:time()
 end
 
 --- pcall() modified version, that turns pcalls into coroutines!
