@@ -286,6 +286,7 @@ end
 --                 string that represents the key associated to it.
 --                 e.g. { { "Pause/resume", "P" }, { "Quit", "Ctrl+Q" } }
 function Mls._loadKeyBindingsFromFile(fileName)
+    local isMac = (Sys.getOS() == "Macintosh")
     local keyBindings = {}
     
     local file = io.open(fileName, "r")
@@ -310,6 +311,10 @@ function Mls._loadKeyBindingsFromFile(fileName)
             end
         elseif inTable then
             local action, key = line:match("|%s+(.-)%s+|%s+(.-)%s+|")
+            
+            -- on Mac, Ctrl is not used for key combinations, Cmd/Apple is
+            if isMac then key = key:gsub("Ctrl%+", "Cmd+") end
+            
             table.insert(keyBindings, { action, key })
         end
     end
