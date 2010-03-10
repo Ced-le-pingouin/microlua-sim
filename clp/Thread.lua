@@ -9,7 +9,6 @@
 -- @name clp.Thread
 -- @author Ced-le-pingouin <Ced.le.pingouin@gmail.com>
 --
--- @todo a much more precise time function would be *really* useful for sleep()
 -- @todo make _interrupted useful (auto-end thread if interrupted ?)
 -- @todo use priorities ?
 -- @todo check access ?
