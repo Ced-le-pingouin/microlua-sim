@@ -75,6 +75,7 @@ function M:ctr(fps, ups, timing, moduleManager)
     self._updatesInOneSec = 0
     
     -- script state config --
+    self._scriptStartDir = nil
     self._scriptPath = nil
     self._scriptFile = nil
     self._scriptFunction = nil
@@ -323,9 +324,11 @@ function M:loadScript(scriptPath)
     
     -- sets script path as an additional path to find files (for dofile(), 
     -- Image.load()...)
+    local scriptStartDir = ds_system.currentDirectory()
     local scriptDir, scriptFile = Sys.getPathComponents(scriptPath)
     if scriptDir ~= "" then ds_system.changeCurrentDirectory(scriptDir) end
     
+    self._scriptStartDir = scriptStartDir
     self._scriptPath = scriptPath
     self._scriptFile = scriptFile
     
@@ -457,6 +460,9 @@ function M:reloadAndStartScript()
     Mls.logger:info("reloading script from disk", "script")
     
     self:stopScript()
+    -- if the script had been loaded from a relative path, we need to be in
+    -- the same folder as when it was loaded, or the reload will fail
+    ds_system.changeCurrentDirectory(self._scriptStartDir)
     self:loadAndStartScript(self._scriptPath)
 end
 
