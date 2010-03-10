@@ -216,20 +216,22 @@ function M:_beginMainLoopIteration(event)
     self._lastMainLoopIteration = 
         currentTime - (elapsedTime % self._timeBetweenMainLoopIterations)
     
-    local co = self._mainLoopCoroutine
+    local co = self._lastCoroutine or self._mainLoopCoroutine
     
     if self._scriptState == M.SCRIPT_RUNNING
        and coroutine.status(co) == "suspended"
     then
-        local ok, message = coroutine.resume(co)
+        local ok, result = coroutine.resume(co)
         
         if coroutine.status(self._mainLoopCoroutine) == "dead" then
             if ok then
                 self:_setScriptState(M.SCRIPT_FINISHED)
             else
-                Mls.logger:error(debug.traceback(co, message), "script")
+                Mls.logger:error(debug.traceback(co, result), "script")
                 self:_setScriptState(M.SCRIPT_ERROR)
             end
+        elseif type(result) == "thread" then
+            self._lastCoroutine = result
         end
     end
 end
@@ -243,15 +245,13 @@ end
 -- would stall on some OSes if a main script was looping infinitely.
 -- Even with wxYield()s, Windows wouldn't even show GUI elements, and the 
 -- process would have to be killed. Anyway, such a technique would result in 
--- a busy loop on all all platforms, so the CPU would be used at 100%
+-- a busy loop on all platforms, so the CPU would be used at 100%
 function M:_endMainLoopIteration()
     Mls.logger:trace("ending one loop iteration", "script")
     
     self:_updateUps()
     
-    if self._isInsidePcall == 0 then
-        coroutine.yield()
-    end
+    coroutine.yield(coroutine.running())
 end
 
 --- Refreshes the screen at the specified FPS.
@@ -338,9 +338,9 @@ end
 -- Its function/coroutine and the associated custom environment are deleted, and
 -- garbage collection is forced.
 function M:stopScript()
+    self._lastCoroutine = nil
     self._mainLoopCoroutine = nil
     self._mainLoopEnvironment = nil
-    self._isInsidePcall = 0
     --self:_changeMlsFunctionsEnvironment(_G)
     collectgarbage("collect")
     
@@ -604,14 +604,34 @@ function M:_changeFunctionsEnvironment(obj, env)
     end
 end
 
+--- pcall() modified version, that turns pcalls into coroutines!
+--
+-- We need this, because some scripts use pcall(). Then MLS tries to 
+-- coroutine.yield() from inside the pcall(), we get the dreaded error 
+-- message "attempt to yield across metamethod/C-call". That's because pcall()
+-- doesn't allow yields while running
+--
+-- @param f (function) The function that should be executed by "pcall()"
+-- @param ... (any) The optional parameters we'd like to pass to function f
+-- 
+-- @return (boolean, ...) Like Lua pcall(): if the function ran without errors,
+--                        returns true, then all return values from function f.
+--                        If the call encountered an error, returns false, 
+--                        followed by the error message (string)
 function M:_pcall(f, ...)
-    self._isInsidePcall = self._isInsidePcall + 1
+    local pcallCoroutine = coroutine.create(f)
     
-    local retVals = { pcall(f, ...) }
+    local results
+    repeat
+        results = { coroutine.resume(pcallCoroutine, ...) }
+        
+        local pcallStatus = coroutine.status(pcallCoroutine)
+        if pcallStatus == "suspended" then
+            coroutine.yield(pcallCoroutine)
+        end
+    until pcallStatus == "dead"
     
-    self._isInsidePcall = self._isInsidePcall - 1
-    
-    return unpack(retVals)
+    return unpack(results)
 end
 
 --- "Environment-aware" dofile() replacement.
