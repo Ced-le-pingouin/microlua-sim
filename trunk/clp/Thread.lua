@@ -226,17 +226,71 @@ end
 
 --- Puts currently executing thread to sleep for a defined in amount of time.
 --
--- The time is a *minimum* time, not a precise time
+-- The time is a *minimum* time, not a precise time. The precision also depends
+-- on the time functions used (see useWxTimer())
 --
 -- @param millis (int) The time you'd like the thread to sleep, in milliseconds
 --
--- @warning The function has currently awful granularity: it converts everything
---          to seconds internally (and uses floor rounding)
+-- @see useWxTimer
 function M.sleep(millis)
     if not millis then millis = 0 end
     
-    M._currentThread._sleepUntil = os.time() + math.floor(millis / 1000)
+    M._currentThread._sleepUntil = M._getTime(millis)
     coroutine.yield()
+end
+
+--- Tells the class to use time functions of wxWidgets if it is loaded.
+--
+-- The result is that time measurement and sleep() will have real millisecond
+-- granularity
+--
+-- Once the switch to wx functions has been made, using Lua time functions again
+-- is not possible
+--
+-- @param startGlobalTimer (boolean) Should be explicitely set to false if you 
+--                                   don't want to start the wx global timer 
+--                                   (with wx.wxStartTimer())
+--
+-- @return (boolean) Indicate whether the switch to wxWidgets functions is done
+--
+-- @see _getTime
+-- @see _getTimeWx
+function M.useWxTimer(startGlobalTimer)
+    if wx and wx.wxStartTimer and wx.wxGetElapsedTime then
+        if startGlobalTimer ~= false then
+            wx.wxStartTimer()
+        end
+        
+        M._getTime = M._getTimeWx
+        
+        return true
+    end
+    
+    return false
+end
+
+--- Gets the current time, with an optional addiitonal offset (Lua version).
+--
+-- This is the basic Lua version, with an awful granularity (seconds only)
+--
+-- @param offset (int) Optional offset in *milliseconds* to add to the current 
+--                     time
+--
+-- @return (int) The current time (+ optional offset), in *seconds*
+function M._getTime(offset)
+    return os.time() + math.floor((offset or 0) / 1000)
+end
+
+--- Gets the current time, with an optional addiitonal offset (wx version)
+--
+-- This is the wxWidgets version, with a millisecond granularity
+--
+-- @param offset (int) Optional offset in *milliseconds* to add to the current 
+--                     time
+--
+-- @return (int) The current time (+ optional offset), in *milliseconds*
+function M._getTimeWx(offset)
+    return wx.wxGetElapsedTime(false) + (offset or 0)
 end
 
 --- Returns an ID that has never been used for a thread.
@@ -332,7 +386,7 @@ end
 function M._resumeThread(thread)
     M._currentThread = thread
     
-    if os.time() >= thread._sleepUntil then
+    if M._getTime() >= thread._sleepUntil then
         coroutine.resume(thread._co, unpack(thread._params))
     end
 end

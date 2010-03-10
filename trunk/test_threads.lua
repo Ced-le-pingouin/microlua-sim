@@ -10,6 +10,8 @@ local f = function(max, sleepSecs)
     end
 end
 
+Thread.useWxTimer()
+
 Thread:new(f):start(5)
 Thread:new(f):start(10, 1000)
 Thread:new(f):start(15)
