@@ -16,7 +16,7 @@
 -- @todo parent/child threads ?
 -- @todo thread groups ?
 -- @todo split class into ThreadManager/Thread ?
--- @todo check if this is usable in ML on the DS (os.time() is different!?)
+-- @todo check if this is usable in ML and MLS (os.time() is different!!!)
 -------------------------------------------------------------------------------
 
 --  Copyright (C) 2009-2010 Cédric FLOQUET
@@ -134,7 +134,7 @@ end
 
 --- Sets the thread priority.
 --
--- @param newPriority (int)
+-- @param newPriority (number)
 --
 -- @return (self)
 --
@@ -153,7 +153,7 @@ end
 
 --- Gets the thread priority.
 --
--- @return (int)
+-- @return (number)
 --
 -- @note Priorities are not used yet.
 function M:getPriority()
@@ -229,7 +229,7 @@ end
 -- The time is a *minimum* time, not a precise time. The precision also depends
 -- on the time functions used (see useWxTimer())
 --
--- @param millis (int) The time you'd like the thread to sleep, in milliseconds
+-- @param millis (number) The time you'd like the thread to sleep, in milliseconds
 --
 -- @see useWxTimer
 function M.sleep(millis)
@@ -273,10 +273,10 @@ end
 --
 -- This is the basic Lua version, with an awful granularity (seconds only)
 --
--- @param offset (int) Optional offset in *milliseconds* to add to the current 
+-- @param offset (number) Optional offset in *milliseconds* to add to the current 
 --                     time
 --
--- @return (int) The current time (+ optional offset), in *seconds*
+-- @return (number) The current time (+ optional offset), in *seconds*
 function M._getTime(offset)
     return os.time() + math.floor((offset or 0) / 1000)
 end
@@ -285,10 +285,10 @@ end
 --
 -- This is the wxWidgets version, with a millisecond granularity
 --
--- @param offset (int) Optional offset in *milliseconds* to add to the current 
+-- @param offset (number) Optional offset in *milliseconds* to add to the current 
 --                     time
 --
--- @return (int) The current time (+ optional offset), in *milliseconds*
+-- @return (number) The current time (+ optional offset), in *milliseconds*
 function M._getTimeWx(offset)
     return wx.wxGetElapsedTime(false) + (offset or 0)
 end
@@ -297,7 +297,7 @@ end
 --
 -- If we already used all available IDs, it wraps around
 --
--- @return (int)
+-- @return (number)
 --
 -- @see ID_MIN
 -- @see ID_MAX
