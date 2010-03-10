@@ -5,13 +5,13 @@ local f = function(max, sleepSecs)
         print(string.format("%s : %d/%d",
                             Thread.currentThread():getName(), i, max))
         
-        Thread.yield()
-        --Thread.sleep(sleepSecs)
+        --Thread.yield()
+        Thread.sleep(sleepSecs)
     end
 end
 
 Thread:new(f):start(5)
-Thread:new(f):start(10)
+Thread:new(f):start(10, 1)
 Thread:new(f):start(15)
 
 Thread.processThreads()

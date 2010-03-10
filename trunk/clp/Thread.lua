@@ -1,14 +1,21 @@
 -------------------------------------------------------------------------------
--- Exercise: I want to see if implementing a Thread class in Lua using 
--- coroutines is doable.
+-- Simple Thread class.
+--
+-- WARNING: This class uses coroutines internally, so you should avoid to use 
+-- them too in your Threads' code, unless you *really* know what you're doing,
+-- because it could mess things up.
 --
 -- @class module
 -- @name clp.Thread
 -- @author Ced-le-pingouin <Ced.le.pingouin@gmail.com>
 --
+-- @todo a much more precise time function would be *really* useful for sleep()
+-- @todo make _interrupted useful (auto-end thread if interrupted ?)
+-- @todo use priorities ?
+-- @todo check access ?
+-- @todo use another scheduler for _chooseNextThread() ?
+-- @todo parent/child threads ?
 -- @todo thread groups ?
--- @todo join() ?
--- @todo dumpStack()
 -------------------------------------------------------------------------------
 
 --  Copyright (C) 2009-2010 Cédric FLOQUET
@@ -163,9 +170,7 @@ function M._threadManagerLoop(async)
         
         M._resumeThread(thread)
         
-        if not thread:isAlive() then
-            M._removeThread(thread)
-        end
+        M._markThreadAsProcessed(thread)
         
         if async then coroutine.yield() end
     end
@@ -184,18 +189,6 @@ function M._addThread(thread)
 end
 
 function M._chooseNextThread()
-    -- current thread has just been served, so it goes in the processed list
-    local ct = M._currentThread
-    if ct then
-        M._processedThreads[ct] = ct
-        M._threads[ct] = nil
-    end
-    
-    -- is the (ready) threads empty? If yes, then switch the lists
-    if (next(M._threads) == nil) then
-        M._threads, M._processedThreads = M._processedThreads, M._threads
-    end
-    
     -- get the first non processed thread left in the ready list
     return (next(M._threads))
 end
@@ -207,6 +200,25 @@ function M._resumeThread(thread)
         return coroutine.resume(thread._co, unpack(thread._params))
     else
         return true
+    end
+end
+
+function M._markThreadAsProcessed(thread)
+    -- thread is over, simply remove it from the list
+    if not thread:isAlive() then
+        M._removeThread(thread)
+    -- if it's still alive, mark it as processed
+    else
+        M._processedThreads[thread] = thread
+        M._threads[thread] = nil
+    end
+    
+    --for t1, t2 in pairs(M._threads) do print ("ready", t2:getName(), t1, t2) end
+    --for t1, t2 in pairs(M._processedThreads) do print ("done", t2:getName(), t1, t2) end
+    
+    -- is the (ready) threads empty? If yes, then switch the lists
+    if (next(M._threads) == nil) then
+        M._threads, M._processedThreads = M._processedThreads, M._threads
     end
 end
 
