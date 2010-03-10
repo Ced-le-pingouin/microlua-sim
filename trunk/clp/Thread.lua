@@ -16,6 +16,7 @@
 -- @todo parent/child threads ?
 -- @todo thread groups ?
 -- @todo split class into ThreadManager/Thread ?
+-- @todo check if this is usable in ML on the DS (os.time() is different!?)
 -------------------------------------------------------------------------------
 
 --  Copyright (C) 2009-2010 Cédric FLOQUET
