@@ -548,11 +548,19 @@ function M:_replaceLuaFunctions(env)
     }
     
     for _, ioFunc in ipairs(ioFunctions) do
+        -- what are the name of the module and function? (e.g. "io" and "lines")
         local modName, funcName = ioFunc:match("([%w_]+)\.([%w_]+)")
+        -- name of our custom version of the function (e.g. _io_lines)
         local customFuncName = "_"..modName.."_"..funcName
+        -- name of the copy of Lua's original function (e.g. _lines)
         local backupFuncName = "_"..funcName
-        
-        _G[modName][backupFuncName] = _G[modName][funcName]
+        -- if a copy of Lua's original function hasn't been made, make it
+        if not _G[modName][backupFuncName] then
+            -- original Lua version will be used by ours at this location
+            -- (e.g. io._lines)
+            _G[modName][backupFuncName] = _G[modName][funcName]
+        end
+        -- finally, make our custom version available under Lua's original name
         env[modName][funcName] = M[customFuncName]
     end
 end
