@@ -16,6 +16,7 @@
 -- @todo use another scheduler for _chooseNextThread() ?
 -- @todo parent/child threads ?
 -- @todo thread groups ?
+-- @todo split class into ThreadManager/Thread ?
 -------------------------------------------------------------------------------
 
 --  Copyright (C) 2009-2010 Cédric FLOQUET
@@ -48,6 +49,8 @@ M.PRIORITY_MIN    = 1
 M.PRIORITY_MAX    = 10
 M.PRIORITY_NORMAL = 5
 
+M._threadManagerCoroutine = nil
+
 M._numThreads = 0
 M._maxId = 0
 
@@ -57,6 +60,16 @@ M._processedThreads = {}
 
 M._currentThread = nil
 
+--- Constructor.
+--
+-- Please note that a Thread that's just been created does not immediately run,
+-- you need to call start() for this
+--
+-- @param func (function) The function that will be used when the thread is 
+--                        started. If nil, then the run() method will be used.
+--                        The run() method does nothing, by default.
+-- @param name (string) The name of the thread. If nil, a generated name of the
+--                      form "Thread-<number>" will be used
 function M:ctr(func, name)
     self._id = M._getNextId()
     
@@ -70,6 +83,15 @@ function M:ctr(func, name)
     self._priority = M.PRIORITY_NORMAL
 end
 
+--- Starts the thread.
+--
+-- @param ... (any) Any number of paramaters you want to pass to the thread's 
+--                  run() function (or the one you set when you created the 
+--                  thread or with setFunction())
+--
+-- @return (self)
+--
+-- @see setFunction
 function M:start(...)
     self._params = { ... }
     
@@ -78,10 +100,21 @@ function M:start(...)
     return self
 end
 
+--- Default function that gets run when you start() the thread.
+--
+-- By default, it does nothing. You can change it when you create the thread, or
+-- with setFunction()
+--
+-- @see start
+-- @see ctr
+-- @see setFunction
 function M:run()
     -- default run() does nothing
 end
 
+--- Sets thread "interrupted" status.
+--
+-- @return (self)
 function M:interrupt()
     --checkAccess(): can currently running thread do this to "self" thread?
     self._interrupted = true
@@ -89,14 +122,23 @@ function M:interrupt()
     return self
 end
 
+--- Checks whether the thread has been interrupted.
 function M:isInterrupted()
     return self._interrupted
 end
 
+--- Checks whether the thread run() function has already terminated.
 function M:isAlive()
     return coroutine.status(self._co) ~= "dead"
 end
 
+--- Sets the thread priority.
+--
+-- @param newPriority (int)
+--
+-- @return (self)
+--
+-- @note Priorities are not used yet.
 function M:setPriority(newPriority)
     assert(
         newPriority >= M.PRIORITY_MIN and newPriority <= M.PRIORITY_MAX,
@@ -109,39 +151,77 @@ function M:setPriority(newPriority)
     return self
 end
 
+--- Gets the thread priority.
+--
+-- @return (int)
+--
+-- @note Priorities are not used yet.
 function M:getPriority()
     return self._priority
 end
 
+--- Sets a function to be used instead of run() when the thread is started.
+--
+-- @param func (function)
+--
+-- @return (self)
+--
+-- @see start
+-- @see ctr
+-- @see run
 function M:setFunction(func)
     self.run = func
     
     return self
 end
 
+--- Sets the name of the thread.
+--
+-- @param name (string)
+--
+-- @return (self)
 function M:setName(name)
     self._name = name
     
     return self
 end
 
+--- Gets the name of the thread.
+--
+-- @return (string)
 function M:getName()
     return self._name
 end
 
+--- Returns a text representation of the thread, with info on its name and 
+-- priority.
+--
+-- @return (self)
 function M:toString()
     return string.format("Thread[%s,%d]", self._name, self._priority)
 end
 
 
+--- Gets the thread currently run by the thread manager.
+--
+-- Please note that the current thread could be "dead"
+--
+-- @return (Thread)
 function M.currentThread()
     return M._currentThread
 end
 
+--- Stops the currently executing thread and gives back control (normally to the
+-- thread manager).
 function M.yield()
     coroutine.yield()
 end
 
+--- Puts currently executing thread to sleep for a defined in amount of time.
+--
+-- The time is a *minimum* time, not a precise time
+--
+-- @param secs (int) The time you'd like the thread to sleep
 function M.sleep(secs)
     if not secs then secs = 0 end
     
@@ -149,6 +229,14 @@ function M.sleep(secs)
     coroutine.yield()
 end
 
+--- Returns an ID that has never been used for a thread.
+--
+-- If we already used all available IDs, it wraps around
+--
+-- @return (int)
+--
+-- @see ID_MIN
+-- @see ID_MAX
 function M._getNextId()
     local id = M._maxId + 1
     if id > M.ID_MAX then
@@ -160,10 +248,38 @@ function M._getNextId()
     return id
 end
 
+--- Starts or continue the thread manager loop.
+--
+-- The thread manager runs as a coroutine. If it has not been created yet, it
+-- is in this function
+--
+-- @param async (boolean) If do not want the loop to be blocking, this should be
+--                        true. Then the loop will give control back to the 
+--                        caller after one pass (i.e. a thread 
+--                        reactivation/deactivation). If you do this, you will
+--                        have to call this function repeatedly to make the 
+--                        thread manager process further threads.
+--                        If the parameter is false of not specified, then the
+--                        thread manager will run the threads that have been 
+--                        previously started, until they're done, then will give
+--                        control back to the caller. So if you start threads 
+--                        later, you'll still have to call this function, 
+--                        whether it was true or false on the first call
+--
+-- @see _threadManagerLoop
 function M.processThreads(async)
+    if not M._threadManagerCoroutine then
+        M._threadManagerCoroutine = coroutine.create(M._threadManagerLoop)
+    end
+    
     return coroutine.resume(M._threadManagerCoroutine, async)
 end
 
+--- Effective thread manager body/loop.
+--
+-- @param async (boolean) Same meaning as in processThreads()
+--
+-- @see processThreads
 function M._threadManagerLoop(async)
     while M._numThreads > 0 do
         local thread = M._chooseNextThread()
@@ -176,6 +292,10 @@ function M._threadManagerLoop(async)
     end
 end
 
+--- Adds a thread for the manager to run (if the max number of threads hasn't
+-- been reached).
+--
+-- @param thread (Thread)
 function M._addThread(thread)
     assert(M._numThreads < M.MAX_THREADS,
            string.format("Max number of threads reached! (%d)", M.MAX_THREADS))
@@ -188,21 +308,32 @@ function M._addThread(thread)
     end
 end
 
+--- Chooses and returns which thread should be run next by the manager.
+--
+-- @return (Thread)
 function M._chooseNextThread()
     -- get the first non processed thread left in the ready list
     return (next(M._threads))
 end
 
+--- Resumes a thread, except if it has a sleep time that's not over yet.
+--
+-- @param thread (Thread)
 function M._resumeThread(thread)
     M._currentThread = thread
     
     if os.time() >= thread._sleepUntil then
-        return coroutine.resume(thread._co, unpack(thread._params))
-    else
-        return true
+        coroutine.resume(thread._co, unpack(thread._params))
     end
 end
 
+--- Marks a thread as already processed by the manager, or removes it from the
+-- list if it's "dead".
+--
+-- After all running threads have been processed once, they become "unprocessed"
+-- or "ready" again
+--
+-- @param thread (Thread)
 function M._markThreadAsProcessed(thread)
     -- thread is over, simply remove it from the list
     if not thread:isAlive() then
@@ -222,13 +353,14 @@ function M._markThreadAsProcessed(thread)
     end
 end
 
+--- Removes a thread from the list of threads to be run by the manager.
+--
+-- @param thread (Thread)
 function M._removeThread(thread)
     if M._threads[thread] then
         M._threads[thread] = nil
         M._numThreads = M._numThreads - 1
     end
 end
-
-M._threadManagerCoroutine = coroutine.create(M._threadManagerLoop)
 
 return M
