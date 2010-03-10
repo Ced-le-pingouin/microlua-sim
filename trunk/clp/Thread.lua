@@ -211,6 +211,13 @@ function M.currentThread()
     return M._currentThread
 end
 
+--- Checks whether there are still non-terminated threads.
+--
+-- @return (boolean)
+function M.pendingThreads()
+    return next(M._threads) ~= nil or next(M._processedThreads) ~= nil
+end
+
 --- Stops the currently executing thread and gives back control (normally to the
 -- thread manager).
 function M.yield()
@@ -347,7 +354,7 @@ function M._markThreadAsProcessed(thread)
     --for t1, t2 in pairs(M._threads) do print ("ready", t2:getName(), t1, t2) end
     --for t1, t2 in pairs(M._processedThreads) do print ("done", t2:getName(), t1, t2) end
     
-    -- is the (ready) threads empty? If yes, then switch the lists
+    -- no more "ready" threads? Then we switch the ready and processed lists
     if (next(M._threads) == nil) then
         M._threads, M._processedThreads = M._processedThreads, M._threads
     end

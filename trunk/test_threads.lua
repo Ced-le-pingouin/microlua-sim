@@ -15,8 +15,9 @@ Thread:new(f):start(10, 1)
 Thread:new(f):start(15)
 
 Thread.processThreads()
+
 --[[
-for i = 1,1000 do
+while Thread.pendingThreads() do
     Thread.processThreads(true)
 end
 --]]
