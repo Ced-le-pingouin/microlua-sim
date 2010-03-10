@@ -11,7 +11,7 @@ local f = function(max, sleepSecs)
 end
 
 Thread:new(f):start(5)
-Thread:new(f):start(10, 1)
+Thread:new(f):start(10, 1000)
 Thread:new(f):start(15)
 
 Thread.processThreads()

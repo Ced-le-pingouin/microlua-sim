@@ -228,11 +228,14 @@ end
 --
 -- The time is a *minimum* time, not a precise time
 --
--- @param secs (int) The time you'd like the thread to sleep
-function M.sleep(secs)
-    if not secs then secs = 0 end
+-- @param millis (int) The time you'd like the thread to sleep, in milliseconds
+--
+-- @warning The function has currently awful granularity: it converts everything
+--          to seconds internally (and uses floor rounding)
+function M.sleep(millis)
+    if not millis then millis = 0 end
     
-    M._currentThread._sleepUntil = os.time() + secs
+    M._currentThread._sleepUntil = os.time() + math.floor(millis / 1000)
     coroutine.yield()
 end
 
