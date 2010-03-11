@@ -214,6 +214,7 @@ function M:_beginMainLoopIteration(event)
         return
     end
     
+    printcrs("LOOP")
     self._lastMainLoopIteration = 
         currentTime - (elapsedTime % self._timeBetweenMainLoopIterations)
     
@@ -653,12 +654,14 @@ function M:_pcall(f, ...)
     
     local results
     repeat
+        printcrs("PCALL PRE")
         results = { coroutine.resume(pcallCoroutine, ...) }
         
         local pcallStatus = coroutine.status(pcallCoroutine)
         if pcallStatus == "suspended" then
             coroutine.yield(pcallCoroutine)
         end
+        printcrs("PCALL POST")
     until pcallStatus == "dead"
     
     return unpack(results)
@@ -844,6 +847,7 @@ coroutine._create = coroutine.create
 coroutine.create = function(f)
     if not crs then
         crs = {}
+        crsstats = {}
         numcrs = 0
     end
     
@@ -855,8 +859,18 @@ coroutine.create = function(f)
     else
         crs[cr] = "pcall "..tostring(numcrs - 1)
     end
+    crsstats[cr] = ""
     
     return cr
+end
+
+coroutine._resume = coroutine.resume
+coroutine.resume = function(co, ...)
+    local results = { coroutine._resume(co, ...) }
+    
+    crsstats[co] = results[1] and "ok" or "error"
+    
+    return unpack(results)
 end
 
 function printcrs(text)
@@ -868,7 +882,7 @@ function printcrs(text)
     print("running: "..crrun)
     
     for cr, crname in pairs(crs) do
-        print(crname.." = "..coroutine.status(cr))
+        print(crname.." = "..coroutine.status(cr).." - "..crsstats[cr])
     end
     print("\n")
 end
