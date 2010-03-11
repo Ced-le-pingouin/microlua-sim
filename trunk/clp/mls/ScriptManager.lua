@@ -840,4 +840,37 @@ function M.newPressinBox(Box, x, y)
            and y > Box.y1 and y < Box.y2
 end
 
+coroutine._create = coroutine.create
+coroutine.create = function(f)
+    if not crs then
+        crs = {}
+        numcrs = 0
+    end
+    
+    local cr = coroutine._create(f)
+    
+    numcrs = numcrs + 1
+    if numcrs == 1 then
+        crs[cr] = "script"
+    else
+        crs[cr] = "pcall "..tostring(numcrs - 1)
+    end
+    
+    return cr
+end
+
+function printcrs(text)
+    print(text or "")
+    
+    local crrun = coroutine.running()
+    if crrun then crrun = crs[crrun] else crrun = "main" end
+    
+    print("running: "..crrun)
+    
+    for cr, crname in pairs(crs) do
+        print(crname.." = "..coroutine.status(cr))
+    end
+    print("\n")
+end
+
 return M
