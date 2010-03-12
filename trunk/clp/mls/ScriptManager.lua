@@ -1,4 +1,3 @@
--------------------------------------------------------------------------------
 -- Loads external user scripts, and handles their execution, status, and timing.
 --
 -- @class module
@@ -217,7 +216,7 @@ function M:_beginMainLoopIteration(event)
     self._lastMainLoopIteration = 
         currentTime - (elapsedTime % self._timeBetweenMainLoopIterations)
     
-    local co = self._lastCoroutine or self._mainLoopCoroutine
+    local co = self._mainLoopCoroutine
     
     if self._scriptState == M.SCRIPT_RUNNING
        and coroutine.status(co) == "suspended"
@@ -252,7 +251,7 @@ function M:_endMainLoopIteration()
     
     self:_updateUps()
     
-    coroutine.yield(coroutine.running())
+    coroutine.yield()
 end
 
 --- Refreshes the screen at the specified FPS.
@@ -341,7 +340,6 @@ end
 -- Its function/coroutine and the associated custom environment are deleted, and
 -- garbage collection is forced.
 function M:stopScript()
-    self._lastCoroutine = nil
     self._mainLoopCoroutine = nil
     self._mainLoopEnvironment = nil
     --self:_changeMlsFunctionsEnvironment(_G)
@@ -637,9 +635,9 @@ end
 --- pcall() modified version, that turns pcalls into coroutines!
 --
 -- We need this, because some scripts use pcall(). Then MLS tries to 
--- coroutine.yield() from inside the pcall(), we get the dreaded error 
+-- coroutine.yield() from inside the pcall(), and we get the dreaded error 
 -- message "attempt to yield across metamethod/C-call". That's because pcall()
--- doesn't allow yields while running
+-- doesn't allow yields while running its function
 --
 -- @param f (function) The function that should be executed by "pcall()"
 -- @param ... (any) The optional parameters we'd like to pass to function f
@@ -654,12 +652,11 @@ function M:_pcall(f, ...)
     local results
     repeat
         results = { coroutine.resume(pcallCoroutine, ...) }
-        
-        local pcallStatus = coroutine.status(pcallCoroutine)
-        if pcallStatus == "suspended" then
-            coroutine.yield(pcallCoroutine)
+        local status = coroutine.status(pcallCoroutine)
+        if status == "suspended" then
+            coroutine.yield()
         end
-    until pcallStatus == "dead"
+    until status == "dead"
     
     return unpack(results)
 end
@@ -838,78 +835,6 @@ function M.newPressinBox(Box, x, y)
     return Stylus.released 
            and x > Box.x1 and x < Box.x2
            and y > Box.y1 and y < Box.y2
-end
-
-coroutine._create = coroutine.create
-coroutine.create = function(f)
-    if not crs then
-        crs = {}
-        crsstats = {}
-        numcrs = 0
-    end
-    
-    local cr = coroutine._create(f)
-    
-    numcrs = numcrs + 1
-    if numcrs == 1 then
-        crs[cr] = "script"
-    else
-        crs[cr] = "pcall "..tostring(numcrs - 1)
-    end
-    crsstats[cr] = false
-    
-    return cr
-end
-
-coroutine._resume = coroutine.resume
-coroutine.resume = function(co, ...)
-    print("currently in "..(crs[coroutine.running()] or "main"))
-    
-    if crsstats[co] then
-        print("resuming "..crs[co])
-    else
-        print("starting "..crs[co])
-    end
-    
-    local results = { coroutine._resume(co, ...) }
-    crsstats[co] = results[1]
-    
-    print(string.format("left %s (status = %s)", 
-                        crs[co], _getCoroutineStatus(co)))
-    
-    return unpack(results)
-end
-
-function _getCoroutineStatus(cr)
-    local status = coroutine.status(cr)
-    
-    if status == "dead" then
-        status = crsstats[cr]
-                 and "terminated ok"
-                  or "stopped on error"
-    end
-    
-    if status == "suspended" then
-        status = crsstats[cr]
-                 and status
-                  or "not started"
-    end
-    
-    return status
-end
-
-function _printcrs(text)
-    print(text or "")
-    
-    local crrun = coroutine.running()
-    if crrun then crrun = crs[crrun] else crrun = "main" end
-    
-    print("currently in "..crrun)
-    
-    for cr, crname in pairs(crs) do
-        print(crname.." : ".._getCoroutineStatus(cr))
-    end
-    print("\n")
 end
 
 return M
