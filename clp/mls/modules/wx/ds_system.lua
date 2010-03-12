@@ -117,31 +117,21 @@ end
 --
 -- @see _listDirectoryFull
 function M.listDirectory(path)
-    path = Sys.getFile(path)
+    local dirList = M._currentDirectoryList
     
-    local dir = M._currentDirectoryList
-    local found, file
-    
-    -- no listing was in progress
-    if not dir then
-        dir = wx.wxDir(path)
-        
-        found, file = dir:GetFirst(
-            "",
-            wx.wxDIR_DOTDOT + wx.wxDIR_FILES + wx.wxDIR_DIRS + wx.wxDIR_HIDDEN
-        )
-    -- we're listing a directory opened by a previous call, and we're not done
-    else
-        found, file = dir:GetNext()
+    -- no listing was in progress, so start one
+    if not dirList then
+        dirList = M._listDirectoryFull(path)
     end
     
-    if found then
-        local isDir = wx.wxDirExists(
-            wx.wxFileName(dir:GetName(), file):GetFullPath()
-        )
-        file = (isDir and "*" or "")..file
+    -- pop the first element in dir list
+    local fileEntry = table.remove(dirList, 1)
+    
+    local file
+    if fileEntry then
+        file = (fileEntry.isDir and "*" or "")..fileEntry.name
         
-        M._currentDirectoryList = dir
+        M._currentDirectoryList = dirList
     else
         file = "##"
         
