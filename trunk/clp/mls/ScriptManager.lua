@@ -214,7 +214,6 @@ function M:_beginMainLoopIteration(event)
         return
     end
     
-    printcrs("LOOP")
     self._lastMainLoopIteration = 
         currentTime - (elapsedTime % self._timeBetweenMainLoopIterations)
     
@@ -654,14 +653,12 @@ function M:_pcall(f, ...)
     
     local results
     repeat
-        printcrs("PCALL PRE")
         results = { coroutine.resume(pcallCoroutine, ...) }
         
         local pcallStatus = coroutine.status(pcallCoroutine)
         if pcallStatus == "suspended" then
             coroutine.yield(pcallCoroutine)
         end
-        printcrs("PCALL POST")
     until pcallStatus == "dead"
     
     return unpack(results)
@@ -866,25 +863,21 @@ end
 
 coroutine._resume = coroutine.resume
 coroutine.resume = function(co, ...)
-    local results = { coroutine._resume(co, ...) }
+    print("currently in "..(crs[coroutine.running()] or "main"))
     
+    if crsstats[co] then
+        print("resuming "..crs[co])
+    else
+        print("starting "..crs[co])
+    end
+    
+    local results = { coroutine._resume(co, ...) }
     crsstats[co] = results[1]
     
+    print(string.format("left %s (status = %s)", 
+                        crs[co], _getCoroutineStatus(co)))
+    
     return unpack(results)
-end
-
-function printcrs(text)
-    print(text or "")
-    
-    local crrun = coroutine.running()
-    if crrun then crrun = crs[crrun] else crrun = "main" end
-    
-    print("in "..crrun)
-    
-    for cr, crname in pairs(crs) do
-        print(crname.." : ".._getCoroutineStatus(cr))
-    end
-    print("\n")
 end
 
 function _getCoroutineStatus(cr)
@@ -903,6 +896,20 @@ function _getCoroutineStatus(cr)
     end
     
     return status
+end
+
+function _printcrs(text)
+    print(text or "")
+    
+    local crrun = coroutine.running()
+    if crrun then crrun = crs[crrun] else crrun = "main" end
+    
+    print("currently in "..crrun)
+    
+    for cr, crname in pairs(crs) do
+        print(crname.." : ".._getCoroutineStatus(cr))
+    end
+    print("\n")
 end
 
 return M
