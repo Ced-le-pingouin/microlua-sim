@@ -227,11 +227,9 @@ function M:_beginMainLoopIteration(event)
             if ok then
                 self:_setScriptState(M.SCRIPT_FINISHED)
             else
-                Mls.logger:error(debug.traceback(co, result), "script")
+                Mls.logger:error(debug._traceback(co, result), "script")
                 self:_setScriptState(M.SCRIPT_ERROR)
             end
-        elseif type(result) == "thread" then
-            self._lastCoroutine = result
         end
     end
 end
@@ -533,6 +531,13 @@ function M:_replaceLuaFunctions(env)
     end
     os.time = function() return self:_os_time() end
     
+    -- debug.traceback() will often display path that are too long do display
+    -- for the "DS" screen, so replace it with our own version
+    if not debug._traceback then
+        debug._traceback = debug.traceback
+    end
+    debug.traceback = M._debug_traceback
+    
     -- pcall needs a custom version to allow yields in its executing function
     env.pcall = function(f, ...) return self:_pcall(f, ...) end
     
@@ -632,6 +637,26 @@ function M:_os_time()
     return self._timer:time()
 end
 
+--- Replacement for Lua's debug.traceback(), that make long paths in the trace
+-- more readable when the trace is displayed on the DS "screen".
+--
+-- @param thread (thread)
+-- @param message (string)
+-- @param level (number)
+--
+-- @see debug.traceback
+function M._debug_traceback(thread, message, level)
+    if not thread then thread = coroutine.running() end
+    if not message then message = "" end
+    if not level then level = 1 end
+    
+    level = level + 1
+    
+    return M._makePathsInTextMultilineFriendly(
+        debug._traceback(thread, message, level)
+    )
+end
+
 --- pcall() modified version, that turns pcalls into coroutines!
 --
 -- We need this, because some scripts use pcall(). Then MLS tries to 
@@ -657,6 +682,11 @@ function M:_pcall(f, ...)
             coroutine.yield()
         end
     until status == "dead"
+    
+    -- if there was an error, try and make it displayable on multiple lines
+    if not results[1] then
+        results[2] = M._makePathsInTextMultilineFriendly(results[2])
+    end
     
     return unpack(results)
 end
@@ -812,6 +842,16 @@ function M._os_rename(oldname, newname)
     return os._rename(oldname, newname)
 end
 -------------------------------------------------------------------------------
+
+--- Make paths in text more "textbox-friendly" by adding spaces around file 
+-- separators, so it can be displayed on multiple lines.
+--
+-- @param text (string) The original text
+--
+-- @return (string) The multiline-friendly, converted text
+function M._makePathsInTextMultilineFriendly(text)
+    return text:gsub("([/\\])", " %1 ")
+end
 
 
 --- Replacement for a function from the StylusBox library; this function checks
