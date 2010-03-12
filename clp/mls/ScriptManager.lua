@@ -859,7 +859,7 @@ coroutine.create = function(f)
     else
         crs[cr] = "pcall "..tostring(numcrs - 1)
     end
-    crsstats[cr] = ""
+    crsstats[cr] = false
     
     return cr
 end
@@ -868,7 +868,7 @@ coroutine._resume = coroutine.resume
 coroutine.resume = function(co, ...)
     local results = { coroutine._resume(co, ...) }
     
-    crsstats[co] = results[1] and "ok" or "error"
+    crsstats[co] = results[1]
     
     return unpack(results)
 end
@@ -879,12 +879,30 @@ function printcrs(text)
     local crrun = coroutine.running()
     if crrun then crrun = crs[crrun] else crrun = "main" end
     
-    print("running: "..crrun)
+    print("in "..crrun)
     
     for cr, crname in pairs(crs) do
-        print(crname.." = "..coroutine.status(cr).." - "..crsstats[cr])
+        print(crname.." : ".._getCoroutineStatus(cr))
     end
     print("\n")
+end
+
+function _getCoroutineStatus(cr)
+    local status = coroutine.status(cr)
+    
+    if status == "dead" then
+        status = crsstats[cr]
+                 and "terminated ok"
+                  or "stopped on error"
+    end
+    
+    if status == "suspended" then
+        status = crsstats[cr]
+                 and status
+                  or "not started"
+    end
+    
+    return status
 end
 
 return M
