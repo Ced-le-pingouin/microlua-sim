@@ -529,7 +529,7 @@ function M:_replaceLuaFunctions(env)
     if not os._time then
         os._time = os.time
     end
-    os.time = function() return self:_os_time() end
+    os.time = function(table) return self:_os_time(table) end
     
     -- debug.traceback() will often display path that are too long do display
     -- for the "DS" screen, so replace it with our own version
@@ -632,9 +632,17 @@ end
 --- Replacement function for Lua's os.time(), since the ML version works with
 -- milliseconds rather than seconds.
 --
--- @param return (number)
-function M:_os_time()
-    return self._timer:time()
+-- @param table (table)
+--
+-- @return (number)
+--
+-- @see os.time
+function M:_os_time(table)
+    if table then
+        return os._time(table)
+    else
+        return self._timer:time()
+    end
 end
 
 --- Replacement for Lua's debug.traceback(), that make long paths in the trace
