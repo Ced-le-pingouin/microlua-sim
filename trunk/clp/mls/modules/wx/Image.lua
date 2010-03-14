@@ -76,6 +76,17 @@ function M.load(path, destination)
                                     M.MASK_COLOR:Green(),
                                     M.MASK_COLOR:Blue())
         image._source:SetMask(true)
+        
+    -- well, we just found that even when an image already has a mask set (most
+    -- probably a GIF with a transparent color), we MUST consider magenta as 
+    -- a transparent color too anyway. So we replace all magenta pixels with the
+    -- initial transparent color, so both will be transparent
+    else
+        local img = image._source
+        image._source:Replace(
+            M.MASK_COLOR:Red(), M.MASK_COLOR:Green(), M.MASK_COLOR:Blue(),
+            img:GetMaskRed(), img:GetMaskGreen(), img:GetMaskBlue()
+        )
     end
     
     image._width   = image._source:GetWidth()
