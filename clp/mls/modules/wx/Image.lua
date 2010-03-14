@@ -66,7 +66,10 @@ function M.load(path, destination)
     local path, found = Sys.getFile(path)
     if not found then error("Image '"..path.."' was not found!", 2) end
     image._path = path
-    image._source  = wx.wxImage(path)
+    
+    local img =  wx.wxImage(path)
+    image._source = img
+    
     -- if a non-masked image is rotated, a black square will appear around it;
     -- also, a transparent gif image has no alpha information but often has 
     -- magenta as the transparent color
@@ -82,12 +85,16 @@ function M.load(path, destination)
     -- a transparent color too anyway. So we replace all magenta pixels with the
     -- initial transparent color, so both will be transparent
     else
-        local img = image._source
         image._source:Replace(
             M.MASK_COLOR:Red(), M.MASK_COLOR:Green(), M.MASK_COLOR:Blue(),
             img:GetMaskRed(), img:GetMaskGreen(), img:GetMaskBlue()
         )
     end
+    
+    image._maskColor = wx.wxColour(
+        img:GetMaskRed(), img:GetMaskGreen(), img:GetMaskBlue()
+    )
+    image._maskBrush = wx.wxBrush(image._maskColor, wx.wxSOLID)
     
     image._width   = image._source:GetWidth()
     image._height  = image._source:GetHeight()

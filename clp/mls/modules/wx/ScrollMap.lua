@@ -58,6 +58,8 @@ function M.new(image, mapfile, width, height, tileWidth, tileHeight)
     scrollmap._bitmap = wx.wxBitmap(scrollmap._width, scrollmap._height, 
                                     Mls.DEPTH)
     
+    scrollmap._maskColor = image._maskColor
+    
     scrollmap._scrollX, scrollmap._scrollY = 0, 0
     
     local tilesBitmap = wx.wxBitmap(image._source, Mls.DEPTH)
@@ -67,7 +69,7 @@ function M.new(image, mapfile, width, height, tileWidth, tileHeight)
     local scrollmapDC = wx.wxMemoryDC()
     scrollmapDC:SelectObject(scrollmap._bitmap)
     
-    scrollmapDC:SetBackground(Image.MASK_BRUSH)
+    scrollmapDC:SetBackground(image._maskBrush)
     scrollmapDC:Clear()
     
     local posY = 0
@@ -136,7 +138,9 @@ function M.draw(screenNum, scrollmap)
     -- the same as the replaced tile, so we should re-create the mask of the
     -- scrollmap
     if scrollmap._tilesHaveChanged then
-        scrollmap._bitmap:SetMask(wx.wxMask(scrollmap._bitmap, Color.MAGENTA))
+        scrollmap._bitmap:SetMask(
+            wx.wxMask(scrollmap._bitmap, scrollmap._maskColor)
+        )
         scrollmap._tilesHaveChanged = false
     end
     
