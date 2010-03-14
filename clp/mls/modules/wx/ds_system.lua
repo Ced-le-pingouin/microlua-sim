@@ -194,6 +194,13 @@ function M._listDirectoryFull(path)
         until not found
     end
     
+    -- this forces dir to be closed by wxWidgets, since there's no 
+    -- wxDir::Close() function. On Mac OS X, the libs.lua file, which makes 
+    -- dozens of calls per second (!!!) to listDirectory(), causes error 
+    -- messages if we don't do this ("too many files open")
+    dir = nil
+    collectgarbage("collect")
+    
     local fullTable = dotTable
     for _, entry in ipairs(dirTable) do table.insert(fullTable, entry) end
     for _, entry in ipairs(fileTable) do table.insert(fullTable, entry) end
