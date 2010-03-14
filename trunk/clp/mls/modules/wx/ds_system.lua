@@ -195,9 +195,9 @@ function M._listDirectoryFull(path)
     end
     
     -- this forces dir to be closed by wxWidgets, since there's no 
-    -- wxDir::Close() function. On Mac OS X, the libs.lua file, which makes 
+    -- wxDir::Close() function. On Mac OS X, the uLua 3,0 shell, which makes 
     -- dozens of calls per second (!!!) to listDirectory(), causes error 
-    -- messages if we don't do this ("too many files open")
+    -- messages if we don't do this ("error 24: Too many open files")
     dir = nil
     collectgarbage("collect")
     
