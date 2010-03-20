@@ -1,3 +1,4 @@
+-------------------------------------------------------------------------------
 -- Loads external user scripts, and handles their execution, status, and timing.
 --
 -- @class module
