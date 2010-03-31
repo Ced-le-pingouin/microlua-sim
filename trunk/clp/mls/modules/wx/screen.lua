@@ -656,7 +656,7 @@ function M._drawPoint(screenNum, x, y, color)
     
     M._pen:SetColour(color)
     offscreenDC:SetPen(M._pen)
-    offscreenDC:DrawPoint(x, y)
+    offscreenDC:DrawPoint(x, y + M.offset[screenNum])
 end
 
 --- Increments fps counter if needed.
