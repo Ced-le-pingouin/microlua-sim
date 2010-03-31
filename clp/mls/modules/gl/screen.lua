@@ -454,9 +454,9 @@ end
 function M._drawPoint(screenNum, x, y, color)
     M.enableGlClipping(screenNum)
     
-    glcolor3d(color:Red() / 255, color:Green() / 255, color:Blue() / 255)
+    glDisable(M.textureType)
+    glColor3d(color:Red() / 255, color:Green() / 255, color:Blue() / 255)
     glBegin(GL_POINTS)
-        glColor3d()
         glVertex2d(x, y + M.offset[screenNum])
     glEnd()
 end
