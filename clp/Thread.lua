@@ -19,7 +19,7 @@
 -- @todo check if this is usable in ML and MLS (os.time() is different!!!)
 -------------------------------------------------------------------------------
 
---  Copyright (C) 2009-2010 Cédric FLOQUET
+--  Copyright (C) 2009-2011 Cédric FLOQUET
 --
 --  This file is part of Micro Lua DS Simulator.
 --

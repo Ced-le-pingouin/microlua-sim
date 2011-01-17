@@ -8,7 +8,7 @@
 --
 -------------------------------------------------------------------------------
 
---  Copyright (C) 2009-2010 Cédric FLOQUET
+--  Copyright (C) 2009-2011 Cédric FLOQUET
 --
 --  This file is part of Micro Lua DS Simulator.
 --
