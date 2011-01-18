@@ -394,11 +394,10 @@ function M.drawGradientRectAdvanced(screenNum, x0, y0, x1, y1,
         local Y = y0
         for iY = 0, NUM_BLOCKS - 1 do
             -- calculates the colour of the rectangular band
-            --print(
             local color = wx.wxColour(
-                IPOL(RGBColor[1][1], RGBColor[1][2], iY),
-                IPOL(RGBColor[2][1], RGBColor[2][2], iY),
-                IPOL(RGBColor[3][1], RGBColor[3][2], iY)
+                math.floor( IPOL(RGBColor[1][1], RGBColor[1][2], iY) ),
+                math.floor( IPOL(RGBColor[2][1], RGBColor[2][2], iY) ),
+                math.floor( IPOL(RGBColor[3][1], RGBColor[3][2], iY) )
             )
             
             M._pen:SetColour(color)
