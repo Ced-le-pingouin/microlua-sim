@@ -298,8 +298,10 @@ function M.drawGradientRectSimple(screenNum, x0, y0, x1, y1,
     if type(color4) == "number" then color4 = wx.wxColour(color4, 0, 0) end
     --
     
-    if x0 > x1 then x0, x1 = x1, x0 end
-    if y0 > y1 then y0, y1 = y1, y0 end
+    if x0 > x1 or y0 > y1 then
+        x0, y0, x1, y1 = x1, y1, x0, y0
+        color1, color2, color3, color4 = color4, color3, color2, color1
+    end
     
     local c1, c2, direction
     if not color1:op_eq(color2) then
@@ -350,8 +352,10 @@ function M.drawGradientRectAdvanced(screenNum, x0, y0, x1, y1,
     if type(color4) == "number" then color4 = wx.wxColour(color4, 0, 0) end
     --
     
-    if x0 > x1 then x0, x1 = x1, x0 end
-    if y0 > y1 then y0, y1 = y1, y0 end
+    if x0 > x1 or y0 > y1 then
+        x0, y0, x1, y1 = x1, y1, x0, y0
+        color1, color2, color3, color4 = color4, color3, color2, color1
+    end
     
     local screenOffset = M.offset[screenNum]
     
