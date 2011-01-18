@@ -160,6 +160,7 @@ function M._convertWxImageDataToOpenGlTextureData(image, textureWidth, textureHe
     local imageBytes = image:GetData()
     local mr, mg, mb = image:GetMaskRed(), image:GetMaskGreen(), 
                        image:GetMaskBlue()
+    local hasAlpha = image:HasAlpha()
     local data = memarray("uchar", textureWidth * textureHeight * 4)
     
     local widthDiff = (textureWidth - width) * 4
@@ -170,7 +171,9 @@ function M._convertWxImageDataToOpenGlTextureData(image, textureWidth, textureHe
         for x = 0, width - 1 do
             local r, g, b = imageBytes:byte(src, src + 2)
             data[dst], data[dst + 1], data[dst + 2] = r, g, b
-            if r == mr and g == mg and b == mb then
+            if hasAlpha then
+                data[dst + 3] = image:GetAlpha(x, y)
+            elseif r == mr and g == mg and b == mb then
                 data[dst + 3] = 0
             else
                 data[dst + 3] = 255
