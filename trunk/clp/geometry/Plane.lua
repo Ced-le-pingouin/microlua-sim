@@ -36,8 +36,8 @@ local M = Class.new()
 -- @param point (Point)
 -- @param normalVector (Vector)
 function M:ctr(point, normalVector)
-    self.point = point
-    self.normalVector = normalVector
+    self._point = point
+    self._normalVector = normalVector
 end
 
 --- Constructor.
@@ -68,8 +68,8 @@ end
 -- @return a, b, c, d (number, number, number, number)
 function M:getEquationParameters()
     if not self._equationParameters then
-        local a, b, c = self.normalVector:asNumbers()
-        local x, y, z = self.point:asNumbers()
+        local a, b, c = self._normalVector:asNumbers()
+        local x, y, z = self._point:asNumbers()
         
         local d = -((a * x) + (b * y) + (c * z))
         
