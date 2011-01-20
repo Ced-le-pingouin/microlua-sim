@@ -71,7 +71,7 @@ function M:getEquationParameters()
         local nv = self.normalVector
         
         local a, b, c = nv.x, nv.y, nv.z
-        local x, y, z = self.point.x, self.point.y, self.point.z
+        local x, y, z = self.point:asNumbers()
         
         local d = -((a * x) + (b * y) + (c * z))
         

@@ -33,16 +33,16 @@ local M = Class.new()
 -- @param y (number)
 -- @param z (number)
 function M:ctr(x, y ,z)
-    self.x = x or 0
-    self.y = y or 0
-    self.z = z or 0
+    self._x = x or 0
+    self._y = y or 0
+    self._z = z or 0
 end
 
 --- Return the coordinates of the point as 3 numbers.
 --
 -- @return (number, number, number)
 function M:asNumbers()
-    return self.x, self.y, self.z
+    return self._x, self._y, self._z
 end
 
 --- Add a x,y,z values to this point and return a new point.
@@ -53,7 +53,7 @@ end
 --
 -- @return (Point)
 function M:add(x, y, z)
-    return M:new(self.x + x, self.y + y, self.z + z)
+    return M:new(self._x + x, self._y + y, self._z + z)
 end
 
 --- Add a point to this point and return a new point.
@@ -62,7 +62,7 @@ end
 --
 -- @return (Point)
 function M:addPoint(point)
-    return M:new(self.x + point.x, self.y + point.y, self.z + point.z)
+    return M:new(self._x + point._x, self._y + point._y, self._z + point._z)
 end
 
 --- Substract a point from this point and return a new point.
@@ -71,11 +71,11 @@ end
 --
 -- @return (Point)
 function M:substractPoint(point)
-    return M:new(self.x - point.x, self.y - point.y, self.z - point.z)
+    return M:new(self._x - point._x, self._y - point._y, self._z - point._z)
 end
 
 function M:__tostring()
-    return string.format("(%d, %d, %d)", self.x, self.y, self.z)
+    return string.format("(%d, %d, %d)", self._x, self._y, self._z)
 end
 
 return M
