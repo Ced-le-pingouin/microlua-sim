@@ -94,7 +94,7 @@ end
 --
 -- @return (Vector)
 function M:cross(vector)
-    return M:new(
+    return M:newFromCartesian(
         (self._y * vector._z) - (self._z * vector._y),
         (self._z * vector._x) - (self._x * vector._z), 
         (self._x * vector._y) - (self._y * vector._x)
@@ -123,7 +123,7 @@ end
 function M:normalize()
     local length = self:length()
     
-    return M:new(
+    return M:newFromCartesian(
         self._x / length,
         self._y / length,
         self._z / length
