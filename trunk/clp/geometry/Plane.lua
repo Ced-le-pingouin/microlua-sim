@@ -31,22 +31,31 @@ local M = Class.new()
 
 --- Constructor.
 --
+-- @see newFromPointAndNormalVector
+function M:ctr(...)
+    return self:newFromPointAndNormalVector(...)
+end
+
 -- Construct a plane from a point and a normal vector.
 --
 -- @param point (Point)
 -- @param normalVector (Vector)
-function M:ctr(point, normalVector)
+--
+-- @return (Plane)
+function M:newFromPointAndNormalVector(point, normalVector)
     self._point = point
     self._normalVector = normalVector
+    
+    return self
 end
 
---- Constructor.
---
--- Construct a plane from 3 non-colinear points
+--- Construct a plane from 3 non-colinear points
 --
 -- @param p1 (Point)
 -- @param p2 (Point)
 -- @param p3 (Point)
+--
+-- @return (Plane)
 --
 -- @todo Verify that the points are non-colinear ???
 function M:newFrom3Points(p1, p2, p3)
@@ -54,7 +63,7 @@ function M:newFrom3Points(p1, p2, p3)
     local vector2 = Vector:newFrom2Points(p1, p3)
     local normalVector = vector1:cross(vector2)
     
-    return M:new(p1, normalVector)
+    return M:newFromPointAndNormalVector(p1, normalVector)
 end
 
 --- Get the A, B, C, and D parameters for the plane equation.
