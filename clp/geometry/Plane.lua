@@ -31,7 +31,7 @@ local M = Class.new()
 
 --- Constructor.
 --
--- A plane is represented by 3 non-colinear points.
+-- Construct a plane from 3 non-colinear points
 --
 -- @param p1 (Point)
 -- @param p2 (Point)
@@ -42,6 +42,21 @@ function M:ctr(p1, p2, p3)
     self.p1 = p1 or Point:new(0, 0, 0)
     self.p2 = p2 or Point:new(0, 0, 0)
     self.p3 = p3 or Point:new(0, 0, 0)
+end
+
+--- Pseudo overloaded constructor.
+--
+-- Construct a plane from a point and a normal vector.
+--
+-- @param point (Point)
+-- @param normalVector (Vector)
+--
+-- @return Plane
+function M:newFromPointAndNormalVector(point, normalVector)
+    local vector = M:new(point)
+    vector._normalVector = normalVector
+    
+    return vector
 end
 
 --- Compute the normal vector of the plane.
@@ -62,7 +77,8 @@ end
 --
 -- The equation is: a.x + b.y + c.z + d = 0, <a, b, c> being the normal vector 
 -- of the plane, and <x, y, z> being any point belonging to the plane.
--- Inside this method, we need to compute d as well, so:
+-- Inside this method, we need to compute d as well, which is the distance of 
+-- the plane from the origin, so:
 --   d = -(a.x + b.y + c.z)
 -- 
 -- @return a, b, c, d (number, number, number, number)
