@@ -29,7 +29,7 @@ local Map = require "clp.mls.modules.Map"
 local M = Class.new(Map)
 
 function M.draw(screenNum, scrollmap)
-    screen.enableGlClipping(screenNum)
+    screen.setClippingForScreen(screenNum)
     
     M.parent().draw(screenNum, scrollmap, 0, 0, 
                     scrollmap._width, scrollmap._height, true, true)

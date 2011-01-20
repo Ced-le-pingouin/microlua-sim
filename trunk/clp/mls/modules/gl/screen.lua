@@ -175,7 +175,7 @@ function M.blit(screenNum, x, y, image, sourcex, sourcey, width, height)
         sourcey2 = sourcey2 * yRatio
     end
     
-    M.enableGlClipping(screenNum)
+    M.setClippingForScreen(screenNum)
     
     glEnable(M.textureType)
     glBindTexture(M.textureType, image._textureId[0])
@@ -248,7 +248,7 @@ end
 function M.drawLine(screenNum, x0, y0, x1, y1, color)
     local screenOffset = M.offset[screenNum]
     
-    M.enableGlClipping(screenNum)
+    M.setClippingForScreen(screenNum)
     
     glDisable(M.textureType)
     glColor3d(color:Red() / 255, color:Green() / 255, color:Blue() / 255)
@@ -269,7 +269,7 @@ end
 function M.drawRect(screenNum, x0, y0, x1, y1, color)
     local screenOffset = M.offset[screenNum]
     
-    M.enableGlClipping(screenNum)
+    M.setClippingForScreen(screenNum)
     
     glDisable(M.textureType)
     glColor3d(color:Red() / 255, color:Green() / 255, color:Blue() / 255)
@@ -292,7 +292,7 @@ end
 function M.drawFillRect(screenNum, x0, y0, x1, y1, color)
     local screenOffset = M.offset[screenNum]
     
-    M.enableGlClipping(screenNum)
+    M.setClippingForScreen(screenNum)
     
     glDisable(M.textureType)
     glColor3d(color:Red() / 255, color:Green() / 255, color:Blue() / 255)
@@ -319,7 +319,7 @@ function M.drawGradientRect(screenNum, x0, y0, x1, y1,
                             color1, color2, color3, color4)
     local screenOffset = M.offset[screenNum]
     
-    M.enableGlClipping(screenNum)
+    M.setClippingForScreen(screenNum)
     
     glDisable(M.textureType)
     glBegin(GL_QUADS)
@@ -339,7 +339,7 @@ end
 
 --- Clears the current offscreen surface (with black).
 function M.clearOffscreenSurface()
-    M.disableGlClipping()
+    M.disableClipping()
     
     glClear(GL_COLOR_BUFFER_BIT + GL_DEPTH_BUFFER_BIT)
 end
@@ -382,7 +382,7 @@ function M:onStopDrawing()
     
     w = w / 2
     
-    M.disableGlClipping()
+    M.disableClipping()
     
     glDisable(M.textureType)
     
@@ -411,15 +411,6 @@ function M:onStopDrawing()
     glEnable(M.textureType)
 end
 
-function M.enableGlClipping(screenNum)
-    glClipPlane(GL_CLIP_PLANE0, M._clipPlanes[screenNum]:ptr())
-    glEnable(GL_CLIP_PLANE0)
-end
-
-function M.disableGlClipping()
-    glDisable(GL_CLIP_PLANE0)
-end
-
 function M.setClippingRegion(x, y, width, height)
     local topLeft     = Point:new(x, y)
     local bottomRight = Point:new(x + width, y + height)
@@ -444,8 +435,8 @@ function M.setClippingRegion(x, y, width, height)
     end
 end
 
-function M.destroyClippingRegion()
-    for i = 0, 4 do
+function M.disableClipping()
+    for i = 1, 4 do
         glDisable(GL_CLIP_PLANE0 + i)
     end
 end
@@ -494,7 +485,7 @@ end
 -- @param y (number) The y coordinate where to draw
 -- @param color (Color) The color of the point
 function M._drawPoint(screenNum, x, y, color)
-    M.enableGlClipping(screenNum)
+    M.setClippingForScreen(screenNum)
     
     glDisable(M.textureType)
     glColor3d(color:Red() / 255, color:Green() / 255, color:Blue() / 255)
