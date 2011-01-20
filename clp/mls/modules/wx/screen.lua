@@ -445,6 +445,9 @@ function M.drawTextBox(screenNum, x0, y0, x1, y1, text, color)
     if offscreenDC then
         offscreenDC:DestroyClippingRegion()
         offscreenDC:SetClippingRegion(x0, y0, width, height)
+    else
+        M.static().destroyClippingRegion()
+        M.static().setClippingRegion(x0, y0, width, height)
     end
     
     -- get multiples lines, \n has to be treated
@@ -490,7 +493,11 @@ function M.drawTextBox(screenNum, x0, y0, x1, y1, text, color)
         end
     end
     
-    if offscreenDC then offscreenDC:DestroyClippingRegion() end
+    if offscreenDC then
+        offscreenDC:DestroyClippingRegion()
+    else
+        M.static().destroyClippingRegion()
+    end
 end
 
 --- Does nothing in MLS.
