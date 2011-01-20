@@ -36,9 +36,9 @@ local M = Class.new()
 --
 -- @todo Check for null vector special cases ???
 function M:ctr(x, y, z)
-    self.x = x or 0
-    self.y = y or 0
-    self.z = z or 0
+    self._x = x or 0
+    self._y = y or 0
+    self._z = z or 0
 end
 
 --- Pseudo overloaded constructor.
@@ -64,13 +64,20 @@ function M:newFrom2Points(pointA, pointB)
     return M:newFromPoint(pointB:substractPoint(pointA))
 end
 
+--- Return the coordinates of the vector as 3 numbers.
+--
+-- @return (number, number, number)
+function M:asNumbers()
+    return self._x, self._y, self._z
+end
+
 --- Compute the dot product of this vector with another vector.
 --
 -- @param vector (Vector) The second vector for the dot product
 --
 -- @return (number)
 function M:dot(vector)
-    return (self.x * vector.x) + (self.y * vector.y) + (self.z * vector.z)
+    return (self._x * vector._x) + (self._y * vector._y) + (self._z * vector._z)
 end
 
 --- Get the cross product of this vector with another vector.
@@ -83,9 +90,9 @@ end
 -- @return (Vector)
 function M:cross(vector)
     return M:new(
-        (self.y * vector.z) - (self.z * vector.y),
-        (self.z * vector.x) - (self.x * vector.z), 
-        (self.x * vector.y) - (self.y * vector.x)
+        (self._y * vector._z) - (self._z * vector._y),
+        (self._z * vector._x) - (self._x * vector._z), 
+        (self._x * vector._y) - (self._y * vector._x)
     )
 end
 
@@ -112,14 +119,14 @@ function M:normalized()
     local length = self:length()
     
     return M:new(
-        self.x / length,
-        self.y / length,
-        self.z / length
+        self._x / length,
+        self._y / length,
+        self._z / length
     )
 end
 
 function M:__tostring()
-    return string.format("<%d, %d, %d>", self.x, self.y, self.z)
+    return string.format("<%d, %d, %d>", self._x, self._y, self._z)
 end
 
 return M
