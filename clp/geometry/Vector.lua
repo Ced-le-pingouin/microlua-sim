@@ -41,7 +41,7 @@ function M:ctr(x, y, z)
     self.z = z or 0
 end
 
---- Pseudo overloaded Constructor.
+--- Pseudo overloaded constructor.
 --
 -- Constructs a Vector from an existing Point object
 --
@@ -52,7 +52,7 @@ function M:newFromPoint(point)
     return M:new(point:asNumbers())
 end
 
---- Pseudo overloaded Constructor.
+--- Pseudo overloaded constructor.
 --
 -- Constructs a Vector from two existing Point objects
 --
@@ -95,14 +95,27 @@ end
 -- The formula is that of the Euclidian norm (2-norm, which is a p-norm): 
 --   sqrt(x^2 + y^2 + z^2)
 --
--- But that happens to equal the dot product of the vector with itself, so we 
--- use that in the method
+-- But that happens to equal the sqrt of the dot product of the vector with 
+-- itself, so we use that in the method
 function M:length()
     if not self._length then
-        self._length = self:dot(self)
+        self._length = math.sqrt(self:dot(self))
     end
     
     return self._length
+end
+
+--- Return the normalized vector.
+--
+-- @return (Vector)
+function M:normalized()
+    local length = self:length()
+    
+    return M:new(
+        self.x / length,
+        self.y / length,
+        self.z / length
+    )
 end
 
 function M:__tostring()
