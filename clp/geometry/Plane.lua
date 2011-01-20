@@ -68,9 +68,7 @@ end
 -- @return a, b, c, d (number, number, number, number)
 function M:getEquationParameters()
     if not self._equationParameters then
-        local nv = self.normalVector
-        
-        local a, b, c = nv.x, nv.y, nv.z
+        local a, b, c = self.normalVector:asNumbers()
         local x, y, z = self.point:asNumbers()
         
         local d = -((a * x) + (b * y) + (c * z))
