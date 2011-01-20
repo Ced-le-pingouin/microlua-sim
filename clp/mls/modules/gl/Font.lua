@@ -48,7 +48,7 @@ end
 function M.print(screenNum, font, x, y, text, color, _useColor)
     if not _useColor then color = nil end
     
-    screen.enableGlClipping(screenNum)
+    screen.setClippingForScreen(screenNum)
     
     y = screen.offset[screenNum] + y
     

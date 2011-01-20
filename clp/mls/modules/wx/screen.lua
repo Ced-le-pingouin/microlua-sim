@@ -363,8 +363,7 @@ function M.drawGradientRectAdvanced(screenNum, x0, y0, x1, y1,
     local h = (y1 - y0) + M._rectAdditionalLength
     
     local offscreenDC = M.offscreenDC
-    offscreenDC:DestroyClippingRegion()
-    offscreenDC:SetClippingRegion(x0, y0 + screenOffset, w, h)
+    M.setClippingRegion(x0, y0 + screenOffset, w, h)
     
     local NUM_BLOCKS = M._drawGradientRectNumBlocks
     
@@ -441,14 +440,7 @@ function M.drawTextBox(screenNum, x0, y0, x1, y1, text, color)
     local font = Font._defaultFont
     local fontHeight = Font.getCharHeight(font)
     
-    local offscreenDC = M.offscreenDC
-    if offscreenDC then
-        offscreenDC:DestroyClippingRegion()
-        offscreenDC:SetClippingRegion(x0, y0, width, height)
-    else
-        M.static().destroyClippingRegion()
-        M.static().setClippingRegion(x0, y0, width, height)
-    end
+    M.static().setClippingRegion(x0, y0, width, height)
     
     -- get multiples lines, \n has to be treated
     local lines = {}
@@ -493,11 +485,7 @@ function M.drawTextBox(screenNum, x0, y0, x1, y1, text, color)
         end
     end
     
-    if offscreenDC then
-        offscreenDC:DestroyClippingRegion()
-    else
-        M.static().destroyClippingRegion()
-    end
+    M.static().disableClipping()
 end
 
 --- Does nothing in MLS.
@@ -697,13 +685,26 @@ end
 --
 -- @return (wxMemoryDC)
 function M._getOffscreenDC(screenNum)
+    M.setClippingForScreen(screenNum)
+    
+    return M.offscreenDC
+end
+
+function M.setClippingForScreen(screenNum)
+    M.static().setClippingRegion(
+        0, M.offset[screenNum], SCREEN_WIDTH, SCREEN_HEIGHT
+    )
+end
+
+function M.setClippingRegion(x, y, width, height)
     local offscreenDC = M.offscreenDC
     
     offscreenDC:DestroyClippingRegion()
-    offscreenDC:SetClippingRegion(0, M.offset[screenNum], 
-                                  SCREEN_WIDTH, SCREEN_HEIGHT)
-    
-    return offscreenDC
+    offscreenDC:SetClippingRegion(x, y, width, height)
+end
+
+function M.disableClipping()
+    M.offscreenDC:DestroyClippingRegion()
 end
 
 --- Switches to the next available offscreen surface.
