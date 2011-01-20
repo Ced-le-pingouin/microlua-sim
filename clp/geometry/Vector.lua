@@ -115,7 +115,7 @@ end
 --- Return the normalized vector.
 --
 -- @return (Vector)
-function M:normalized()
+function M:normalize()
     local length = self:length()
     
     return M:new(
