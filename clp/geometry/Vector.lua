@@ -41,6 +41,8 @@ end
 -- @param y (number)
 -- @param z (number)
 --
+-- @return (Vector)
+--
 -- @todo Check for null vector special cases ???
 function M:newFromCartesian(x, y, z)
     self._x = x or 0
@@ -56,7 +58,7 @@ end
 --
 -- @return (Vector)
 function M:newFromPoint(point)
-    return M:new(point:asNumbers())
+    return M:new(point:asCartesian())
 end
 
 --- Construct a Vector from two existing Point objects.
@@ -69,10 +71,10 @@ function M:newFrom2Points(pointA, pointB)
     return M:newFromPoint(pointB:substractPoint(pointA))
 end
 
---- Return the coordinates of the vector as 3 numbers.
+--- Return the vector as x,y,z cartesian coordinates (number).
 --
 -- @return (number, number, number)
-function M:asNumbers()
+function M:asCartesian()
     return self._x, self._y, self._z
 end
 
