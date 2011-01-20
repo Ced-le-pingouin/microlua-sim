@@ -140,7 +140,7 @@ end
 -- @warning Must be called with ":" on a class
 function M._newObjectInstance(class, ...)
     local object = {}
-    setmetatable(object, { __index = class })
+    setmetatable(object, { __index = class, __tostring = class.__tostring })
     
     if class.ctr
        and (type(class.ctr) == "function"
