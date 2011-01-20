@@ -64,8 +64,8 @@ end
 -- @return (Vector)
 function M:normalVector()
     if not self._normalVector then
-        local vector1 = Vector:newFromTwoPoints(self.p1, self.p2)
-        local vector2 = Vector:newFromTwoPoints(self.p1, self.p3)
+        local vector1 = Vector:newFrom2Points(self.p1, self.p2)
+        local vector2 = Vector:newFrom2Points(self.p1, self.p3)
         
         self._normalVector = vector1:cross(vector2)
     end

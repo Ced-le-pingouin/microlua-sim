@@ -60,7 +60,7 @@ end
 -- @param pointB (Point)
 --
 -- @return (Vector)
-function M:newFromTwoPoints(pointA, pointB)
+function M:newFrom2Points(pointA, pointB)
     return M:newFromPoint(pointB:substractPoint(pointA))
 end
 
