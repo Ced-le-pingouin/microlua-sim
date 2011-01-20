@@ -32,6 +32,9 @@ require "memarray"
 require "wx"
 
 local Class = require "clp.Class"
+local Point = require "clp.geometry.Point"
+local Vector = require "clp.geometry.Vector"
+local Plane = require "clp.geometry.Plane"
 local screen_wx = require "clp.mls.modules.wx.screen"
 local Sys = require "clp.mls.Sys"
 
@@ -415,6 +418,45 @@ end
 
 function M.disableGlClipping()
     glDisable(GL_CLIP_PLANE0)
+end
+
+function M.setClippingRegion(x, y, width, height)
+    local topLeft     = Point:new(x, y)
+    local bottomRight = Point:new(x + width, y + height)
+    
+    -- the clipping occurs for all points "behind" the plane's "back", the front
+    -- side being the one going in the plane direction (normal vector)
+    local clippingPlanes = {
+        -- left
+        Plane:new(topLeft, Vector:new(1, 0, 0)),
+        -- top
+        Plane:new(topLeft, Vector:new(0, 1, 0)),
+        -- right
+        Plane:new(bottomRight, Vector:new(-1, 0, 0)),
+        -- bottom
+        Plane:new(bottomRight, Vector:new(0, -1, 0))
+    }
+    
+    for numClippingPlane, plane in ipairs(clippingPlanes) do
+        M._setOpenGlClippingPlane(
+            numClippingPlane, plane:getEquationParameters()
+        )
+    end
+end
+
+function M.destroyClippingRegion()
+    for i = 0, 4 do
+        glDisable(GL_CLIP_PLANE0 + i)
+    end
+end
+
+function M._setOpenGlClippingPlane(numPlane, a, b, c, d)
+    local numPlaneConst = GL_CLIP_PLANE0 + numPlane
+    local planeParams = memarray("GLdouble", 4)
+    planeParams[0], planeParams[1], planeParams[2], planeParams[3] = a, b, c, d
+    
+    glClipPlane(numPlaneConst, planeParams:ptr())
+    glEnable(numPlaneConst)
 end
 
 --- Displays a bar with some text on the upper screen.
