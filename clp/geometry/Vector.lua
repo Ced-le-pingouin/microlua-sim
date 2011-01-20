@@ -30,20 +30,27 @@ local M = Class.new()
 
 --- Constructor.
 --
+-- @see newFromCartesian
+function M:ctr(...)
+    return self:newFromCartesian(...)
+end
+
+--- Construct a Vector from cartesian coordinates (x,y,z).
+--
 -- @param x (number)
 -- @param y (number)
 -- @param z (number)
 --
 -- @todo Check for null vector special cases ???
-function M:ctr(x, y, z)
+function M:newFromCartesian(x, y, z)
     self._x = x or 0
     self._y = y or 0
     self._z = z or 0
+    
+    return self
 end
 
---- Pseudo overloaded constructor.
---
--- Constructs a Vector from an existing Point object
+--- Construct a Vector from an existing Point object.
 --
 -- @param point (Point)
 --
@@ -52,9 +59,7 @@ function M:newFromPoint(point)
     return M:new(point:asNumbers())
 end
 
---- Pseudo overloaded constructor.
---
--- Constructs a Vector from two existing Point objects
+--- Construct a Vector from two existing Point objects.
 --
 -- @param pointA (Point)
 -- @param pointB (Point)
