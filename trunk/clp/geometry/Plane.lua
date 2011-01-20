@@ -77,8 +77,8 @@ end
 -- @return a, b, c, d (number, number, number, number)
 function M:getEquationParameters()
     if not self._equationParameters then
-        local a, b, c = self._normalVector:asNumbers()
-        local x, y, z = self._point:asNumbers()
+        local a, b, c = self._normalVector:asCartesian()
+        local x, y, z = self._point:asCartesian()
         
         local d = -((a * x) + (b * y) + (c * z))
         

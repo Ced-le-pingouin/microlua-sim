@@ -38,10 +38,10 @@ function M:ctr(x, y ,z)
     self._z = z or 0
 end
 
---- Return the coordinates of the point as 3 numbers.
+--- Return the the point as x,y,z cartesian coordinates (numbers).
 --
 -- @return (number, number, number)
-function M:asNumbers()
+function M:asCartesian()
     return self._x, self._y, self._z
 end
 
