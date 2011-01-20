@@ -31,6 +31,17 @@ local M = Class.new()
 
 --- Constructor.
 --
+-- Construct a plane from a point and a normal vector.
+--
+-- @param point (Point)
+-- @param normalVector (Vector)
+function M:ctr(point, normalVector)
+    self.point = point
+    self.normalVector = normalVector
+end
+
+--- Constructor.
+--
 -- Construct a plane from 3 non-colinear points
 --
 -- @param p1 (Point)
@@ -38,39 +49,12 @@ local M = Class.new()
 -- @param p3 (Point)
 --
 -- @todo Verify that the points are non-colinear ???
-function M:ctr(p1, p2, p3)
-    self.p1 = p1 or Point:new(0, 0, 0)
-    self.p2 = p2 or Point:new(0, 0, 0)
-    self.p3 = p3 or Point:new(0, 0, 0)
-end
-
---- Pseudo overloaded constructor.
---
--- Construct a plane from a point and a normal vector.
---
--- @param point (Point)
--- @param normalVector (Vector)
---
--- @return Plane
-function M:newFromPointAndNormalVector(point, normalVector)
-    local vector = M:new(point)
-    vector._normalVector = normalVector
+function M:newFrom3Points(p1, p2, p3)
+    local vector1 = Vector:newFrom2Points(p1, p2)
+    local vector2 = Vector:newFrom2Points(p1, p3)
+    local normalVector = vector1:cross(vector2)
     
-    return vector
-end
-
---- Compute the normal vector of the plane.
---
--- @return (Vector)
-function M:normalVector()
-    if not self._normalVector then
-        local vector1 = Vector:newFrom2Points(self.p1, self.p2)
-        local vector2 = Vector:newFrom2Points(self.p1, self.p3)
-        
-        self._normalVector = vector1:cross(vector2)
-    end
-    
-    return self._normalVector
+    return M:new(p1, normalVector)
 end
 
 --- Get the A, B, C, and D parameters for the plane equation.
@@ -84,11 +68,10 @@ end
 -- @return a, b, c, d (number, number, number, number)
 function M:getEquationParameters()
     if not self._equationParameters then
-        local nv = self:normalVector()
-        local point = self.p1
+        local nv = self.normalVector
         
         local a, b, c = nv.x, nv.y, nv.z
-        local x, y, z = point.x, point.y, point.z
+        local x, y, z = self.point.x, self.point.y, self.point.z
         
         local d = -((a * x) + (b * y) + (c * z))
         
