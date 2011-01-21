@@ -121,14 +121,27 @@ function M:initModule(emulateLibs)
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
     
-    -- predefine clip planes to restrict drawing operations to up or down screen
+    -- predefine the null clip plane
+    M._nullPlane = memarray("GLdouble", 4)
+    M._nullPlane[0] = 0
+    M._nullPlane[1] = 0
+    M._nullPlane[2] = 0
+    M._nullPlane[3] = 0
+    
+    -- predefine clip planes' memory and set them to null
     M._clipPlanes = {}
-    local cpUp = memarray("GLdouble", 4)
-    local cpDown = memarray("GLdouble", 4)
-    cpUp[0], cpUp[1], cpUp[2], cpUp[3] = 0, -1, 0, 191
-    cpDown[0], cpDown[1], cpDown[2], cpDown[3] = 0, 1, 0, -192
-    M._clipPlanes[SCREEN_UP] = cpUp
-    M._clipPlanes[SCREEN_DOWN] = cpDown
+    for i = 1, 4 do
+        M._clipPlanes[i] = memarray("GLdouble", 4)
+        
+        M._clipPlanes[i][0] = 0
+        M._clipPlanes[i][1] = 0
+        M._clipPlanes[i][2] = 0
+        M._clipPlanes[i][3] = 0
+        
+        glEnable(GL_CLIP_PLANE0 + i)
+    end
+    
+    M._lastClippingRegion = {}
 end
 
 --- Initializes an offscreen surface for double buffering.
@@ -412,6 +425,12 @@ function M:onStopDrawing()
 end
 
 function M.setClippingRegion(x, y, width, height)
+    local lc = M._lastClippingRegion
+    if x == lc.x and y == lc.y and width == lc.width and height == lc.height
+    then
+        return
+    end
+    
     local topLeft     = Point:new(x, y)
     local bottomRight = Point:new(x + width, y + height)
     
@@ -428,26 +447,26 @@ function M.setClippingRegion(x, y, width, height)
         Plane:new(bottomRight, Vector:new(0, -1, 0))
     }
     
-    for numClippingPlane, plane in ipairs(clippingPlanes) do
+    for clippingPlaneNum, plane in ipairs(clippingPlanes) do
         M._setOpenGlClippingPlane(
-            numClippingPlane, plane:getEquationParameters()
+            clippingPlaneNum, plane:getEquationParameters()
         )
     end
+    
+    M._lastClippingRegion = { x = x, y = y, width = width, height = height }
 end
 
 function M.disableClipping()
-    for i = 1, 4 do
-        glDisable(GL_CLIP_PLANE0 + i)
+    for i = 1, #M._clipPlanes do
+        glClipPlane(GL_CLIP_PLANE0 + i, M._nullPlane:ptr())
     end
 end
 
-function M._setOpenGlClippingPlane(numPlane, a, b, c, d)
-    local numPlaneConst = GL_CLIP_PLANE0 + numPlane
-    local planeParams = memarray("GLdouble", 4)
-    planeParams[0], planeParams[1], planeParams[2], planeParams[3] = a, b, c, d
+function M._setOpenGlClippingPlane(planeNum, a, b, c, d)
+    local cp = M._clipPlanes[planeNum]
+    cp[0], cp[1], cp[2], cp[3] = a, b, c, d
     
-    glClipPlane(numPlaneConst, planeParams:ptr())
-    glEnable(numPlaneConst)
+    glClipPlane(GL_CLIP_PLANE0 + planeNum, cp:ptr())
 end
 
 --- Displays a bar with some text on the upper screen.
