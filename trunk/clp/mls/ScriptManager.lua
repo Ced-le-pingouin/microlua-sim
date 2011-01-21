@@ -84,6 +84,9 @@ function M:ctr(fps, ups, timing, moduleManager)
     
     self:_setScriptState(M.SCRIPT_NONE)
     
+    -- debug / step by step mode
+    self._debugMode = false
+    
     -- load ML modules
     self._moduleManager = moduleManager
     self._moduleManager:loadModules()
@@ -249,6 +252,7 @@ function M:_endMainLoopIteration()
     Mls.logger:trace("ending one loop iteration", "script")
     
     self:_updateUps()
+    self:_pauseIfDebugMode()
     
     coroutine.yield()
 end
@@ -294,6 +298,16 @@ function M:_updateUps()
         
         Mls:notify("upsUpdate", self._currentUps)
     end
+end
+
+function M:_pauseIfDebugMode()
+    if self._debugMode then
+        self:pauseScript()
+    end
+end
+
+function M:debugModeEnabled()
+    return self._debugMode
 end
 
 --- Loads a user script as a function.
@@ -383,6 +397,9 @@ function M:pauseScript()
     end
     
     self:_setScriptState(M.SCRIPT_PAUSED)
+    
+    self._debugMode = false
+    
     wx.wxYield()
 end
 
@@ -405,6 +422,12 @@ function M:pauseOrResumeScript()
     elseif self._scriptState == M.SCRIPT_PAUSED then
         self:resumeScript()
     end
+end
+
+function M:debugOneStepScript()
+    self._debugMode = true
+    
+    self:pauseOrResumeScript()
 end
 
 --- Pauses the running script, executes a function, then resumes the script.

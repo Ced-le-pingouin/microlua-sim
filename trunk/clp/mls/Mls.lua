@@ -393,7 +393,11 @@ function Mls:onKeyDown(event, key, shift)
     local sm = Mls.scriptManager
     
     if key == wx.WXK_P then
-        sm:pauseOrResumeScript()
+        if not shift then
+            sm:pauseOrResumeScript()
+        else
+            sm:debugOneStepScript()
+        end
     elseif key == wx.WXK_B then
         if not shift then
             sm:restartScript()
@@ -461,6 +465,7 @@ function Mls:onScriptStateChange(event, script, state)
     self.gui:displayScriptState(ScriptManager.getStateName(state))
     
     if state ~= ScriptManager.SCRIPT_RUNNING then
+        local color
         if state == ScriptManager.SCRIPT_NONE 
            or state == ScriptManager.SCRIPT_ERROR
         then
@@ -471,8 +476,14 @@ function Mls:onScriptStateChange(event, script, state)
         else
             color = Color.new(0, 0, 31)
         end
-        screen.displayInfoText(Mls.scriptManager.getStateName(state):upper(), 
-                               color)
+        
+        local sm = Mls.scriptManager
+        local caption = nil
+        if not sm:debugModeEnabled() then
+            caption = sm.getStateName(state):upper()
+        end
+        
+        screen.displayInfoText(caption, color)
     end
     
     if state == ScriptManager.SCRIPT_NONE
