@@ -431,26 +431,21 @@ function M.setClippingRegion(x, y, width, height)
         return
     end
     
-    local topLeft     = Point:new(x, y)
-    local bottomRight = Point:new(x + width, y + height)
-    
     -- the clipping occurs for all points "behind" the plane's "back", the front
     -- side being the one going in the plane direction (normal vector)
     local clippingPlanes = {
         -- left
-        Plane:new(topLeft, Vector:new(1, 0, 0)),
+        { 1, 0, 0, -x },
         -- top
-        Plane:new(topLeft, Vector:new(0, 1, 0)),
+        { 0, 1, 0, -y },
         -- right
-        Plane:new(bottomRight, Vector:new(-1, 0, 0)),
+        { -1, 0, 0, x + width },
         -- bottom
-        Plane:new(bottomRight, Vector:new(0, -1, 0))
+        { 0, -1, 0, y + height }
     }
     
     for clippingPlaneNum, plane in ipairs(clippingPlanes) do
-        M._setOpenGlClippingPlane(
-            clippingPlaneNum, plane:getEquationParameters()
-        )
+        M._setOpenGlClippingPlane(clippingPlaneNum, unpack(plane))
     end
     
     M._lastClippingRegion = { x = x, y = y, width = width, height = height }
