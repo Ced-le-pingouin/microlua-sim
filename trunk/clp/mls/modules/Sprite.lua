@@ -115,13 +115,14 @@ end
 -- @param nbAnim (number) The number of the animation to play
 function M:playAnimation(screenNum, x, y, nbAnim)
     local anim = self._animations[nbAnim]
-
+    
+    if self:isAnimationAtEnd(nbAnim) then anim.currentFrame = 1 end
+    
     self:drawFrame(screenNum, x, y, anim.frames[anim.currentFrame])
     
     if anim.status == M._ANIM_PLAYING and self._timer:time() > anim.nextUpdate
     then
         anim.currentFrame = anim.currentFrame + 1
-        if self:isAnimationAtEnd(nbAnim) then anim.currentFrame = 1 end
         anim.nextUpdate = self._timer:time() + anim.delay
     end
 end
@@ -132,6 +133,10 @@ end
 --
 -- @todo This function is not yet implemented
 function M:resetAnimation(nbAnim)
+    local anim = self._animations[nbAnim]
+    
+    anim.currentFrame = 1
+    anim.status = M._ANIM_STOPPED
 end
 
 --- Starts an animation [ML 2+ API].
@@ -140,6 +145,9 @@ end
 --
 -- @todo This function is not yet implemented
 function M:startAnimation(nbAnim)
+    local anim = self._animations[nbAnim]
+    
+    anim.status = M._ANIM_PLAYING
 end
 
 --- Stops an animation [ML 2+ API].
@@ -148,6 +156,9 @@ end
 --
 -- @todo This function is not yet implemented
 function M:stopAnimation(nbAnim)
+    local anim = self._animations[nbAnim]
+    
+    anim.status = M._ANIM_STOPPED
 end
 
 --- Returns true if the animation has drawn the last frame [ML 2+ API].
