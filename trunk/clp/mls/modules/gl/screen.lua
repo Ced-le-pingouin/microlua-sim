@@ -32,9 +32,6 @@ require "memarray"
 require "wx"
 
 local Class = require "clp.Class"
-local Point = require "clp.geometry.Point"
-local Vector = require "clp.geometry.Vector"
-local Plane = require "clp.geometry.Plane"
 local screen_wx = require "clp.mls.modules.wx.screen"
 local Sys = require "clp.mls.Sys"
 
