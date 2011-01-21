@@ -601,30 +601,32 @@ end
 -- @param text (string)
 -- @param color (Color) The color of the bar. The default is blue.
 function M.displayInfoText(text, color)
-    if not color then color = Color.new(0, 0, 31) end
-    
-    local textColor = Color.new(31, 31, 31)
-    local shadowColor = Color.new(0, 0, 0)
-    local shadowOffset = 1
-    
-    local w, h = SCREEN_WIDTH / 1.5, 12
-    local x, y = (SCREEN_WIDTH - w) / 2, (SCREEN_HEIGHT - h) / 2
-    local textXOffset = (w - Font.getStringWidth(Font._defaultFont, text)) / 2
-    local textYOffset = (h - Font.getCharHeight(Font._defaultFont)) / 2
-    
     M.static()._copyOffscreenFromPrevious()
     
-    -- draw the frame and its shadow
-    M.static().drawFillRect(SCREEN_UP, x + shadowOffset, y + shadowOffset, 
-                            x + w + shadowOffset, y + h + shadowOffset, 
-                            shadowColor)
-    M.static().drawFillRect(SCREEN_UP, x, y, x + w, y + h, color)
-    
-    -- draw text and its shadow
-    M.static().print(SCREEN_UP, x + textXOffset + shadowOffset, 
-                     y + textYOffset + shadowOffset, text, shadowColor)
-    M.static().print(SCREEN_UP, x + textXOffset, y + textYOffset, text, 
-                     textColor)
+    if text then
+        if not color then color = Color.new(0, 0, 31) end
+        
+        local textColor = Color.new(31, 31, 31)
+        local shadowColor = Color.new(0, 0, 0)
+        local shadowOffset = 1
+        
+        local w, h = SCREEN_WIDTH / 1.5, 12
+        local x, y = (SCREEN_WIDTH - w) / 2, (SCREEN_HEIGHT - h) / 2
+        local textXOffset = (w - Font.getStringWidth(Font._defaultFont, text)) / 2
+        local textYOffset = (h - Font.getCharHeight(Font._defaultFont)) / 2
+        
+        -- draw the frame and its shadow
+        M.static().drawFillRect(SCREEN_UP, x + shadowOffset, y + shadowOffset, 
+                                x + w + shadowOffset, y + h + shadowOffset, 
+                                shadowColor)
+        M.static().drawFillRect(SCREEN_UP, x, y, x + w, y + h, color)
+        
+        -- draw text and its shadow
+        M.static().print(SCREEN_UP, x + textXOffset + shadowOffset, 
+                         y + textYOffset + shadowOffset, text, shadowColor)
+        M.static().print(SCREEN_UP, x + textXOffset, y + textYOffset, text, 
+                         textColor)
+    end
     
     M.static().forceRepaint()
 end
