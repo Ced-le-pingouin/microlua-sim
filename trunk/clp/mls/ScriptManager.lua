@@ -34,6 +34,7 @@ require "wx"
 local Class = require "clp.Class"
 local Sys = require "clp.mls.Sys"
 local Timer = require "clp.mls.modules.wx.Timer"
+local Debugger = require "clp.Debugger"
 
 local M = Class.new()
 
@@ -82,10 +83,13 @@ function M:ctr(fps, ups, timing, moduleManager)
     self._mainLoopCoroutine = nil
     self._mainLoopEnvironment = nil
     
+    self._originalGlobalTable = _G
+    
     self:_setScriptState(M.SCRIPT_NONE)
     
     -- debug / step by step mode
     self._debugMode = false
+    self._debugger = nil
     
     -- load ML modules
     self._moduleManager = moduleManager
@@ -303,11 +307,23 @@ end
 function M:_pauseIfDebugMode()
     if self._debugMode then
         self:pauseScript()
+        local variablesInfo = self._debugger:getVariablesInfo(
+            self._mainLoopEnvironment,
+            self._originalGlobalTable
+        )
+        
+        for name, info in pairs(variablesInfo) do
+            print(string.format("%s (s%) = %s", name, info.type, info.value))
+        end
     end
 end
 
 function M:debugModeEnabled()
     return self._debugMode
+end
+
+function M.debugHook(event, line)
+    --print(event, line)
 end
 
 --- Loads a user script as a function.
@@ -353,6 +369,11 @@ end
 -- Its function/coroutine and the associated custom environment are deleted, and
 -- garbage collection is forced.
 function M:stopScript()
+    if self._debugger then
+        self._debugger:disable()
+    end
+    self._debugger = nil
+    
     self._mainLoopCoroutine = nil
     self._mainLoopEnvironment = nil
     --self:_changeMlsFunctionsEnvironment(_G)
@@ -377,6 +398,12 @@ function M:startScript()
     self:_setFunctionEnvironmentToEmpty(self._scriptFunction)
     self._moduleManager:resetModules()
     self._mainLoopCoroutine = coroutine.create(self._scriptFunction)
+    
+    self._debugger = Debugger:new(self._mainLoopCoroutine)
+    self._debugger:setHookOnNewLine(self.debugHook)
+    print(self._scriptPath)
+    self._debugger:addFileToFilter(self._scriptPath)
+    self._debugger:enable()
     
     self:_resetLastUpdateTimes()
     self:_setScriptState(M.SCRIPT_RUNNING)
