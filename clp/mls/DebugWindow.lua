@@ -120,6 +120,8 @@ function M:_createVariablesGrid()
     grid:SetDefaultCellFont(self._defaultFont)
     
     self._topSizer:Add(grid, 1, wx.wxEXPAND)
+    
+    self._variablesGrid = grid
 end
 
 --- Sets the main window to the correct size, centers it, then displays it.
@@ -212,6 +214,62 @@ function M:_validateLine(line)
     end
     
     return line
+end
+
+function M:setGridVariables(variables)
+    local grid = self._variablesGrid
+    
+    grid:BeginBatch()
+    
+    local numRows = grid:GetNumberRows()
+    grid:DeleteRows(0, numRows)
+    
+    local rowNum = 0
+    for name, value in pairs(variables) do
+        grid:AppendRows(1)
+        
+        grid:SetCellValue(rowNum, 0, tostring(name))
+        grid:SetReadOnly(rowNum, 0)
+        
+        grid:SetCellValue(rowNum, 1, type(value))
+        grid:SetReadOnly(rowNum, 1)
+        
+        grid:SetCellValue(rowNum, 2, tostring(value))
+        grid:SetReadOnly(rowNum, 2)
+        
+        rowNum = rowNum + 1
+    end
+    
+    grid:EndBatch()
+    
+    self._variables = variables
+end
+
+function M:sortGridByColumn(colNum)
+    local grid = self._variablesGrid
+    local numRows = grid:GetNumberRows()
+    
+    grid:BeginBatch()
+    
+    repeat
+        local permutationOccured = false
+        
+        for i = 0, numRows - 1 - 1  do
+            if grid:GetCellValue(i, colNum) > grid:GetCellValue(i + 1, colNum)
+            then
+                local numCols = grid:GetNumberCols()
+                for j = 0, numCols - 1 do
+                    local firstRowSavedValue = grid:GetCellValue(i, j)
+                    grid:SetCellValue(i, j, grid:GetCellValue(i + 1, j))
+                    grid:SetCellValue(i + 1, j, firstRowSavedValue)
+                end
+                
+                permutationOccured = true
+            end
+        end
+    until not permutationOccured
+    
+    grid:EndBatch()
 end
 
 return M
