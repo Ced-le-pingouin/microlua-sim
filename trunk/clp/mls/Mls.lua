@@ -130,6 +130,14 @@ function Mls:ctr(scriptPath)
     Mls.keyBindings = Mls._loadKeyBindingsFromFile("README")
     Mls.gui = Mls._initGui(Mls.initialDirectory)
     
+    -- debug window
+    local DebugWindow = require "clp.mls.DebugWindow"
+    local debugWindow = DebugWindow:new()
+    debugWindow:show()
+    debugWindow:setSourceFile("./clp/mls/Mls.lua")
+    debugWindow:setCurrentLineInSource(384)
+    debugWindow:setCurrentLineInSource(386)
+    
     -- logger
     Mls.logger:setWriterFunction(Mls.gui:getConsoleWriter())
     Mls.logger:setLogFormat("%m")
