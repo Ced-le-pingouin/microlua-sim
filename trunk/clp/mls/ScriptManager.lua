@@ -307,14 +307,6 @@ end
 function M:_pauseIfDebugMode()
     if self._debugMode then
         self:pauseScript()
-        local variablesInfo = self._debugger:getVariablesInfo(
-            self._mainLoopEnvironment,
-            self._originalGlobalTable
-        )
-        
-        for name, info in pairs(variablesInfo) do
-            print(string.format("%s (s%) = %s", name, info.type, info.value))
-        end
     end
 end
 
@@ -322,8 +314,19 @@ function M:debugModeEnabled()
     return self._debugMode
 end
 
-function M.debugHook(event, line)
+function M:debugHook(event, line)
     --print(event, line)
+    --[[
+    local variablesInfo = self._debugger:getVariablesInfoWithFilter(
+        self._mainLoopEnvironment,
+        self._originalGlobalTable
+    )
+    
+    for name, value in pairs(variablesInfo) do
+        print(string.format(
+            "%s (%s) = %s", name, type(value), tostring(value)
+        ))
+    end]]
 end
 
 --- Loads a user script as a function.
@@ -400,8 +403,7 @@ function M:startScript()
     self._mainLoopCoroutine = coroutine.create(self._scriptFunction)
     
     self._debugger = Debugger:new(self._mainLoopCoroutine)
-    self._debugger:setHookOnNewLine(self.debugHook)
-    print(self._scriptPath)
+    self._debugger:setHookOnNewLine(function(e, l) self:debugHook(e, l) end)
     self._debugger:addFileToFilter(self._scriptPath)
     self._debugger:enable()
     
