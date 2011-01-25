@@ -108,20 +108,16 @@ function M:getInfo(what)
     return debug.getinfo(4, what)
 end
 
-function M:getVariablesInfo(table, filterTable)
+function M:getVariablesInfoWithFilter(table, filterTable)
     local variablesInfo = {}
     
     for name, value in pairs(table) do
         if rawget(filterTable, name) == nil then
-            variablesInfo[name] =  M:getVariableInfo(value)
+            variablesInfo[name] = value
         end
     end
     
     return variablesInfo
-end
-
-function M:getVariableInfo(variable)
-    return { type = type(variable), value = tostring(variable) }
 end
 
 return M
