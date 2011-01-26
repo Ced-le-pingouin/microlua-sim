@@ -38,8 +38,7 @@ function M:ctr()
     
     self:_createDefaultStyles()
     self:_createWindow()
-    self:_createSourceTextBox()
-    self:_createVariablesGrid()
+    self:_createSourceTextBoxAndVariablesGrid()
     
     self._currentSourceFile = nil
 end
@@ -92,22 +91,32 @@ function M:_createWindow()
     self._topSizer = wx.wxBoxSizer(wx.wxVERTICAL)
 end
 
+function M:_createSourceTextBoxAndVariablesGrid()
+    Mls.logger:debug("creating splitter on debug window", "gui")
+    
+    local splitter = wx.wxSplitterWindow(self._window, wx.wxID_ANY)
+    self._topSizer:Add(splitter, 1, wx.wxEXPAND)
+    self._splitter = splitter
+    
+    self:_createSourceTextBox()
+    self:_createVariablesGrid()
+    
+    splitter:SplitHorizontally(self._sourceTextBox, self._variablesGrid)
+end
+
 function M:_createSourceTextBox()
     Mls.logger:debug("creating source file view on debug window", "gui")
     
     local textBox = wx.wxTextCtrl(
-        self._window, wx.wxID_ANY, "" , wx.wxDefaultPosition, wx.wxDefaultSize,
+        self._splitter, wx.wxID_ANY, "" , wx.wxDefaultPosition, wx.wxDefaultSize,
         wx.wxTE_READONLY + wx.wxTE_MULTILINE + wx.wxTE_DONTWRAP
     )
-    
-    self._topSizer:Add(textBox, 1, wx.wxEXPAND)
-    --self._topSizer:Add(textBox, 1, wx.wxSHAPED + wx.wxALIGN_CENTER)
     
     self._sourceTextBox = textBox
 end
 
 function M:_createVariablesGrid()
-    local grid = wx.wxGrid(self._window, wx.wxID_ANY)
+    local grid = wx.wxGrid(self._splitter, wx.wxID_ANY)
     
     grid:CreateGrid(2, 3)
     grid:SetRowLabelSize(0)
@@ -118,8 +127,6 @@ function M:_createVariablesGrid()
     
     grid:SetLabelFont(self._defaultFont)
     grid:SetDefaultCellFont(self._defaultFont)
-    
-    self._topSizer:Add(grid, 1, wx.wxEXPAND)
     
     self._variablesGrid = grid
 end
