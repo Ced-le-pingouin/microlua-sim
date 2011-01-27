@@ -245,6 +245,9 @@ function M:_configureSourceStyles()
     textBox:StyleSetBackground(wxstc.wxSTC_STYLE_INDENTGUIDE, wx.wxColour(255, 255, 255))
     
     
+    textBox:SetCaretLineVisible(true)
+    
+    
     self.BREAKPOINT_MARKER = 1
     self.CURRENT_LINE_MARKER = 2
     textBox:MarkerDefine(self.BREAKPOINT_MARKER,   wxstc.wxSTC_MARK_ROUNDRECT, wx.wxWHITE, wx.wxRED)
@@ -298,7 +301,7 @@ end
 function M:setSourceFile(filename)
     if filename ~= self._currentSourceFile then
         self._sourceTextBox:LoadFile(filename)
-        self._sourceTextBox:Colourise(0, -1)
+        --self._sourceTextBox:Colourise(0, -1)
         self._currentSourceFile = filename
     end
 end
