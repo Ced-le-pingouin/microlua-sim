@@ -108,7 +108,8 @@ function M:_createSourceTextBox()
     Mls.logger:debug("creating source file view on debug window", "gui")
     
     local textBox = wx.wxTextCtrl(
-        self._splitter, wx.wxID_ANY, "" , wx.wxDefaultPosition, wx.wxDefaultSize,
+        self._splitter, wx.wxID_ANY, "" ,
+        wx.wxDefaultPosition, wx.wxDefaultSize,
         wx.wxTE_READONLY + wx.wxTE_MULTILINE + wx.wxTE_DONTWRAP
     )
     
@@ -116,17 +117,14 @@ function M:_createSourceTextBox()
 end
 
 function M:_createVariablesGrid()
-    local grid = wx.wxGrid(self._splitter, wx.wxID_ANY)
+    local grid = wx.wxListCtrl(
+        self._splitter, wx.wxID_ANY, wx.wxDefaultPosition, wx.wxDefaultSize,
+        wx.wxLC_REPORT
+    )
     
-    grid:CreateGrid(2, 3)
-    grid:SetRowLabelSize(0)
-    grid:SetDefaultCellAlignment(wx.wxALIGN_CENTER, wx.wxALIGN_CENTER)
-    grid:SetColLabelValue(0, "Variable")
-    grid:SetColLabelValue(1, "Type")
-    grid:SetColLabelValue(2, "Value")
-    
-    grid:SetLabelFont(self._defaultFont)
-    grid:SetDefaultCellFont(self._defaultFont)
+    grid:InsertColumn(0, "Variable")
+    grid:InsertColumn(1, "Type")
+    grid:InsertColumn(2, "Value")
     
     self._variablesGrid = grid
 end
@@ -225,58 +223,42 @@ end
 
 function M:setGridVariables(variables)
     local grid = self._variablesGrid
+    local variableIndexToVariableName = {}
     
-    grid:BeginBatch()
+    grid:DeleteAllItems()
     
-    local numRows = grid:GetNumberRows()
-    grid:DeleteRows(0, numRows)
-    
-    local rowNum = 0
+    local i = 0
     for name, value in pairs(variables) do
-        grid:AppendRows(1)
+        grid:InsertItem(i, name)
+        grid:SetItem(i, 1, type(value))
+        grid:SetItem(i, 2, tostring(value))
+        grid:SetItemData(i, i)
+        variableIndexToVariableName[i] = name
         
-        grid:SetCellValue(rowNum, 0, tostring(name))
-        grid:SetReadOnly(rowNum, 0)
-        
-        grid:SetCellValue(rowNum, 1, type(value))
-        grid:SetReadOnly(rowNum, 1)
-        
-        grid:SetCellValue(rowNum, 2, tostring(value))
-        grid:SetReadOnly(rowNum, 2)
-        
-        rowNum = rowNum + 1
+        i = i + 1
     end
     
-    grid:EndBatch()
+    grid:SetColumnWidth(0, wx.wxLIST_AUTOSIZE)
+    grid:SetColumnWidth(1, wx.wxLIST_AUTOSIZE)
+    grid:SetColumnWidth(2, wx.wxLIST_AUTOSIZE)
     
     self._variables = variables
+    self._variableIndexToVariableName = variableIndexToVariableName
 end
 
-function M:sortGridByColumn(colNum)
-    local grid = self._variablesGrid
-    local numRows = grid:GetNumberRows()
-    
-    grid:BeginBatch()
-    
-    repeat
-        local permutationOccured = false
+function M:sortGridByColumn(column)
+    self._variablesGrid:SortItems(function(itemData1, itemData2)
+        -- each item data has been set to its index, which can give us its name
+        local toName = self._variableIndexToVariableName
         
-        for i = 0, numRows - 1 - 1  do
-            if grid:GetCellValue(i, colNum) > grid:GetCellValue(i + 1, colNum)
-            then
-                local numCols = grid:GetNumberCols()
-                for j = 0, numCols - 1 do
-                    local firstRowSavedValue = grid:GetCellValue(i, j)
-                    grid:SetCellValue(i, j, grid:GetCellValue(i + 1, j))
-                    grid:SetCellValue(i + 1, j, firstRowSavedValue)
-                end
-                
-                permutationOccured = true
-            end
+        if toName[itemData1] > toName[itemData2] then
+            return 1
+        elseif toName[itemData1] < toName[itemData2] then
+            return -1
+        else
+            return 0
         end
-    until not permutationOccured
-    
-    grid:EndBatch()
+    end, 0)
 end
 
 return M
