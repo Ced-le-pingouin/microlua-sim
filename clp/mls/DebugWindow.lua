@@ -276,7 +276,7 @@ end
 function M:_createVariablesGrid()
     local grid = wx.wxListCtrl(
         self._splitter, wx.wxID_ANY, wx.wxDefaultPosition, wx.wxDefaultSize,
-        wx.wxLC_REPORT
+        wx.wxLC_REPORT + wx.wxLC_HRULES + wx.wxLC_VRULES
     )
     
     grid:InsertColumn(0, "Variable")
