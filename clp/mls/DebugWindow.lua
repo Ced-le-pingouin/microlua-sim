@@ -309,8 +309,11 @@ end
 function M:setCurrentLineInSource(line)
     local textBox = self._sourceTextBox
     
-    --textBox:GotoLine(line - 1 - 1) -- why the second "-1" ???
     textBox:ScrollToLine(line - 1)
+    
+    -- it's a shame this only highlight the line if the component already has
+    -- focus (in GTK at least)
+    --textBox:GotoLine(line - 1)
 end
 
 function M:setGridVariables(variables)
