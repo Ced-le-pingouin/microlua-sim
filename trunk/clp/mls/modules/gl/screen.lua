@@ -452,6 +452,8 @@ function M.disableClipping()
     for i = 1, #M._clipPlanes do
         glClipPlane(GL_CLIP_PLANE0 + i, M._nullPlane:ptr())
     end
+    
+    M._lastClippingRegion = {}
 end
 
 function M._setOpenGlClippingPlane(planeNum, a, b, c, d)
