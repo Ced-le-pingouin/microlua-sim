@@ -79,6 +79,7 @@ local Logger = require "clp.Logger"
 local Sys = require "clp.mls.Sys"
 local Config = require "clp.mls.Config"
 local Gui = require "clp.mls.Gui"
+local DebugWindow = require "clp.mls.DebugWindow"
 local Timer = require "clp.mls.modules.wx.Timer"
 local ModuleManager = require "clp.mls.ModuleManager"
 local ScriptManager = require "clp.mls.ScriptManager"
@@ -131,7 +132,6 @@ function Mls:ctr(scriptPath)
     Mls.gui = Mls._initGui(Mls.initialDirectory)
     
     -- debug window
-    local DebugWindow = require "clp.mls.DebugWindow"
     local debugWindow = DebugWindow:new()
     debugWindow:show()
     debugWindow:setSourceFile("./clp/mls/Mls.lua")
