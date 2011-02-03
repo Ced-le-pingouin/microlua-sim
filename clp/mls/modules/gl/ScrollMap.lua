@@ -31,8 +31,8 @@ local M = Class.new(Map)
 function M.draw(screenNum, scrollmap)
     screen.setClippingForScreen(screenNum)
     
-    M.parent().draw(screenNum, scrollmap, 0, 0, 
-                    scrollmap._width, scrollmap._height, true, true)
+    M.super().draw(screenNum, scrollmap, 0, 0, 
+                   scrollmap._width, scrollmap._height, true, true)
 end
 
 function M.space(map, x, y)

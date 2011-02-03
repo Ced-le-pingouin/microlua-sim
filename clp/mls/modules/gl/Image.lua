@@ -44,7 +44,7 @@ local M = Class.new(Image_wx)
 -- @todo In ML, does a non-existent image throw an error ? (applicable to other
 --       things, such as maps, sounds,...)
 function M.load(path, destination)
-    local image = M.parent().load(path, destination)
+    local image = M.super().load(path, destination)
     
     image._textureId, image._textureWidth, image._textureHeight = 
         M.createTextureFromImage(image._source)
@@ -62,7 +62,7 @@ end
 --
 -- @param image (Image)
 function M.destroy(image)
-    M.parent().destroy(image)
+    M.super().destroy(image)
     
     glDeleteTextures(1, image._textureId:ptr())
 end

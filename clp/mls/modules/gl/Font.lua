@@ -31,7 +31,7 @@ local Font_Bitmap_wx = require "clp.mls.modules.wx.Font_Bitmap"
 local M = Class.new(Font_Bitmap_wx)
 
 function M.load(path)
-    local font = M.parent().load(path)
+    local font = M.super().load(path)
     
     font._textureId, font._textureWidth, font._textureHeight = 
         Image.createTextureFromImage(font._image)
@@ -40,7 +40,7 @@ function M.load(path)
 end
 
 function M.destroy(font)
-    M.parent().destroy(font)
+    M.super().destroy(font)
     
     glDeleteTextures(1, font._textureId:ptr())
 end
@@ -112,9 +112,9 @@ function M._printNoClip(screenNum, font, x, y, text, color)
 end
 
 function M._initDefaultFont()
-    M.parent()._initDefaultFont()
+    M.super()._initDefaultFont()
     
-    local defaultFont = M.static()._defaultFont
+    local defaultFont = M._defaultFont
     
     defaultFont._textureId, defaultFont._textureWidth, defaultFont._textureHeight =
         Image.createTextureFromImage(defaultFont._image)

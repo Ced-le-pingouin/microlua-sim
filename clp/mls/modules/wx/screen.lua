@@ -54,7 +54,7 @@ function M:initModule(emulateLibs)
     
     M._initVars()
     M._initTimer()
-    M.static()._initOffscreenSurfaces()
+    M._initOffscreenSurfaces()
     M._bindEvents()
     
     M._drawGradientRectNumBlocks = 20
@@ -62,14 +62,14 @@ function M:initModule(emulateLibs)
     M.setRectAdditionalLength(1)
     
     if emulateLibs then
-        startDrawing = M.static().startDrawing
-        stopDrawing = M.static().stopDrawing
-        render = M.static().render
+        startDrawing = M.startDrawing
+        stopDrawing = M.stopDrawing
+        render = M.render
     end
 end
 
 function M:resetModule()
-    M.static().clearAllOffscreenSurfaces()
+    M.clearAllOffscreenSurfaces()
 end
 
 --- Initializes global variables for the screen module.
@@ -127,7 +127,7 @@ end
 function M.startDrawing2D()
     Mls.logger:trace("startDrawing called", "screen")
     
-    M.static().clearOffscreenSurface()
+    M.clearOffscreenSurface()
 end
 M.startDrawing = M.startDrawing2D
 
@@ -141,14 +141,14 @@ function M.endDrawing()
     
     Mls:notify("stopDrawing")
     
-    M.static()._switchOffscreen()
+    M._switchOffscreen()
 end
 M.stopDrawing = M.endDrawing
 
 --- Refreshes the screen (replaces start- and stopDrawing()) [ML 3+ API].
 function M.render()
-    M.static().stopDrawing()
-    M.static().startDrawing()
+    M.stopDrawing()
+    M.startDrawing()
 end
 
 --- Switches the screens [ML 2+ API].
@@ -440,7 +440,7 @@ function M.drawTextBox(screenNum, x0, y0, x1, y1, text, color)
     local font = Font._defaultFont
     local fontHeight = Font.getCharHeight(font)
     
-    M.static().setClippingRegion(x0, y0, width, height)
+    M.setClippingRegion(x0, y0, width, height)
     
     -- get multiples lines, \n has to be treated
     local lines = {}
@@ -485,7 +485,7 @@ function M.drawTextBox(screenNum, x0, y0, x1, y1, text, color)
         end
     end
     
-    M.static().disableClipping()
+    M.disableClipping()
 end
 
 --- Does nothing in MLS.
@@ -588,8 +588,8 @@ end
 --- Clears all offscreen surfaces.
 function M.clearAllOffscreenSurfaces()
     for i = 1, M.MAX_OFFSCREENS do
-        M.static()._switchOffscreen()
-        M.static().clearOffscreenSurface()
+        M._switchOffscreen()
+        M.clearOffscreenSurface()
     end
 end
 
@@ -601,7 +601,7 @@ end
 -- @param text (string)
 -- @param color (Color) The color of the bar. The default is blue.
 function M.displayInfoText(text, color)
-    M.static()._copyOffscreenFromPrevious()
+    M._copyOffscreenFromPrevious()
     
     if text then
         if not color then color = Color.new(0, 0, 31) end
@@ -616,19 +616,18 @@ function M.displayInfoText(text, color)
         local textYOffset = (h - Font.getCharHeight(Font._defaultFont)) / 2
         
         -- draw the frame and its shadow
-        M.static().drawFillRect(SCREEN_UP, x + shadowOffset, y + shadowOffset, 
-                                x + w + shadowOffset, y + h + shadowOffset, 
-                                shadowColor)
-        M.static().drawFillRect(SCREEN_UP, x, y, x + w, y + h, color)
+        M.drawFillRect(SCREEN_UP, x + shadowOffset, y + shadowOffset, 
+                       x + w + shadowOffset, y + h + shadowOffset, 
+                       shadowColor)
+        M.drawFillRect(SCREEN_UP, x, y, x + w, y + h, color)
         
         -- draw text and its shadow
-        M.static().print(SCREEN_UP, x + textXOffset + shadowOffset, 
-                         y + textYOffset + shadowOffset, text, shadowColor)
-        M.static().print(SCREEN_UP, x + textXOffset, y + textYOffset, text, 
-                         textColor)
+        M.print(SCREEN_UP, x + textXOffset + shadowOffset, 
+                y + textYOffset + shadowOffset, text, shadowColor)
+        M.print(SCREEN_UP, x + textXOffset, y + textYOffset, text, textColor)
     end
     
-    M.static().forceRepaint()
+    M.forceRepaint()
 end
 
 --- Forces the underlying GUI/GFX lib to immediately repaint the "screens".
@@ -639,14 +638,14 @@ end
 --                               rendered offscreen surface instead of the 
 --                               current one
 function M.forceRepaint(showPrevious)
-    if showPrevious then M.static()._switchOffscreen() end
+    if showPrevious then M._switchOffscreen() end
     
     M._surface:Refresh(false)
     M._surface:Update()
     
-    if showPrevious then M.static()._switchOffscreen() end
+    if showPrevious then M._switchOffscreen() end
     
-    M.static()._updateFps()
+    M._updateFps()
 end
 
 --- Draws a point on the screen.
@@ -693,7 +692,7 @@ function M._getOffscreenDC(screenNum)
 end
 
 function M.setClippingForScreen(screenNum)
-    M.static().setClippingRegion(
+    M.setClippingRegion(
         0, M.offset[screenNum], SCREEN_WIDTH, SCREEN_HEIGHT
     )
 end
