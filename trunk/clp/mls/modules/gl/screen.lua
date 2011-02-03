@@ -205,7 +205,7 @@ function M.blit(screenNum, x, y, image, sourcex, sourcey, width, height)
     -- (this fact is stated in the book Beginning OpenGL Game Programming, p70, 
     --  Viewing Transformations)
     glPushMatrix()
-        --[[ 1. View transformations (in reverse ordre, remember!!!) ]]--
+        --** 1. View transformations (in reverse ordre, remember!!!) **--
         
         -- ...then, at the end, we translate the image to its final position on
         -- the screen
@@ -229,7 +229,7 @@ function M.blit(screenNum, x, y, image, sourcex, sourcey, width, height)
         -- it around its center if we must mirrorH/mirrorV it
         glTranslated(-width / 2, -height / 2, 0)
         
-        --[[ 2. Model transformations ]]--
+        --** 2. Model transformations **--
         glColor3d(r, g, b)
         glBegin(GL_QUADS)
             glTexCoord2d(sourcex, sourcey)
