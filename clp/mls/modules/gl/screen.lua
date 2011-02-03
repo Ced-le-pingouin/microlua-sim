@@ -50,7 +50,7 @@ GL_MAX_RECTANGLE_TEXTURE_SIZE_ARB = 0x84F8
 --                              should be available globally
 function M:initModule(emulateLibs)
     local surface = Mls.gui:getSurface()
-    M.super().initModule(M.parent(), emulateLibs)
+    M.super():initModule(emulateLibs)
     
     -- on Mac, we can't create a context explicitely, since there's no function
     -- in wx.wxGLContext (not even a constructor)
