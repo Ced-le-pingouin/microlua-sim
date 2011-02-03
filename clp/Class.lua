@@ -1,4 +1,3 @@
--------------------------------------------------------------------------------
 -- Small OOP class that allows the creation of "classes" of objects, simple 
 -- inheritance and "instanceof" type checking.
 --
@@ -61,42 +60,12 @@ function M.new(...) -- only one arg accepted = parentClass
     newClass.__class = newClass
     newClass.__parent = parentClass
     
-    newClass.__virtualMethods = {}
-    newClass.__staticCallers = {}
-    
     if parentClass then
-        setmetatable(newClass, { __index = parentClass })
-        
-        for _, parentVm in pairs(parentClass.__virtualMethods) do
-            local vm = { 
-                originalClass = parentVm.originalClass,
-                callingClass = newClass,
-                name = parentVm.name
-            }
-            setmetatable(vm, { __call = M._callAncestorMethodUsingLateBinding })
-            
-            newClass.__virtualMethods[name] = vm
-            newClass[name] = vm
-        end
-        
-        for name, member in pairs(parentClass) do
-            if type(member) == "function" then
-                local vm = {
-                    originalClass = parentClass,
-                    callingClass = newClass,
-                    name = name
-                }
-                setmetatable(vm, { __call = M._callAncestorMethodUsingLateBinding })
-                
-                newClass.__virtualMethods[name] = vm
-                newClass[name] = vm
-            end
-        end
+        M._setupInheritanceFromParentToNewClass(parentClass, newClass)
     end
     
     newClass.class = function() return newClass end
-    newClass.parent = function() return parentClass end
-    newClass.super = function() return newClass.__virtualMethods end
+    newClass.parent = function() return newClass.__originalMethods end
     newClass.instanceOf = M.instanceOf
     
     -- for classes that already have an inherited new or new2 function, don't 
@@ -105,7 +74,7 @@ function M.new(...) -- only one arg accepted = parentClass
     newClass.new2 = newClass.new2 or M._newObjectInstance
     
     newClass.static = function()
-        return M._getActualClassUsingLateBinding(newClass)
+        return newClass
     end
     
     return newClass
@@ -152,42 +121,68 @@ function M._newObjectInstance(class, ...)
     return object
 end
 
---- Returns the actual class to consider for static members resolution on a 
---  given class.
---
--- @param class (Class)
---
--- @return (Class) The given class if no static resolution was needed, or the 
---                 calling descendant class if there was one
-function M._getActualClassUsingLateBinding(class)
-    local callers = class.__staticCallers
-    return callers[#callers] or class
+function M._setupInheritanceFromParentToNewClass(parentClass, newClass)
+    newClass.__originalMethods = {}
+    
+    M._copyMethodsFromParentToNewClass(parentClass, newClass)
+    
+    setmetatable(newClass.__originalMethods, { __index = parentClass })
+    setmetatable(newClass, { __index = newClass.__originalMethods })
+    
+    newClass.super = function() return newClass.__originalMethods end
 end
 
---- Calls an ancestor/virtual method, setting everything up so that static calls
---  in the ancestor class will resolve correctly to the calling class if needed
---  (i.e. the calling class does override some members used in the ancestor 
---  call) => uses late static binding
---
--- @param vm (table) The "virtual method" data, i.e. a table with the keys 
---                   "originalClass" (Class, the ancestor class where this 
---                   method is actually defined), "callingClass" (Class, the 
---                   class that should be considered "current" when calls from
---                   the virtual method use static members), and "name" (string,
---                   the name of the method)
---
--- @return (any, any, ...) The return value(s) from the virtual method that was
---                         called
-function M._callAncestorMethodUsingLateBinding(vm, ...)
-    local originalClass = vm.originalClass
-    local callingClass = vm.callingClass
-    local methodName = vm.name
+function M._copyMethodsFromParentToNewClass(parentClass, newClass)
+    for memberName, member in pairs(parentClass) do
+        if type(member) == "function" then
+            newClass[memberName] = M._cloneMethodIfItUsesMOtherwiseReferenceIt(member, newClass)
+            newClass.__originalMethods[memberName] = newClass[memberName]
+        end
+    end
+end
+
+function M._cloneMethodIfItUsesMOtherwiseReferenceIt(method, replacementForM)
+    if M._functionHasUpvalueNamed(method, "M") then
+        return M._cloneFunction(method, { M = replacementForM })
+    end
     
-    table.insert(originalClass.__staticCallers, callingClass)
-    local r = { originalClass[methodName](...) }
-    table.remove(originalClass.__staticCallers)
+    return method
+end
+
+function M._functionHasUpvalueNamed(func, name)
+    local upvaluesCount = debug.getinfo(func, "u").nups
     
-    return unpack(r)
+    for i = 1, upvaluesCount do
+        if ( debug.getupvalue(func, i) ) == name then
+            return true
+        end
+    end
+    
+    return false
+end
+
+function M._cloneFunction(func, upvaluesReplacementsByName)
+    local upvaluesCount = debug.getinfo(func, "u").nups
+    assert(upvaluesCount > 0, "Cloning a function that has no upvalues is useless. You should simply assign it (by reference)")
+    
+    local binaryFunc = string.dump(func)
+    local funcClone = assert(loadstring(binaryFunc))
+    
+    upvaluesReplacedCount = 0
+    for i = 1, upvaluesCount do
+        local upvalueName, upvalue = debug.getupvalue(func, i)
+        local upvalueReplacement = upvaluesReplacementsByName[upvalueName]
+        
+        if upvalueReplacement ~= nil then
+            debug.setupvalue(funcClone, i, upvalueReplacement)
+            upvaluesReplacedCount = upvaluesReplacedCount + 1
+        else
+            debug.setupvalue(funcClone, i, upvalue)
+        end
+    end
+    assert(upvaluesReplacedCount > 0, "Cloning a function that has upvalues, without replacing any of the upvalues in the clone, is useless. You should simply assign it (by reference)")
+    
+    return funcClone
 end
 
 return M
