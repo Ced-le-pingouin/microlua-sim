@@ -36,44 +36,30 @@ local M = {}
 --
 -- @return (table) The created class
 function M.new(...) -- only one arg accepted = parentClass
-    local parentClass = nil
-    
-    -- this shitty stuff is to detect the difference between:
-    --     . one arg passed but == nil (could mean a non-existent "class" has 
-    --                                  been passed by mistake => error)
-    --                AND
-    --     . no arg passed at all (valid case where we don't want inheritance)
-    local numArgs = select("#", ...)
-    
-    if numArgs == 1 then
-        parentClass = (select(1, ...))
-        if type(parentClass) ~= "table" then
-            error("parent class passed to Class.new is not a valid object/table", 2)
-        end
-    elseif numArgs > 1 then
-        error("multiple inheritance not supported (too many args passed to Class.new)", 2)
-    end
-    -----
-    
     local newClass = {}
     
     newClass.__class = newClass
-    newClass.__parent = parentClass
+    newClass.__localNameUsedForClass = "M"
     
-    if parentClass then
-        M._setupInheritanceFromParentToNewClass(parentClass, newClass)
-    end
+    M.setupInheritance(newClass, ...)
     
     newClass.class = function() return newClass end
-    newClass.parent = function() return parentClass end
+    -- parent() has to exist even if the class has no __parent ( = nil )
+    newClass.parent = function() return newClass.__parent end
     newClass.instanceOf = M.instanceOf
     
     -- for classes that already have an inherited new or new2 function, don't 
     -- overwrite it, since we have two versions
-    newClass.new = newClass.new or M._newObjectInstance
-    newClass.new2 = newClass.new2 or M._newObjectInstance
+    newClass.new = newClass.new or M._newInstance
+    newClass.new2 = newClass.new2 or M._newInstance
     
     return newClass
+end
+
+function M:setLocalNameUsedForClass(name)
+    self.__localNameUsedForClass = name
+    
+    return self
 end
 
 --- Checks whether current object is an instance of a class or one of its 
@@ -99,47 +85,73 @@ function M:instanceOf(ancestor)
 end
 
 --- Creates a new instance from a class.
---
--- @param class (Class)
---
--- @warning Must be called with ":" on a class
-function M._newObjectInstance(class, ...)
+function M:_newInstance(...)
     local object = {}
-    setmetatable(object, { __index = class, __tostring = class.__tostring })
+    setmetatable(object, { __index = self, __tostring = self.__tostring })
     
-    if class.ctr
-       and (type(class.ctr) == "function"
-            or (type(class.ctr) == "table" and class.ctr.name == "ctr"))
+    if self.ctr
+       and (type(self.ctr) == "function"
+            or (type(self.ctr) == "table" and self.ctr.name == "ctr"))
     then
-        class.ctr(object, ...)
+        self.ctr(object, ...)
     end
     
     return object
 end
 
-function M._setupInheritanceFromParentToNewClass(parentClass, newClass)
-    newClass.__originalMethods = {}
+function M:setupInheritance(...)
+    local parentClass = nil
     
-    M._copyMethodsFromParentToNewClass(parentClass, newClass)
+    -- this shitty stuff is to detect the difference between:
+    --     . one arg passed but == nil (could mean a non-existent "class" has 
+    --                                  been passed by mistake => error)
+    --                AND
+    --     . no arg passed at all (valid case where we don't want inheritance)
+    local numArgs = select("#", ...)
     
-    setmetatable(newClass.__originalMethods, { __index = parentClass })
-    setmetatable(newClass, { __index = newClass.__originalMethods })
+    if numArgs == 0 then
+        return
+    elseif numArgs == 1 then
+        parentClass = (select(1, ...))
+        if type(parentClass) ~= "table" then
+            error("parent class passed for inheritance is not a valid object/table", 2)
+        end
+    elseif numArgs > 1 then
+        error("multiple inheritance not supported (too many args passed)", 2)
+    end
+    -----
     
-    newClass.super = function() return newClass.__originalMethods end
+    self.__parent = parentClass
+    
+    self.__originalMethods = {}
+    
+    M._copyMethodsFromParentToNewClass(parentClass, self)
+    
+    setmetatable(self.__originalMethods, { __index = parentClass })
+    setmetatable(self, { __index = self.__originalMethods })
+    
+    self.super = function() return self.__originalMethods end
+    
+    return self
 end
 
 function M._copyMethodsFromParentToNewClass(parentClass, newClass)
     for memberName, member in pairs(parentClass) do
         if type(member) == "function" then
-            newClass[memberName] = M._cloneMethodIfItUsesMOtherwiseReferenceIt(member, newClass)
+            newClass[memberName] = 
+                M._cloneMethodIfItUsesUpvalueElseReferenceIt(
+                    member, parentClass.__localNameUsedForClass, newClass
+                )
             newClass.__originalMethods[memberName] = newClass[memberName]
         end
     end
 end
 
-function M._cloneMethodIfItUsesMOtherwiseReferenceIt(method, replacementForM)
-    if M._functionHasUpvalueNamed(method, "M") then
-        return M._cloneFunction(method, { M = replacementForM })
+function M._cloneMethodIfItUsesUpvalueElseReferenceIt(method, upvalueName, replacementForUpvalue)
+    if M._functionHasUpvalueNamed(method, upvalueName) then
+        return M._cloneFunction(
+            method, { [upvalueName] = replacementForUpvalue }
+        )
     end
     
     return method
