@@ -24,6 +24,9 @@
 
 -- WARNING: THIS SCRIPT MUST BE LAUNCHED FROM THE MLS DIRECTORY !!! --
 
+-- WARNING: SOME PATTERNS USE "%f" A.K.A. THE "FRONTIER PATTERN", WHICH IS *NOT*
+--          DOCUMENTED IN LUA MANUALS, AND COULD DISAPPEAR FROM FUTURE VERSIONS
+
 -- process arguments
 local plainText = false
 local useLuac = false
@@ -47,11 +50,13 @@ local sourceFiles = {
     "clp/Observable.lua",
     "clp/Logger.lua",
     "clp/Math.lua",
+    "clp/Debugger.lua",
     "clp/mls/modules/wx/Timer.lua",
     "clp/mls/Mls.lua",
     "clp/mls/Sys.lua",
     "clp/mls/Config.lua",
     "clp/mls/Gui.lua",
+    "clp/mls/DebugWindow.lua",
     "clp/mls/ScriptManager.lua",
     "clp/mls/ModuleManager.lua",
     "clp/mls/modules/wx/screen.lua",
@@ -98,8 +103,19 @@ for _, file in ipairs(sourceFiles) do
     local localModulesReplacements = {}
     
     for line in io.lines(file) do
-        -- replace "local M = " with "<module name> = "
-        line = line:gsub("local M =", moduleName.." =")
+        -- replace "local M = " with "<module name> = ", then puts the global
+        -- <module name> variable in a local variable of the same name
+        line = line:gsub(
+            "local M =(.+)",
+            moduleName.." =%1\n".."local "..moduleName.." = "..moduleName
+        )
+        -- in compiled mode, internal class names won't be M (the default), 
+        -- it'll be <module name> (used in class methods instead of M), so we 
+        -- tell Class about the change
+        line = line:gsub(
+            "= Class.new%((.*)%)",
+            "= Class.new(%1):setInternalName(\""..moduleName.."\")"
+        )
         -- when "M.", "M:", or "M[" is found, replace the M with <module name>
         line = line:gsub("%f[%w_]M([.:%[])", moduleName.."%1")
         
