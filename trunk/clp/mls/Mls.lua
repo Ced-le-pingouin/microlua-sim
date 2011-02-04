@@ -132,6 +132,7 @@ function Mls:ctr(scriptPath)
     Mls.gui = Mls._initGui(Mls.initialDirectory)
     
     -- debug window
+    --[[
     local debugWindow = DebugWindow:new()
     debugWindow:show()
     debugWindow:setSourceFile("./clp/mls/Mls.lua")
@@ -139,6 +140,7 @@ function Mls:ctr(scriptPath)
     debugWindow:setCurrentLineInSource(386)
     debugWindow:setGridVariables(_G)
     debugWindow:sortGridByColumn(0)
+    ]]
     
     -- logger
     Mls.logger:setWriterFunction(Mls.gui:getConsoleWriter())
