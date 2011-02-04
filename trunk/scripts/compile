@@ -54,11 +54,13 @@ LIB_LIST="
     clp/Observable.lua
     clp/Logger.lua
     clp/Math.lua
+    clp/Debugger.lua
     clp/mls/modules/wx/Timer.lua
     clp/mls/Mls.lua
     clp/mls/Sys.lua
     clp/mls/Config.lua
     clp/mls/Gui.lua
+    clp/mls/DebugWindow.lua
     clp/mls/ScriptManager.lua
     clp/mls/ModuleManager.lua
     clp/mls/modules/wx/screen.lua
