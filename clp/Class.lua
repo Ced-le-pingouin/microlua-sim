@@ -46,7 +46,9 @@ function M.new(...) -- only one arg accepted = parentClass
     newClass.class = function() return newClass end
     -- parent() has to exist even if the class has no __parent ( = nil )
     newClass.parent = function() return newClass.__parent end
+    newClass.setLocalNameUsedForClass = M.setLocalNameUsedForClass
     newClass.instanceOf = M.instanceOf
+    newClass.setupInheritance = M.setupInheritance
     
     -- for classes that already have an inherited new or new2 function, don't 
     -- overwrite it, since we have two versions
