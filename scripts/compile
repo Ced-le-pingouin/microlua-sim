@@ -114,7 +114,7 @@ for LIB_FILE in $LIB_LIST; do
     ## inherit from this one won't work with the new inheritance system, as 
     ## methods copied from parent to child class won't have their references 
     ## (=upvalue) to the parent replaced correctly)
-    LIB_FILE_CONTENT=`echo "$LIB_FILE_CONTENT" | sed -re "s/= Class.new\((.*)\)/= Class.new(\1):setLocalNameUsedForClass(\"$MODULE_NAME\")"/g`
+    LIB_FILE_CONTENT=`echo "$LIB_FILE_CONTENT" | sed -re "s/= Class.new\((.*)\)/= Class.new(\1):setInternalName(\"$MODULE_NAME\")"/g`
     ## when "M.", "M:", or "M[" is found, replace the "M" with "<module name>"
     LIB_FILE_CONTENT=`echo "$LIB_FILE_CONTENT" | sed -re "s/\bM([.:\[])/$MODULE_NAME\1/g"`
     ## find all the "local <local module name> = require "<module path>"
