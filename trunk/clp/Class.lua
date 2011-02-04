@@ -39,14 +39,14 @@ function M.new(...) -- only one arg accepted = parentClass
     local newClass = {}
     
     newClass.__class = newClass
-    newClass.__localNameUsedForClass = "M"
+    newClass.__internalName = "M"
     
     M.setupInheritance(newClass, ...)
     
     newClass.class = function() return newClass end
     -- parent() has to exist even if the class has no __parent ( = nil )
     newClass.parent = function() return newClass.__parent end
-    newClass.setLocalNameUsedForClass = M.setLocalNameUsedForClass
+    newClass.setInternalName = M.setInternalName
     newClass.instanceOf = M.instanceOf
     newClass.setupInheritance = M.setupInheritance
     
@@ -58,8 +58,8 @@ function M.new(...) -- only one arg accepted = parentClass
     return newClass
 end
 
-function M:setLocalNameUsedForClass(name)
-    self.__localNameUsedForClass = name
+function M:setInternalName(name)
+    self.__internalName = name
     
     return self
 end
@@ -142,7 +142,7 @@ function M._copyMethodsFromParentToNewClass(parentClass, newClass)
         if type(member) == "function" then
             newClass[memberName] = 
                 M._cloneMethodIfItUsesUpvalueElseReferenceIt(
-                    member, parentClass.__localNameUsedForClass, newClass
+                    member, parentClass.__internalName, newClass
                 )
             newClass.__originalMethods[memberName] = newClass[memberName]
         end
