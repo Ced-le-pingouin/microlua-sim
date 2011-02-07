@@ -109,12 +109,6 @@ for LIB_FILE in $LIB_LIST; do
     ## method, so the new Class' inheritance system needs local variables that 
     ## reference the class, usually called "M")
     LIB_FILE_CONTENT=`echo "$LIB_FILE_CONTENT" | sed -re "s/local M =(.*)/$MODULE_NAME =\1\nlocal $MODULE_NAME = $MODULE_NAME"/g`
-    ## replace "= Class.new(...)" with a version that changes the internal 
-    ## module references to <module name> instead of "M", otherwise classes that
-    ## inherit from this one won't work with the new inheritance system, as 
-    ## methods copied from parent to child class won't have their references 
-    ## (=upvalue) to the parent replaced correctly)
-    LIB_FILE_CONTENT=`echo "$LIB_FILE_CONTENT" | sed -re "s/= Class.new\((.*)\)/= Class.new(\1):setInternalName(\"$MODULE_NAME\")"/g`
     ## when "M.", "M:", or "M[" is found, replace the "M" with "<module name>"
     LIB_FILE_CONTENT=`echo "$LIB_FILE_CONTENT" | sed -re "s/\bM([.:\[])/$MODULE_NAME\1/g"`
     ## find all the "local <local module name> = require "<module path>"
