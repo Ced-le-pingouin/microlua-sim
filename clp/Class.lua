@@ -45,7 +45,6 @@ function M.new(...) -- only one arg accepted = parentClass
     newClass.class = function() return newClass end
     -- parent() has to exist even if the class has no __parent ( = nil )
     newClass.parent = function() return newClass.__parent end
-    newClass.setInternalName = M.setInternalName
     newClass.instanceOf = M.instanceOf
     newClass.setupInheritance = M.setupInheritance
     
