@@ -144,7 +144,7 @@ end
 
 function M._cloneMethodIfItUsesUpvalueElseReferenceIt(method, upvalue, replacementForUpvalue)
     if M._functionHasUpvalue(method, upvalue) then
-        return M._cloneFunction(
+        return M._cloneFunctionAndReplaceUpvalues(
             method, { [upvalue] = replacementForUpvalue }
         )
     end
@@ -177,7 +177,7 @@ function M._functionHasUpvalueNamed(func, upvalue)
     return false
 end
 
-function M._cloneFunction(func, upvaluesReplacements)
+function M._cloneFunctionAndReplaceUpvalues(func, upvaluesReplacements)
     local upvaluesCount = debug.getinfo(func, "u").nups
     assert(upvaluesCount > 0, "Cloning a function that has no upvalues is useless. You should simply assign it (by reference)")
     
