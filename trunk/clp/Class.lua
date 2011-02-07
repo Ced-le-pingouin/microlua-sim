@@ -181,8 +181,7 @@ function M._cloneFunctionAndReplaceUpvalues(func, upvaluesReplacements)
     local upvaluesCount = debug.getinfo(func, "u").nups
     assert(upvaluesCount > 0, "Cloning a function that has no upvalues is useless. You should simply assign it (by reference)")
     
-    local binaryFunc = string.dump(func)
-    local funcClone = assert(loadstring(binaryFunc))
+    local funcClone = M._cloneFunction(func)
     
     upvaluesReplacedCount = 0
     for i = 1, upvaluesCount do
@@ -200,6 +199,13 @@ function M._cloneFunctionAndReplaceUpvalues(func, upvaluesReplacements)
         end
     end
     assert(upvaluesReplacedCount > 0, "Cloning a function that has upvalues, without replacing any of the upvalues in the clone, is useless. You should simply assign it (by reference)")
+    
+    return funcClone
+end
+
+function M._cloneFunction(func)
+    local binaryFunc = string.dump(func)
+    local funcClone = assert(loadstring(binaryFunc))
     
     return funcClone
 end
