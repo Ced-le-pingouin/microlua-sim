@@ -142,24 +142,37 @@ function M._copyMethodsFromParentToNewClass(parentClass, newClass)
         if type(member) == "function" then
             newClass[memberName] = 
                 M._cloneMethodIfItUsesUpvalueElseReferenceIt(
-                    member, parentClass.__internalName, newClass
+                    member, parentClass, newClass
                 )
             newClass.__originalMethods[memberName] = newClass[memberName]
         end
     end
 end
 
-function M._cloneMethodIfItUsesUpvalueElseReferenceIt(method, upvalueName, replacementForUpvalue)
-    if M._functionHasUpvalueNamed(method, upvalueName) then
+function M._cloneMethodIfItUsesUpvalueElseReferenceIt(method, upvalue, replacementForUpvalue)
+    if M._functionHasUpvalue(method, upvalue) then
         return M._cloneFunction(
-            method, { [upvalueName] = replacementForUpvalue }
+            method, { [upvalue] = replacementForUpvalue }
         )
     end
     
     return method
 end
 
-function M._functionHasUpvalueNamed(func, name)
+function M._functionHasUpvalue(func, upvalue)
+    local upvaluesCount = debug.getinfo(func, "u").nups
+    
+    for i = 1, upvaluesCount do
+        local name, value = debug.getupvalue(func, i)
+        if value == upvalue then
+            return true
+        end
+    end
+    
+    return false
+end
+
+function M._functionHasUpvalueNamed(func, upvalue)
     local upvaluesCount = debug.getinfo(func, "u").nups
     
     for i = 1, upvaluesCount do
@@ -171,7 +184,7 @@ function M._functionHasUpvalueNamed(func, name)
     return false
 end
 
-function M._cloneFunction(func, upvaluesReplacementsByName)
+function M._cloneFunction(func, upvaluesReplacements)
     local upvaluesCount = debug.getinfo(func, "u").nups
     assert(upvaluesCount > 0, "Cloning a function that has no upvalues is useless. You should simply assign it (by reference)")
     
@@ -181,13 +194,16 @@ function M._cloneFunction(func, upvaluesReplacementsByName)
     upvaluesReplacedCount = 0
     for i = 1, upvaluesCount do
         local upvalueName, upvalue = debug.getupvalue(func, i)
-        local upvalueReplacement = upvaluesReplacementsByName[upvalueName]
         
-        if upvalueReplacement ~= nil then
-            debug.setupvalue(funcClone, i, upvalueReplacement)
-            upvaluesReplacedCount = upvaluesReplacedCount + 1
-        else
-            debug.setupvalue(funcClone, i, upvalue)
+        if type(upvalue) == "table" then
+            local upvalueReplacement = upvaluesReplacements[upvalue]
+            
+            if upvalueReplacement ~= nil then
+                debug.setupvalue(funcClone, i, upvalueReplacement)
+                upvaluesReplacedCount = upvaluesReplacedCount + 1
+            else
+                debug.setupvalue(funcClone, i, upvalue)
+            end
         end
     end
     assert(upvaluesReplacedCount > 0, "Cloning a function that has upvalues, without replacing any of the upvalues in the clone, is useless. You should simply assign it (by reference)")
