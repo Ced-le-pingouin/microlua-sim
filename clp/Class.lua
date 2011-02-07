@@ -39,7 +39,6 @@ function M.new(...) -- only one arg accepted = parentClass
     local newClass = {}
     
     newClass.__class = newClass
-    newClass.__internalName = "M"
     
     M.setupInheritance(newClass, ...)
     
@@ -56,12 +55,6 @@ function M.new(...) -- only one arg accepted = parentClass
     newClass.new2 = newClass.new2 or M._newInstance
     
     return newClass
-end
-
-function M:setInternalName(name)
-    self.__internalName = name
-    
-    return self
 end
 
 --- Checks whether current object is an instance of a class or one of its 
