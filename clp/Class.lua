@@ -93,6 +93,10 @@ function M:_newInstance(...)
     return object
 end
 
+function M.enableGlobalClasses()
+    M._cloneMethod = M._cloneMethodWithNewEnvironment
+end
+
 function M:setupInheritance(...)
     local parentClass = nil
     
@@ -133,12 +137,16 @@ function M._copyMethodsFromParentToNewClass(parentClass, newClass)
     for memberName, member in pairs(parentClass) do
         if type(member) == "function" then
             newClass[memberName] = 
-                M._cloneMethodIfItUsesUpvalueElseReferenceIt(
+                M._cloneMethod(
                     member, parentClass, newClass
                 )
             newClass.__originalMethods[memberName] = newClass[memberName]
         end
     end
+end
+
+function M._cloneMethod(method, parentClass, newClass)
+    return M._cloneMethodIfItUsesUpvalueElseReferenceIt(method, parentClass, newClass)
 end
 
 function M._cloneMethodIfItUsesUpvalueElseReferenceIt(method, upvalue, replacementForUpvalue)
@@ -207,6 +215,40 @@ function M._cloneFunction(func)
     local funcClone = assert(loadstring(binaryFunc))
     
     return funcClone
+end
+
+function M._cloneMethodWithNewEnvironment(method, parentClass, newClass)
+    local newMethod = M._cloneFunction(method)
+    
+    -- once a new environment has been created for a class, we cache it so we 
+    -- don't have to recreate a similar environment for all methods of the class
+    if not newClass.__inheritedEnvironment then
+        local originalEnv = getfenv(method)
+        local newEnv = {}
+        
+        -- in the new class' methods environment, change all the references to 
+        -- the original class, to references to the new class
+        -- @warning: it might be safer NOT to change ALL references, only one
+        -- named a certain way ?
+        for k, v in pairs(originalEnv) do
+            if v == parentClass then
+                newEnv[k] = newClass
+            end
+        end
+        
+        newEnv._G = newEnv
+        setmetatable(newEnv, { __index = originalEnv })
+        
+        newClass.__inheritedEnvironment = newEnv
+    end
+    
+    -- methods cloned from the parent class to the new class will have their
+    -- environment changed to a new one, all the same except the references to
+    -- the parent class will now be references to the new class, so that LSB
+    -- works
+    setfenv(newMethod, newClass.__inheritedEnvironment)
+    
+    return newMethod
 end
 
 return M
