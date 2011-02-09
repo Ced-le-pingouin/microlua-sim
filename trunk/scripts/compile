@@ -100,15 +100,8 @@ for LIB_FILE in $LIB_LIST; do
     MODULE_NAME=`echo "$MODULE_NAME" | sed -e "s/\//_/g"`
     ## get the initial content (script) of the module
     LIB_FILE_CONTENT=`cat "$LIB_FILE"`
-    ## replace "local M = " with "<module name> = ", then assign the global 
-    ## <module name> variable to a local variable of the same name. This is 
-    ## needed so that methods of this module use the local instead of the 
-    ## global, thus creating a closure with an upvalue for the method, and we
-    ## can later copy the method while selectively replacing the upvalue in the
-    ## copies (it is impossible to change references to global variables in a
-    ## method, so the new Class' inheritance system needs local variables that 
-    ## reference the class, usually called "M")
-    LIB_FILE_CONTENT=`echo "$LIB_FILE_CONTENT" | sed -re "s/local M =(.*)/$MODULE_NAME =\1\nlocal $MODULE_NAME = $MODULE_NAME"/g`
+    ## replace "local M = " with "<module name> = "
+    LIB_FILE_CONTENT=`echo "$LIB_FILE_CONTENT" | sed -e "s/local M =/$MODULE_NAME ="/`
     ## when "M.", "M:", or "M[" is found, replace the "M" with "<module name>"
     LIB_FILE_CONTENT=`echo "$LIB_FILE_CONTENT" | sed -re "s/\bM([.:\[])/$MODULE_NAME\1/g"`
     ## find all the "local <local module name> = require "<module path>"
@@ -129,6 +122,12 @@ for LIB_FILE in $LIB_LIST; do
     ## concatenate current lib's modified content with previous content
     echo "$LIB_FILE_CONTENT" >> "$TMP_MLS_SCRIPT"
     echo "" >> "$TMP_MLS_SCRIPT"
+    
+    ## if we just added the Class module, set it up for compiled/global mode
+    if [ "$MODULE_NAME" = "clp_Class"  ]; then
+        echo "$MODULE_NAME.enableGlobalClasses()" >> "$TMP_MLS_SCRIPT"
+        echo "" >> "$TMP_MLS_SCRIPT"
+    fi
 done
 
 ## create a special flag to detect the compiled version of MLS, and put the main
