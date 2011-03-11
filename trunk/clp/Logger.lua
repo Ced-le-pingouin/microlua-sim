@@ -192,6 +192,22 @@ function M:incrementLevel(forceLog)
     return self
 end
 
+--- Registers categories of messages that will be logged, removing already
+--  registered ones, if any
+--
+-- @param categories (string|table) One or more categories
+--
+-- @return (self)
+--
+-- @see addCategories
+-- @see removeCategories
+function M:setCategories(categories)
+    self:removeCategory("*")
+    self:addCategories(categories)
+    
+    return self
+end
+
 --- Registers categories of messages that will be logged.
 --
 -- @param categories (string|table) One or more categories
@@ -290,14 +306,20 @@ end
 -- @return (self)
 function M:resetLogFormat()
     self:setLogFormat(self._defaultLogFormat)
+    
+    return self
 end
 
 --- Sets the function used to write logs. It should accept a string as a 
 --  paramater (the message)
 --
 -- @param func (function)
+--
+-- @return (self)
 function M:setWriterFunction(func)
     self._writerFunction = func
+    
+    return self
 end
 
 --- Returns the current logger level name, or its number if no name is found.
