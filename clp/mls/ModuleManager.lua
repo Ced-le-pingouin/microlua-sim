@@ -138,7 +138,7 @@ end
 --- Resets all loaded modules.
 function M:resetModules()
     for moduleName, module in pairs(self._modules) do
-        Mls.logger:debug("resetting module "..moduleName, "module")
+        Mls.logger:debug(moduleName..": resetting module", "module")
         
         if module.resetModule then module:resetModule() end
     end
@@ -157,7 +157,7 @@ end
 --
 -- @return (table) The loaded module
 function M:_loadModule(moduleName, prefixes)
-    Mls.logger:debug(moduleName.." loading", "module")
+    Mls.logger:debug(moduleName..": loading", "module")
     
     if self._modules[moduleName] then
         Mls.logger:debug(moduleName.." was already loaded", "module")
@@ -212,7 +212,7 @@ end
 --                         with underscores (i.e. clp_mls_modules_, then any 
 --                         given prefix)
 function M:_registerCompiledModule(moduleName, prefixes)
-    Mls.logger:debug("registering compiled module "..moduleName, "module")
+    Mls.logger:debug(moduleName..": registering compiled module", "module")
     
     prefixes = prefixes or {}
     
