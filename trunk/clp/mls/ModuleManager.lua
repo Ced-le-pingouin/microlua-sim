@@ -167,11 +167,11 @@ function M:_loadModule(moduleName, prefixes)
     prefixes = prefixes or {}
     prefixes[#prefixes + 1] = ""
     
-    local loaded, result
+    local loaded, result, modulePath
     for _, prefix in ipairs(prefixes) do
         Mls.logger:debug(moduleName..": searching with prefix '"..prefix.."'", "module")
         
-        local modulePath = "clp.mls.modules."..prefix..moduleName
+        modulePath = "clp.mls.modules."..prefix..moduleName
         loaded, result = pcall(require, modulePath)
         
         -- module was found and loaded, we end the loop
@@ -191,7 +191,7 @@ function M:_loadModule(moduleName, prefixes)
     
     assert(loaded, result)
     
-    Mls.logger:debug(moduleName.." loaded OK", "module")
+    Mls.logger:debug(moduleName.." loaded OK ("..modulePath..")", "module")
     
     self._modules[moduleName] = result
     self._modules[moduleName].__MODULE_NAME = moduleName
