@@ -172,7 +172,7 @@ function M._functionHasUpvalue(func, upvalue)
     return false
 end
 
-function M._functionHasUpvalueNamed(func, upvalue)
+function M._functionHasUpvalueNamed(func, name)
     local upvaluesCount = debug.getinfo(func, "u").nups
     
     for i = 1, upvaluesCount do
