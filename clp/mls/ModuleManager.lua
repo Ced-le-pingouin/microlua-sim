@@ -239,6 +239,7 @@ function M:_registerCompiledModule(module, prefixes)
         Mls.logger:debug(module..": trying to register with prefix '"..prefix.."'", "module")
         
         if _G[moduleName] then
+            Mls.logger:debug(moduleName.." registered OK", "module")
             _G[module] = _G[moduleName]
             break
         end
