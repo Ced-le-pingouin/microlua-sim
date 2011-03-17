@@ -88,8 +88,6 @@ end
 function M:loadModules(modules, prefixes)
     Mls.logger:info("loading uLua simulated modules", "module")
     
-    if not self._modules then self._modules = {} end
-    
     modules = modules or self._modules
     prefixes = prefixes or self._prefixes
     
