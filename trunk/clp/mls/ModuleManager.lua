@@ -136,6 +136,8 @@ end
 --- Resets all loaded modules.
 function M:resetModules()
     for moduleName, module in pairs(self._modules) do
+        Mls.logger:debug("resetting module "..moduleName, "module")
+        
         if module.resetModule then module:resetModule() end
     end
 end
