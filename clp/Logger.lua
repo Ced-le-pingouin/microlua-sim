@@ -346,7 +346,7 @@ end
 function M:_mustLog(level, category)
     if category == "*" then return true end
     
-    return self._level <= level
+    return level >= self._level
            and not self._categoriesBlacklist[category]
            and (self._categories[self._allCategories]
                 or self._categories[category])
