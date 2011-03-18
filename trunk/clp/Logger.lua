@@ -62,18 +62,23 @@ function M:ctr(level, categories)
     
     if categories then self:addCategories(categories) end
     
+    -- level at which the logger *must* log *all* categories no matter what
+    -- (otherwise you could miss errors of fatals in some categories if you
+    -- haven't set them)
+    self._criticalLevel = M.ERROR
+    
     self:setLevel(level or M.OFF)
 end
 
 --- Logs a message at RESERVED level.
--- This level should not be used, it's only pubic for very special cases. It 
+-- This level should not be used, it's only public for very special cases. It 
 -- always logs the message, whatever the current logger level and categories are
 --
 -- @param message (string)
 --
 -- @return (self)
 function M:reserved(message)
-    self:log(message, M.RESERVED, "*")
+    self:log(message, M.RESERVED, self._allCategories)
     
     return self
 end
@@ -146,7 +151,7 @@ function M:log(message, level, category)
     assert(level ~= M.OFF, "OFF is not a valid level for a message!")
     
     if self:_mustLog(level, category) then
-        if category == "*" then category = "Logger" end
+        if category == self._allCategories then category = "Logger" end
         message = self:_format(message, level, category)
         self._writerFunction(message)
     end
@@ -202,7 +207,7 @@ end
 -- @see addCategories
 -- @see removeCategories
 function M:setCategories(categories)
-    self:removeCategory("*")
+    self:removeCategory(self._allCategories)
     self:addCategories(categories)
     
     return self
@@ -344,10 +349,20 @@ end
 --
 -- @return (boolean)
 function M:_mustLog(level, category)
-    if category == "*" then return true end
+    -- if the message has the "special" category, it is *always* logged
+    if category == self._allCategories then return true end
     
-    return level >= self._level
-           and not self._categoriesBlacklist[category]
+    -- if the message level is too low, no need to test further, don't log
+    if level < self._level then return false end
+    
+    -- if the message is at least a of "critical" level, all categories have to 
+    -- be logged, so we won't test the category => log it now!
+    if level >= self._criticalLevel then return true end
+    
+    -- all checks passed, now we need to log: if the category isn't blacklisted 
+    -- (=removed), *and* we've been told to log either all categories, *or* 
+    -- the category of the current message
+    return not self._categoriesBlacklist[category]
            and (self._categories[self._allCategories]
                 or self._categories[category])
 end
