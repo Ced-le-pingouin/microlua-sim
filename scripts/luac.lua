@@ -12,6 +12,6 @@ if not arg or #arg == 0 then
 end
 
 local inputFileName = arg[1]
-local outputFileName = "luac.out"
+local outputFileName = inputFileName..".compiled"
 
 compileScriptFile(inputFileName, outputFileName)
