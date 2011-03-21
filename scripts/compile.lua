@@ -27,15 +27,21 @@
 -- WARNING: SOME PATTERNS USE "%f" A.K.A. THE "FRONTIER PATTERN", WHICH IS *NOT*
 --          DOCUMENTED IN LUA MANUALS, AND COULD DISAPPEAR FROM FUTURE VERSIONS
 
+-- default scripts directory
+local scriptDir = "./scripts"
+
 -- process arguments
 local plainText = false
 local useLuac = false
+local stripSymbols = false
 if arg then
     for _, option in ipairs(arg) do
         if option == "--plain" then
             plainText = true
         elseif option == "--luac" then
             useLuac = true
+        elseif option == "--strip" then
+            stripSymbols = true
         end
     end
 end
@@ -162,11 +168,48 @@ tempFileHandle:close()
 
 -- compile the only resulting file either with luac or lua AIO ("-c" option)
 if not plainText then
+    local command
     if useLuac then
-        os.execute("luac -s "..tempFile)
+        local options = stripSymbols and "-s" or ""
+        command = string.format("luac %s %s", options, tempFile)
+        
+        os.execute(command)
         os.rename("luac.out", finalFile)
     else
-        os.execute("./lua -c "..tempFile)
+        if stripSymbols then
+            -- lua AIO compile option always strips symbols :(
+            command = "./lua -c "..tempFile
+            os.execute(command)
+        else
+            -- so if we don't want it to, we use a "compiler" written in Lua
+            command = string.format("./lua %s/luac.lua %s", scriptDir, tempFile)
+            
+            -- It seems that Lua AIO spawns a process to execute scripts, so we
+            -- have to wait for the process finish, otherwise the "compiled"
+            -- file won't be immediately available for mv
+            
+            -- Only io.popen() allows us to capture a command output, but 
+            -- io.popen() is not available on all Lua ports
+            if io.popen then
+                local outputHandle = assert(io.popen(command, "r"))
+                local output = assert(outputHandle:read("*a"))
+                outputHandle:close()
+                --print(output)
+                
+                -- THOUGH IT SEEMS that the use of io.popen() above forces the
+                -- command to wait for all spawned processes to finish, so maybe
+                -- we don't need the 3 lines below; uncomment them if you get 
+                -- messages about a missing "mls.lua.tmp"
+                -- (AND ps is not generally available on Windows)
+                
+                --local luaAioPid = output:gsub("^.*pid ([0-9]+).*$", "%1")
+                --print(luaAioPid)
+                --while os.execute("ps --no-heading -p "..luaAioPid) == 0 do end
+            else
+                os.execute(command)
+            end
+        end
+        
         os.rename(tempFile..".compiled", finalFile)
     end
     
