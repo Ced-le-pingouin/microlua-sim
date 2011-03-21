@@ -85,21 +85,23 @@ end
 --- Loads and initializes simulated ML modules.
 --
 -- @param moduleNames (table) The list of modules to be loaded
--- @param prefixes (table) An optional list of prefixes to prepend module names
---                         with
 --
 -- @see loadModule for a detailed explanation of the parameters
-function M:loadModules(moduleNames, prefixes)
+function M:loadModules(moduleNames)
     Mls.logger:info("loading uLua simulated modules", "module")
     
     moduleNames = moduleNames or self._moduleNames
-    prefixes = prefixes or self._prefixes
+    
+    -- we have to also try to load modules without a prefix; we do this last
+    if self._prefixes[#self._prefixes] ~= "" then
+        self._prefixes[#self._prefixes + 1] = ""
+    end
     
     for _, moduleName in ipairs(moduleNames) do
         if not __MLS_COMPILED then
-            _G[moduleName] = self:_loadModule(moduleName, prefixes)
+            _G[moduleName] = self:_loadModule(moduleName)
         else
-            self:_registerCompiledModule(moduleName, prefixes)
+            self:_registerCompiledModule(moduleName)
         end
         
         local loadedModule = _G[moduleName]
@@ -150,13 +152,9 @@ end
 --                            be the name of its Lua "class" (i.e. a lua 
 --                            "module" to "require"), so it must be in the lua 
 --                            module path to be found
--- @param prefixes (table) An optional list of prefixes to prepend module names
---                         with. That is, a require will be issued with these 
---                         prefixes (in list order) until the module is found, 
---                         or the list is over. The latter throws an error.
 --
 -- @return (table) The loaded module
-function M:_loadModule(moduleName, prefixes)
+function M:_loadModule(moduleName)
     Mls.logger:debug(moduleName..": loading", "module")
     
     if self._modules[moduleName] then
@@ -164,11 +162,8 @@ function M:_loadModule(moduleName, prefixes)
         return self._modules[moduleName]
     end
     
-    prefixes = prefixes or {}
-    prefixes[#prefixes + 1] = ""
-    
     local loaded, result, modulePath
-    for _, prefix in ipairs(prefixes) do
+    for _, prefix in ipairs(self._prefixes) do
         Mls.logger:debug(moduleName..": searching with prefix '"..prefix.."'", "module")
         
         modulePath = "clp.mls.modules."..prefix..moduleName
@@ -205,16 +200,8 @@ end
 --                            "class" should have been declared in the big 
 --                            single "compiled" file, prefixed with its location
 --                            (e.g. clp_mls_modules_wx_Color for Color)
--- @param prefixes (table) An optional list of prefixes that are usually used in
---                         the source version of MLS. In this function, the 
---                         prefixes will themselves be prefixed with the 
---                         expected modules location, only with slashes replaced
---                         with underscores (i.e. clp_mls_modules_, then any 
---                         given prefix)
-function M:_registerCompiledModule(moduleName, prefixes)
+function M:_registerCompiledModule(moduleName)
     Mls.logger:debug(moduleName..": registering compiled module", "module")
-    
-    prefixes = prefixes or {}
     
     -- modules won't be loaded (only initialized) if we're running a "compiled"
     -- version of Mls (everything in one big file).
@@ -232,9 +219,7 @@ function M:_registerCompiledModule(moduleName, prefixes)
     -- ...but we need to choose the right module name (clp_mls_modules_ + prefix
     -- + module name)
     
-    -- add the empty prefix, to find non-wx non-gl modules, last
-    table.insert(prefixes, "")
-    for _, prefix in ipairs(prefixes) do
+    for _, prefix in ipairs(self._prefixes) do
         prefix = prefix:gsub("\.$", "")
         local moduleFullName = "clp_mls_modules_"..
                                (prefix ~= "" and prefix.."_" or "")..
