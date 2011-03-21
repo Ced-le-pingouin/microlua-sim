@@ -168,7 +168,7 @@ if [ "$PLAIN_TEXT" -eq 0 ]; then
             ## file won't be immediately available for mv
             ##
             ## THOUGH IT SEEMS that the use of command substitution above forces
-            ## bash to wait for all spwaned processes to finish, so maybe we 
+            ## bash to wait for all spawned processes to finish, so maybe we 
             ## don't need the 4 lines below; uncomment them if you get messages 
             ## about mv not finding the file to move
             #PID_LUA_AIO=`echo $INFO_LUA_AIO | sed -re 's/^.*pid ([0-9]+).*$/\1/g'`
