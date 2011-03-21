@@ -62,9 +62,9 @@ function M:ctr(level, categories)
     
     if categories then self:addCategories(categories) end
     
-    -- level at which the logger *must* log *all* categories no matter what
-    -- (otherwise you could miss errors of fatals in some categories if you
-    -- haven't set them)
+    -- level at which the logger *must* log *all* categories no matter what;
+    -- otherwise we could miss errors or fatals in some categories if we didn't
+    -- set the logger to follow them
     self._criticalLevel = M.ERROR
     
     self:setLevel(level or M.OFF)
@@ -355,7 +355,7 @@ function M:_mustLog(level, category)
     -- if the message level is too low, no need to test further, don't log
     if level < self._level then return false end
     
-    -- if the message is at least a of "critical" level, all categories have to 
+    -- if the message is at least of "critical" level, all categories have to 
     -- be logged, so we won't test the category => log it now!
     if level >= self._criticalLevel then return true end
     
