@@ -109,12 +109,8 @@ for _, file in ipairs(sourceFiles) do
     local localModulesReplacements = {}
     
     for line in io.lines(file) do
-        -- replace "local M = " with "<module name> = ", then puts the global
-        -- <module name> variable in a local variable of the same name
-        line = line:gsub(
-            "local M =(.+)",
-            moduleName.." =%1\n".."local "..moduleName.." = "..moduleName
-        )
+        -- replace "local M = " with "<module name> = "
+        line = line:gsub("local M =(.+)", moduleName.." =%1")
         -- when "M.", "M:", or "M[" is found, replace the M with <module name>
         line = line:gsub("%f[%w_]M([.:%[])", moduleName.."%1")
         
@@ -146,6 +142,12 @@ for _, file in ipairs(sourceFiles) do
             "Class%.new%("..originalLocalModuleName.."%)", 
             "Class%.new%("..newLocalModuleName.."%)"
         )
+    end
+    
+    -- if we just added the Class module, set it up for compiled/global mode
+    if moduleName == "clp_Class" then
+        fileContent = fileContent ..
+                      moduleName .. ".enableGlobalClasses()\n\n"
     end
     
     -- write filtered file content to temp file
@@ -201,10 +203,11 @@ if not plainText then
                 -- we don't need the 3 lines below; uncomment them if you get 
                 -- messages about a missing "mls.lua.tmp"
                 -- (AND ps is not generally available on Windows)
-                
-                --local luaAioPid = output:gsub("^.*pid ([0-9]+).*$", "%1")
+                --[[
+                local luaAioPid = output:gsub("^.*pid ([0-9]+).*$", "%1")
                 --print(luaAioPid)
-                --while os.execute("ps --no-heading -p "..luaAioPid) == 0 do end
+                while os.execute("ps --no-heading -p "..luaAioPid) == 0 do end
+                ]]
             else
                 os.execute(command)
             end
