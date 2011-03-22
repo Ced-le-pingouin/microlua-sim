@@ -108,6 +108,8 @@ for LIB_FILE in $LIB_LIST; do
     ## replace "local M = " with "<module name> = "
     LIB_FILE_CONTENT=`echo "$LIB_FILE_CONTENT" | sed -e "s/local M =/$MODULE_NAME ="/`
     ## when "M.", "M:", or "M[" is found, replace the "M" with "<module name>"
+    ## WARNING: unfortunately, this will also replace such occurences that are
+    ##          quoted!
     LIB_FILE_CONTENT=`echo "$LIB_FILE_CONTENT" | sed -re "s/\bM([.:\[])/$MODULE_NAME\1/g"`
     ## find all the "local <local module name> = require "<module path>"
     LIB_REQUIRES=`echo "$LIB_FILE_CONTENT" | grep "^local.*= require"`
