@@ -112,6 +112,8 @@ for _, file in ipairs(sourceFiles) do
         -- replace "local M = " with "<module name> = "
         line = line:gsub("local M =(.+)", moduleName.." =%1")
         -- when "M.", "M:", or "M[" is found, replace the M with <module name>
+        -- WARNING: unfortunately, this will also replace such occurences that
+        --          are quoted!
         line = line:gsub("%f[%w_]M([.:%[])", moduleName.."%1")
         
         -- if the line is a require for a local module, store it for later
