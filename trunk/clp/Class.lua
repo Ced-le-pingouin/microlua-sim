@@ -237,7 +237,9 @@ function M._cloneMethodWithNewEnvironment(method, parentClass, newClass)
         end
         
         newEnv._G = newEnv
-        setmetatable(newEnv, { __index = originalEnv })
+        
+        local newEnv_mt = { __index = originalEnv, __newindex = originalEnv }
+        setmetatable(newEnv, newEnv_mt)
         
         newClass.__inheritedEnvironment = newEnv
     end
