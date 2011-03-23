@@ -47,8 +47,17 @@ function M:initModule(emulateLibs)
     M._keyNames = { "A", "B", "X", "Y", "L", "R", "Start", "Select", 
 	                "Left", "Right", "Up", "Down" }
     
-	M._emulateLibs = emulateLibs
-	
+    M._Stylus = {}
+    M._Keys   = {}
+    
+    M.Stylus  = {}
+    M.Keys    = {}
+    -- if we must emulate lua.libs, then Keys and Stylus are available globally
+    if emulateLibs then
+        Stylus = M.Stylus
+        Keys = M.Keys
+    end
+    
     M._initKeyBindings()
     M._bindEvents()
     M._createReadFunctions()
@@ -61,12 +70,6 @@ end
 function M:resetModule()
     M._clearBothStates()
     M._copyInternalStateToExternalState()
-    
-    -- if we must emulate lua.libs, then Keys and Stylus are available globally
-    if M._emulateLibs then
-        Stylus = M.Stylus
-        Keys = M.Keys
-    end
 end
 
 --- Reads the controls and updates all control structures [ML 2+ API].
@@ -135,15 +138,23 @@ end
 -- This resets both internal (realtime) and external (as last read by read()) 
 -- states
 function M._clearBothStates()
-    M.Stylus = {
+    local initialStylusState = {
 	    X = 0, Y = 0, held = false, released = false, doubleClick = false
 	}
-	M._Stylus = {
-        X = 0, Y = 0, held = false, released = false, doubleClick = false
-    }
 	
-	M.Keys  = { newPress = {}, held = {}, released = {} }
-	M._Keys = { held = {} }
+	for k, v in pairs(initialStylusState) do
+	    M.Stylus[k] = v
+	    M._Stylus[k] = v
+	end
+	
+	for k, v in pairs{ newPress = {}, held = {}, released = {} } do
+	    M.Keys[k] = v
+	end
+	
+	for k, v in pairs{ held = {} } do
+	    M._Keys[k] = v
+	end
+	
 	for _, k in ipairs(M._keyNames) do
 	   M.Keys.held[k] = false
 	   M._Keys.held[k] = false
