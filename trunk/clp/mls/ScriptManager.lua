@@ -545,10 +545,14 @@ end
 function M:_setFunctionEnvironmentToEmpty(func)
     local env = {}
     
-    -- method 1 for whole env replacement
+    -- method 1: whole replacement, by copying keys/values from _G to env
     for k, v in pairs(_G) do env[k] = v end
-    -- method 2
-    --setmetatable(env, { __index = _G, __newindex = _G })
+    
+    -- method 2: script env is "seen through" to get to MLS _G (use __index)
+    -- this method might have to be combined with 1, if only for NB_FPS that we
+    -- have to read from original _G, since it constantly changes => simple copy
+    -- doesn't work
+    --setmetatable(env, { __index = _G })
     
     self:_replaceLuaFunctions(env)
     self:_changeMlsClassesEnvironment(env)
@@ -686,16 +690,15 @@ end
 
 function M:_setMlsFunctionEnvironment(func, env)
     -- old method, doesn't work with "global classes" inheritance
-    setfenv(func, env)
+    --setfenv(func, env)
     
-    -- new method, not quite working for now
-    --[[
+    -- new method, mandatory if "global classes" are enabled in Class
     local funcEnv = getfenv(func)
     local mt = getmetatable(funcEnv) or {}
     mt.__index = env
     mt.__newindex = env
     setmetatable(funcEnv, mt)
-    ]]
+    
 end
 
 
