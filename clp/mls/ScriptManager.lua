@@ -379,7 +379,7 @@ function M:stopScript()
     
     self._mainLoopCoroutine = nil
     self._mainLoopEnvironment = nil
-    --self:_changeMlsFunctionsEnvironment(_G)
+    --self:_changeMlsClassesEnvironment(_G)
     collectgarbage("collect")
     
     self:_setScriptState(M.SCRIPT_STOPPED)
@@ -397,7 +397,7 @@ function M:startScript()
     end
     
     -- create a custom environment that we can delete after script execution, 
-    -- to get rid of user variables and functions and keep mem high
+    -- to get rid of user variables and functions and keep free mem high
     self:_setFunctionEnvironmentToEmpty(self._scriptFunction)
     self._moduleManager:resetModules()
     self._mainLoopCoroutine = coroutine.create(self._scriptFunction)
@@ -545,11 +545,13 @@ end
 function M:_setFunctionEnvironmentToEmpty(func)
     local env = {}
     
-    -- method 1 (! we need to fix dofile() being always global, and to force 
-    -- already globally defined functions to *execute* inside the custom env !)
+    -- method 1 for whole env replacement
     for k, v in pairs(_G) do env[k] = v end
+    -- method 2
+    --setmetatable(env, { __index = _G, __newindex = _G })
+    
     self:_replaceLuaFunctions(env)
-    self:_changeMlsFunctionsEnvironment(env)
+    self:_changeMlsClassesEnvironment(env)
     -- finally, we set env._G to env itself, so _G["varname"] works in scripts
     env._G = env
     
@@ -610,7 +612,7 @@ function M:_replaceLuaFunctions(env)
         -- io.output([file])
         "io.output",
         -- io.popen(prog [, mode])
-        -- io.execute([command])
+        -- os.execute([command])
         -- os.remove(filename)
         "os.remove",
         -- os.rename(oldname, newname)
@@ -645,7 +647,7 @@ end
 -- a custom env)
 --
 -- @param env (table) The custom environment to copy global variables to
-function M:_changeMlsFunctionsEnvironment(env)
+function M:_changeMlsClassesEnvironment(env)
     local functionsToChange = {
         -- global functions
         "startDrawing", "stopDrawing", "render",
@@ -658,29 +660,44 @@ function M:_changeMlsFunctionsEnvironment(env)
     }
     
     for _, funcName in ipairs(functionsToChange) do
-        self:_changeFunctionsEnvironment(_G[funcName], env)
+        self:_changeMlsClassOrFunctionEnvironment(_G[funcName], env)
     end
 end
 
 --- Sets a custom environment table for a function or all the methods of a 
 --  Class.
 --
--- @param obj (funcion|Class) The function or class (= its methods) that will
+-- @param obj (function|Class) The function or class (= its methods) that will
 --                            have their environment replaced
 -- @param env (table)
-function M:_changeFunctionsEnvironment(obj, env)
+function M:_changeMlsClassOrFunctionEnvironment(obj, env)
     if type(obj) == "function" then
-        setfenv(obj, env)
+        self:_setMlsFunctionEnvironment(obj, env)
     elseif type(obj) == "table" and obj.__class then
-        for methodName, method in pairs(obj) do
-            if type(method) == "function" then
-                setfenv(method, env)
+        for memberName, member in pairs(obj) do
+            if type(member) == "function" then
+                self:_setMlsFunctionEnvironment(member, env)
             end
         end
         
-        self:_changeFunctionsEnvironment(obj.__parent, env)
+        self:_changeMlsClassOrFunctionEnvironment(obj.__parent, env)
     end
 end
+
+function M:_setMlsFunctionEnvironment(func, env)
+    -- old method, doesn't work with "global classes" inheritance
+    setfenv(func, env)
+    
+    -- new method, not quite working for now
+    --[[
+    local funcEnv = getfenv(func)
+    local mt = getmetatable(funcEnv) or {}
+    mt.__index = env
+    mt.__newindex = env
+    setmetatable(funcEnv, mt)
+    ]]
+end
+
 
 --- Replacement function for Lua's os.time(), since the ML version works with
 -- milliseconds rather than seconds.
