@@ -559,8 +559,6 @@ function M:_setFunctionEnvironmentToEmpty(func)
     -- finally, we set env._G to env itself, so _G["varname"] works in scripts
     env._G = env
     
-    -- to test for the custom env (_G doesn't have this variable)
-    env.__custom = "true"
     self._mainLoopEnvironment = env
     setfenv(func, env)
 end
