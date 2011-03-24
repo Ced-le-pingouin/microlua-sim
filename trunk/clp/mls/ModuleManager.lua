@@ -138,11 +138,18 @@ function M:loadModules(moduleNames)
 end
 
 --- Resets all loaded modules.
-function M:resetModules()
+--
+-- @param scriptEnvironment (table) The environment (= _G) of a script, where 
+--                                  global variables should be written by the
+--                                  modules. Not all modules use this, but if 
+--                                  they have to modify a global variable and 
+--                                  the change should be seen by the running 
+--                                  script, it's needed (e.g. NB_FPS in screen)
+function M:resetModules(scriptEnvironment)
     for moduleName, module in pairs(self._modules) do
         Mls.logger:debug(moduleName..": resetting module", "module")
         
-        if module.resetModule then module:resetModule() end
+        if module.resetModule then module:resetModule(scriptEnvironment) end
     end
 end
 
