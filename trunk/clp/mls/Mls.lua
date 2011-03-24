@@ -456,7 +456,7 @@ function Mls:onUpsUpdate(event, ups)
     local targetUps = Mls.scriptManager:getTargetUps()
     
     Mls.gui:displayTimingInfo(string.format(
-        "%d fps (%d) - %d ups (%d)", NB_FPS, targetFps, ups, targetUps
+        "%d fps (%d) - %d ups (%d)", screen.getFps(), targetFps, ups, targetUps
     ))
 end
 
