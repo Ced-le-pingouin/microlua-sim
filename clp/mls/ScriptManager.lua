@@ -399,7 +399,7 @@ function M:startScript()
     -- create a custom environment that we can delete after script execution, 
     -- to get rid of user variables and functions and keep free mem high
     self:_setFunctionEnvironmentToEmpty(self._scriptFunction)
-    self._moduleManager:resetModules()
+    self._moduleManager:resetModules(self._mainLoopEnvironment)
     self._mainLoopCoroutine = coroutine.create(self._scriptFunction)
     
     self._debugger = Debugger:new(self._mainLoopCoroutine)
