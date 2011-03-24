@@ -545,17 +545,10 @@ end
 function M:_setFunctionEnvironmentToEmpty(func)
     local env = {}
     
-    -- method 1: whole replacement, by copying keys/values from _G to env
+    -- whole replacement, by copying keys/values from _G to env
     for k, v in pairs(_G) do env[k] = v end
-    
-    -- method 2: script env is "seen through" to get to MLS _G (use __index)
-    -- this method might have to be combined with 1, if only for NB_FPS that we
-    -- have to read from original _G, since it constantly changes => simple copy
-    -- doesn't work
-    --setmetatable(env, { __index = _G })
-    
+        
     self:_replaceLuaFunctions(env)
-    self:_changeMlsClassesEnvironment(env)
     -- finally, we set env._G to env itself, so _G["varname"] works in scripts
     env._G = env
     
@@ -637,66 +630,6 @@ function M:_replaceLuaFunctions(env)
         -- finally, make our custom version available under Lua's original name
         env[modName][funcName] = M[customFuncName]
     end
-end
-
---- Copies needed global variables and functions to a custom environment table.
--- Since Mls and its "modules" are *created* in the beginning in the 
--- *global* environment, even when they're called from a custom env, they create
--- and change variables in their own env, i.e. the global one, not in any 
--- custom env they're called from. So if we want these functions to set "global"
--- vars in a custom env, we have to switch their env (ex: if NB_FPS is changed
--- in the global env, it'll not be seen by external scripts, which execute in 
--- a custom env)
---
--- @param env (table) The custom environment to copy global variables to
-function M:_changeMlsClassesEnvironment(env)
-    local functionsToChange = {
-        -- global functions
-        "startDrawing", "stopDrawing", "render",
-        -- tables containing functions (obsolete ML 2.0 objects)
-        "Keyboard", "Mod",
-        -- tables containing functions
-        "Mls", "Canvas", "Color", "ds_controls", "DateTime", "Debug", 
-        "Font_Bitmap", "Font_Native", "Image", "INI", "Map", "Motion", "Rumble",
-        "screen", "ScrollMap", "Sound", "Sprite", "ds_system", "Timer", "Wifi"
-    }
-    
-    for _, funcName in ipairs(functionsToChange) do
-        self:_changeMlsClassOrFunctionEnvironment(_G[funcName], env)
-    end
-end
-
---- Sets a custom environment table for a function or all the methods of a 
---  Class.
---
--- @param obj (function|Class) The function or class (= its methods) that will
---                            have their environment replaced
--- @param env (table)
-function M:_changeMlsClassOrFunctionEnvironment(obj, env)
-    if type(obj) == "function" then
-        self:_setMlsFunctionEnvironment(obj, env)
-    elseif type(obj) == "table" and obj.__class then
-        for memberName, member in pairs(obj) do
-            if type(member) == "function" then
-                self:_setMlsFunctionEnvironment(member, env)
-            end
-        end
-        
-        self:_changeMlsClassOrFunctionEnvironment(obj.__parent, env)
-    end
-end
-
-function M:_setMlsFunctionEnvironment(func, env)
-    -- old method, doesn't work with "global classes" inheritance
-    --setfenv(func, env)
-    
-    -- new method, mandatory if "global classes" are enabled in Class
-    local funcEnv = getfenv(func)
-    local mt = getmetatable(funcEnv) or {}
-    mt.__index = env
-    mt.__newindex = env
-    setmetatable(funcEnv, mt)
-    
 end
 
 
