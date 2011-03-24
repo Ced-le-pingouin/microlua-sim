@@ -719,20 +719,52 @@ end
 --- Replacement for Lua's debug.traceback(), that make long paths in the trace
 -- more readable when the trace is displayed on the DS "screen".
 --
--- @param thread (thread)
--- @param message (string)
--- @param level (number)
+-- @param thread (thread) optional
+-- @param message (string) optional if there's no params, but otherwise should
+--                         be the first param, after the thread (if there's one)
+-- @param level (number) optional
 --
 -- @see debug.traceback
-function M._debug_traceback(thread, message, level)
-    if not thread then thread = coroutine.running() end
-    if not message then message = "" end
-    if not level then level = 1 end
+function M._debug_traceback(...)
+    -- I hope I got the extracting of the parameters right, since the source 
+    -- code of debug.traceback() (in C) is rather complicated.
+    -- The only param I need is the level, since I must increment it by 1
     
+    local params = { ... }
+    local thread, message, level
+    
+    -- get the params, with the first one being an optional thread
+    if type(params[1]) == "thread" then
+        thread, message, level = unpack(params)
+    else
+        thread, message, level = nil, unpack(params)
+    end
+    
+    -- if message is not a string, it will default to the empty string
+    if type(message) ~= "string" then
+        message = ""
+    end
+    
+    -- if level is not a number... then is he a free man??? Ok, sorry...
+    -- ... then it will default to 0 for a thread, 1 for main
+    if type(level) ~= "number" then
+        level = thread and 0 or 1
+    end
+    
+    -- since there's our level of indirection for traceback, we must increment
+    -- level
     level = level + 1
     
+    -- put the params back together to pass'em to the "real" traceback()
+    if thread then
+        params = { thread, message, level }
+    else
+        params = { message, level }
+    end
+    
+    -- format the output string of the "real" traceback
     return M._makePathsInTextMultilineFriendly(
-        debug._traceback(thread, message, level)
+        debug._traceback(unpack(params))
     )
 end
 
