@@ -68,13 +68,16 @@ function M:initModule(emulateLibs)
     end
 end
 
-function M:resetModule()
+function M:resetModule(scriptEnvironment)
+    M._scriptEnvironment = scriptEnvironment or {}
+    
+    M._scriptEnvironment.NB_FPS = M._fps
     M.clearAllOffscreenSurfaces()
 end
 
 --- Initializes global variables for the screen module.
 function M._initVars()
-    NB_FPS         = 0
+    M._fps         = 0
     SCREEN_UP      = 1
     SCREEN_DOWN    = 0
     
@@ -567,7 +570,7 @@ end
 
 --- Returns current FPS.
 function M.getFps()
-    return NB_FPS
+    return M._fps
 end
 
 --- Returns the total number of upates (= frames rendered) since the beginning.
@@ -672,7 +675,9 @@ function M._updateFps()
     if M._timer:time() >= M._nextSecond then
         Mls.logger:trace("updating FPS", "screen")
         
-        NB_FPS = M._framesInOneSec
+        M._fps = M._framesInOneSec
+        M._scriptEnvironment.NB_FPS = M._fps
+        
         M._framesInOneSec = 0
         M._nextSecond = M._timer:time() + Timer.ONE_SECOND
     end
