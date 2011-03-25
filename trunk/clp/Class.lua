@@ -36,6 +36,8 @@ local M = {}
 --
 -- @return (table) The created class
 function M.new(...) -- only one arg accepted = parentClass
+    M._checkChosenClassSystemIsOk()
+    
     local newClass = {}
     
     newClass.__class = newClass
@@ -78,6 +80,34 @@ function M:instanceOf(ancestor)
     return false
 end
 
+function M._checkChosenClassSystemIsOk()
+    if M._classSystemHasBeenChecked then return true end
+    
+    local upvalue = 1
+    
+    -- if "local classes" -and thus replacement of upvalues for inheritance- are
+    -- used, we have to make sure it's possible
+    -- if the script has been compiled and the symbols have been stripped, we 
+    -- can't use the debug lib to change upvalues :-/
+    if not M._globalClassesEnabled then
+        local info = debug.getinfo(1)
+        print("nups", info.nups)
+        assert(info.nups > 0,
+            "ERROR: "..
+            "Class uses 'local classes', and has to replace upvalues for this to work. "..
+            "But your script has been compiled and the symbols have been stripped, "..
+            "thus the debug library can't be fully used, and the 'local classes' "..
+            "system won't work. Sorry.\n"..
+            "You should use 'global classes' instead, and call Class.enableGlobalClasses() "..
+            "before you create any class.\n"
+        )
+    end
+    
+    M._classSystemHasBeenChecked = true
+    
+    return true
+end
+
 --- Creates a new instance from a class.
 function M:_newInstance(...)
     local object = {}
@@ -94,6 +124,8 @@ function M:_newInstance(...)
 end
 
 function M.enableGlobalClasses()
+    M._globalClassesEnabled = true
+    
     M._cloneMethod = M._cloneMethodWithNewEnvironment
 end
 
