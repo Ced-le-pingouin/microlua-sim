@@ -129,6 +129,10 @@ function M.enableGlobalClasses()
     M._cloneMethod = M._cloneMethodWithNewEnvironment
 end
 
+function M.globalClassesEnabled()
+    return M._globalClassesEnabled
+end
+
 function M:setupInheritance(...)
     local parentClass = nil
     
