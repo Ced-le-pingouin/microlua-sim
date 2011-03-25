@@ -148,6 +148,13 @@ function Mls:ctr(scriptPath)
               :reserved("Welcome to the console. Script errors and log messages will be displayed here.")
               :resetLogFormat()
     
+    -- info on the Class system used for inheritance and late static binding
+    local globalClassesState = Class.globalClassesEnabled()
+                               and "global classes"
+                                or "local classes"
+    
+    Mls.logger:info("Class is set up for "..globalClassesState)
+    
     -- debug vars
     __DEBUG_NO_REFRESH = Mls.config:get("debug_no_refresh", false)
     __DEBUG_LIMIT_TIME = Mls.config:get("debug_limit_time", 0)
