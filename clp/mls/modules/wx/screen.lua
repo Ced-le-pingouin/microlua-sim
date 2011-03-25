@@ -52,6 +52,8 @@ function M:initModule(emulateLibs)
     M._framesInOneSec = 0
     M._totalFrames = 0
     
+    M._scriptEnvironment = {}
+    
     M._initVars()
     M._initTimer()
     M._initOffscreenSurfaces()
@@ -69,7 +71,9 @@ function M:initModule(emulateLibs)
 end
 
 function M:resetModule(scriptEnvironment)
-    M._scriptEnvironment = scriptEnvironment or {}
+    if scriptEnvironment then
+        M._scriptEnvironment = scriptEnvironment
+    end
     
     M._scriptEnvironment.NB_FPS = M._fps
     M.clearAllOffscreenSurfaces()
