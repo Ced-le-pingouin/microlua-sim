@@ -138,6 +138,9 @@ function M.draw(screenNum, map, x, y, width, height, _scrollByPixel, _repeat)
     local lastCol = (firstCol + width - 1)
     if lastCol > (map._width - 1) then lastCol = (map._width - 1) end
     
+    screen._initMapBlit(screenNum, map._tilesImage, map._tileWidth, 
+                        map._tileHeight)
+    
     local posY = startPosY
     local row = firstRow
     while row <= lastRow do
@@ -149,9 +152,7 @@ function M.draw(screenNum, map, x, y, width, height, _scrollByPixel, _repeat)
             local sourcey = math.floor(tileNum / map._tilesPerRow)
                             * map._tileHeight
             
-            screen.blit(screenNum, posX, posY, map._tilesImage, 
-                        sourcex, sourcey, 
-                        map._tileWidth, map._tileHeight)
+            screen._mapBlit(posX, posY, sourcex, sourcey)
             
             posX = posX + map._tileWidth + map._spacingX
             if posX > SCREEN_WIDTH then break end
