@@ -27,9 +27,10 @@ SCRIPT_DIR=$(dirname $0)
 cd $SCRIPT_DIR/..
 
 ## process arguments
-LUAC=0
+USE_LUAC=0
 PLAIN_TEXT=0
 STRIP_SYMBOLS=0
+GLOBAL_CLASSES=0
 for OPT in "$@"; do
     case $OPT in
         # the "compiled" version will just be an all in one plain text file, 
@@ -41,14 +42,36 @@ for OPT in "$@"; do
         # with the provided lua (AIO, "bad header" message), so we should use
         # lua (AIO) with "-c" to compile
         --luac)
-            LUAC=1
+            USE_LUAC=1
             ;;
         # 
         --strip)
             STRIP_SYMBOLS=1
             ;;
+        # 
+        --global-classes)
+            GLOBAL_CLASSES=1
+            ;;
     esac
 done
+
+## some options are mutually exclusive, so we warn the user they'll be ignored
+if [ "$PLAIN_TEXT" -eq 1 ]; then
+    if [ "$STRIP_SYMBOLS" -eq 1 -o "$USE_LUAC" -eq 1 ]; then
+        echo "WARNING: --plain is mutually exclusive with the following options: --luac, --strip."
+        echo "         Any of the latter options will be ignored if --plain is also present."
+        
+        STRIP_SYMBOLS=0
+        USE_LUAC=0
+    fi
+fi
+
+## local classes don't work when the script is compiled and symbols are stripped
+if [ "$STRIP_SYMBOLS" -eq 1 -a "$GLOBAL_CLASSES" -eq 0 ]; then
+    echo "ERROR: Local classes don't work when the script is compiled AND the symbols are stripped."
+    echo "       If you want to strip symbols, you have to specify --global-classes too."
+    exit 1
+fi
 
 SRC_MLS_SCRIPT="mls.lua"
 TMP_MLS_SCRIPT="$SRC_MLS_SCRIPT.tmp"
@@ -105,8 +128,14 @@ for LIB_FILE in $LIB_LIST; do
     MODULE_NAME=`echo "$MODULE_NAME" | sed -e "s/\//_/g"`
     ## get the initial content (script) of the module
     LIB_FILE_CONTENT=`cat "$LIB_FILE"`
-    ## replace "local M = " with "<module name> = "
-    LIB_FILE_CONTENT=`echo "$LIB_FILE_CONTENT" | sed -e "s/local M =/$MODULE_NAME ="/`
+    ## replace "local M = " with "<module name> = " ...
+    MODULE_ASSIGN_REPLACEMENT="$MODULE_NAME =\1"
+    ## ...and assign the module to a local variable (upvalue) if we're not
+    ## using global classes
+    if [ "$GLOBAL_CLASSES" -eq 0 ]; then
+        MODULE_ASSIGN_REPLACEMENT="$MODULE_ASSIGN_REPLACEMENT\nlocal $MODULE_NAME = $MODULE_NAME"
+    fi
+    LIB_FILE_CONTENT=`echo "$LIB_FILE_CONTENT" | sed -re "s/local M =(.*)/$MODULE_ASSIGN_REPLACEMENT/g"`
     ## when "M.", "M:", or "M[" is found, replace the "M" with "<module name>"
     ## WARNING: unfortunately, this will also replace such occurences that are
     ##          quoted!
@@ -130,8 +159,9 @@ for LIB_FILE in $LIB_LIST; do
     echo "$LIB_FILE_CONTENT" >> "$TMP_MLS_SCRIPT"
     echo "" >> "$TMP_MLS_SCRIPT"
     
-    ## if we just added the Class module, set it up for compiled/global mode
-    if [ "$MODULE_NAME" = "clp_Class"  ]; then
+    ## if we use global classes, and we just added the Class module, set it up
+    ## for global mode
+    if [ "$GLOBAL_CLASSES" -eq 1 -a "$MODULE_NAME" = "clp_Class"  ]; then
         echo "$MODULE_NAME.enableGlobalClasses()" >> "$TMP_MLS_SCRIPT"
         echo "" >> "$TMP_MLS_SCRIPT"
     fi
@@ -150,7 +180,7 @@ grep -v "$REMOVE_REQUIRE" "$TMP_MLS_SCRIPT" | grep -v "$REMOVE_MODULE_RETURN" > 
 
 ## compile the only resulting file either with luac or lua AIO ("-c" option)
 if [ "$PLAIN_TEXT" -eq 0 ]; then
-    if [ "$LUAC" -eq 1 ]; then
+    if [ "$USE_LUAC" -eq 1 ]; then
         LUAC_OPTIONS=""
         if [ "$STRIP_SYMBOLS" -eq 1 ]; then
             LUAC_OPTIONS=-s
