@@ -215,6 +215,25 @@ function M.blit(screenNum, x, y, image, sourcex, sourcey, width, height)
                      true)
 end
 
+function M._initMapBlit(screenNum, image, width, height)
+    Image._doTransform(image)
+    
+    M._mapBlitOffscreenDC = M._getOffscreenDC(screenNum)
+    M._mapBlitOffset = M.offset[screenNum]
+    M._mapBlitImage = image
+    M._mapBlitWidth = width
+    M._mapBlitHeight = height
+end
+
+function M._mapBlit(x, y, sourcex, sourcey)
+    local image = M._mapBlitImage
+    
+    M._mapBlitOffscreenDC:Blit(x + image._offset.x, 
+                               M._mapBlitOffset + y + image._offset.y, 
+                               M._mapBlitWidth, M._mapBlitHeight, image._DC, 
+                               sourcex, sourcey, wx.wxCOPY, true)
+end
+
 --- Draws a line on the screen [ML 2+ API].
 --
 -- @param screen (number) The screen where to draw (SCREEN_UP or SCREEN_DOWN)

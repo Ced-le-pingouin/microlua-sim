@@ -247,6 +247,67 @@ function M.blit(screenNum, x, y, image, sourcex, sourcey, width, height)
     glPopMatrix()
 end
 
+function M._initMapBlit(screenNum, image, width, height)
+    M.setClippingForScreen(screenNum)
+    
+    M._mapBlitOffset = M.offset[screenNum]
+    M._mapBlitWidth = width
+    M._mapBlitHeight = height
+    
+    if M.normalizeTextureCoordinates then
+        M._mapBlitXRatio = 1 / image._textureWidth
+        M._mapBlitYRatio = 1 / image._textureHeight
+    end
+    
+    local tint = image._tint
+    local r, g, b = tint:Red() / 255, tint:Green() / 255, tint:Blue() / 255
+    
+    glEnable(M.textureType)
+    glBindTexture(M.textureType, image._textureId[0])
+    
+    glColor3d(r, g, b)
+end
+
+function M._mapBlit(x, y, sourcex, sourcey)
+    local width, height = M._mapBlitWidth, M._mapBlitHeight
+    
+    y = y + M._mapBlitOffset
+    local x2 = x + width
+    local y2 = y + height
+    
+    local sourcex2 = sourcex + width - 0.01
+    local sourcey2 = sourcey + height - 0.01
+    sourcex = sourcex + 0.01
+    sourcey = sourcey + 0.01
+    
+    if M.normalizeTextureCoordinates then
+        local xRatio, yRatio = M._mapBlitXRatio, M._mapBlitYRatio
+        
+        sourcex = sourcex * xRatio
+        sourcey = sourcey * yRatio
+        sourcex2 = sourcex2 * xRatio
+        sourcey2 = sourcey2 * yRatio
+    end
+    
+    glPushMatrix()
+        glTranslated(x, y , 0)
+        
+        glBegin(GL_QUADS)
+            glTexCoord2d(sourcex, sourcey)
+            glVertex2d(0, 0)
+            
+            glTexCoord2d(sourcex2, sourcey)
+            glVertex2d(width, 0)
+            
+            glTexCoord2d(sourcex2, sourcey2)
+            glVertex2d(width, height)
+            
+            glTexCoord2d(sourcex, sourcey2)
+            glVertex2d(0, height)
+        glEnd()
+    glPopMatrix()
+end
+
 --- Draws a line on the screen [ML 2+ API].
 --
 -- @param screen (number) The screen where to draw (SCREEN_UP or SCREEN_DOWN)
