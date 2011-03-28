@@ -83,16 +83,17 @@ end
 function M._checkChosenClassSystemIsOk()
     if M._classSystemHasBeenChecked then return true end
     
-    local upvalue = 1
+    local myUpvalue = 1
     
     -- if "local classes" -and thus replacement of upvalues for inheritance- are
     -- used, we have to make sure it's possible
     -- if the script has been compiled and the symbols have been stripped, we 
     -- can't use the debug lib to change upvalues :-/
     if not M._globalClassesEnabled then
-        local info = debug.getinfo(1)
-        print("nups", info.nups)
-        assert(info.nups > 0,
+        -- when symbols are *not* stripped, we should get: myUpvalue, 1
+        local name, value = debug.getlocal(1, 1)
+        
+        assert(name == "myUpvalue" and value == 1,
             "ERROR: "..
             "Class uses 'local classes', and has to replace upvalues for this to work. "..
             "But your script has been compiled and the symbols have been stripped, "..
