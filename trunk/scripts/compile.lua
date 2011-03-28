@@ -34,6 +34,7 @@ local scriptDir = "./scripts"
 local plainText = false
 local useLuac = false
 local stripSymbols = false
+local globalClasses = false
 if arg then
     for _, option in ipairs(arg) do
         if option == "--plain" then
@@ -42,8 +43,32 @@ if arg then
             useLuac = true
         elseif option == "--strip" then
             stripSymbols = true
+        elseif option == "--global-classes" then
+            globalClasses = true
         end
     end
+end
+
+-- some options are mutually exclusive, so we warn the user they'll be ignored
+if plainText then
+    if stripSymbols or useLuac then
+        print(
+            "WARNING: --plain is mutually exclusive with the following options: --luac, --strip.\n"..
+            "         Any of the latter options will be ignored if --plain is also present."
+        )
+        
+        stripSymbols = false
+        useLuac = false
+    end
+end
+
+-- local classes don't work when the script is compiled and symbols are stripped
+if stripSymbols and not globalClasses then
+    error(
+        "ERROR: Local classes don't work when the script is compiled AND the symbols are stripped.\n"..
+        "       If you want to strip symbols, you have to specify --global-classes too."
+    )
+    os.exit(1)
 end
 
 -- define various file names
@@ -109,8 +134,15 @@ for _, file in ipairs(sourceFiles) do
     local localModulesReplacements = {}
     
     for line in io.lines(file) do
-        -- replace "local M = " with "<module name> = "
-        line = line:gsub("local M =(.+)", moduleName.." =%1")
+        -- replace "local M = " with "<module name> = " ...
+        local moduleAssignReplacement = moduleName.." =%1"
+        -- ...and assign the module to a local variable (upvalue) if we're not
+        -- using global classes
+        if not globalClasses then
+            moduleAssignReplacement = moduleAssignReplacement
+                                    .."\nlocal "..moduleName.." = "..moduleName
+        end
+        line = line:gsub("local M =(.+)", moduleAssignReplacement)
         -- when "M.", "M:", or "M[" is found, replace the M with <module name>
         -- WARNING: unfortunately, this will also replace such occurences that
         --          are quoted!
@@ -146,8 +178,9 @@ for _, file in ipairs(sourceFiles) do
         )
     end
     
-    -- if we just added the Class module, set it up for compiled/global mode
-    if moduleName == "clp_Class" then
+    -- if we use global classes, and we just added the Class module, set it up
+    -- for global mode
+    if globalClasses and moduleName == "clp_Class" then
         fileContent = fileContent ..
                       moduleName .. ".enableGlobalClasses()\n\n"
     end
