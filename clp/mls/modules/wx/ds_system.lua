@@ -43,6 +43,7 @@ function M:initModule(emulateLibs)
     self:resetModule()
 end
 
+--- Resets the module state (e.g. for use with a new script)
 function M:resetModule()
     M._currentDirectoryList = nil
 end
@@ -101,7 +102,7 @@ function M.makeDirectory(name)
     wx.wxMkdir(Sys.getFile(name))
 end
 
---- List the next entry in a directory listing [ML 2+ API].
+--- Lists the next entry in a directory listing [ML 2+ API].
 --
 -- If the function has been called on a directory, and not all the entries have
 -- been returned by successive calls yet, the listing continues, ignoring the 
@@ -141,7 +142,7 @@ function M.listDirectory(path)
     return file
 end
 
---- List all files and folders of a directory [ML 2+ API].
+--- Lists all files and folders of a directory [ML 2+ API].
 --
 -- NOTE: this is the "libs.lua emulated" version of System.listDirectory(), and
 --       ds_system.listDirectory() should always be available as the original
