@@ -37,6 +37,7 @@ local Sys = require "clp.mls.Sys"
 
 local M = Class.new()
 
+--- Module initialization function.
 function M:initModule()
     M._initDefaultFont() 
 end
