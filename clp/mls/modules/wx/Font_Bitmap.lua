@@ -29,6 +29,7 @@ local Sys = require "clp.mls.Sys"
 
 local M = Class.new()
 
+--- Module initialization function.
 function M:initModule()
     M.NUM_CHARS = 256
     M.CACHE_MAX_STRINGS = 25
