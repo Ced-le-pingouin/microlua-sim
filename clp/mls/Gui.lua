@@ -35,6 +35,7 @@ M.MENU_ABOUT = wx.wxID_ABOUT
 M.MENU_SHOW_KEY_BINDINGS = wx.wxNewId()
 
 --- Constructor.
+--
 -- Creates the main window, the status bars, and the surface representing the 
 -- screens, but does NOT AUTOMATICALLY SHOW THE WINDOW, so you have to call 
 -- showWindow() later, preferably after having created the menus, so the 
@@ -232,6 +233,8 @@ function M:showWindow()
     self:focus()
 end
 
+--- Increments the zoom factor (default = 1x) *if* fullscreen is disabled *and*
+--  the screen area is large enough to display the GUI with the new zoom factor.
 function M:incZoomFactor()
     if self._window:IsFullScreen() then return end
     
@@ -556,6 +559,7 @@ function M:registerShutdownCallback(callback)
 end
 
 --- Asks the GUI to close the main window.
+--
 -- Please note that this does not immediately destroys the windows, since many
 -- GUIs allow for callbacks before the window is actually destroys, and even 
 -- prevent the closing of the window
@@ -566,6 +570,7 @@ function M:closeWindow()
 end
 
 --- Performs the actual destruction of the main app window.
+--
 -- This usually happens after requesting the window closing
 function M:shutdown()
     Mls.logger:debug("closing main window & shutting down", "gui")
