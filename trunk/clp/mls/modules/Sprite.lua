@@ -33,6 +33,7 @@ local Timer = require "clp.mls.modules.wx.Timer"
 
 local M = Class.new()
 
+--- Module initialization function.
 function M:initModule()
 	M._ANIM_STOPPED = 0
 	M._ANIM_PLAYING = 1
