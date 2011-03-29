@@ -127,8 +127,8 @@ function M.draw(screenNum, scrollmap)
     local width  = scrollmap._width
     local height = scrollmap._height
     
-    while posX > -width do posX = posX - width end
-    while posY > -height do posY = posY - height end
+    while posX > 0 do posX = posX - width end
+    while posY > 0 do posY = posY - height end
     
     local startPosX = posX
     
