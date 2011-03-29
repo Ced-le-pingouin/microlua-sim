@@ -29,6 +29,7 @@ local Timer = require "clp.mls.modules.wx.Timer"
 
 local M = Class.new()
 
+--- Module initialization function.
 function M:initModule()
     M._posStep = 1
     M._timer   = Timer.new()
@@ -36,6 +37,7 @@ function M:initModule()
     M:resetModule()
 end
 
+--- Resets the module state (e.g. for use with a new script).
 function M:resetModule()
     M._currentlyPlayed = nil
     M._isActive = 0
