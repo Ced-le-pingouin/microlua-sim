@@ -71,6 +71,7 @@ function M:ctr(level, categories)
 end
 
 --- Logs a message at RESERVED level.
+--
 -- This level should not be used, it's only public for very special cases. It 
 -- always logs the message, whatever the current logger level and categories are
 --
@@ -142,9 +143,11 @@ end
 --
 -- @param message (string)
 -- @param level (number) The prority level of this message
--- @param category (string)
+-- @param category (string) An optional category for the message
 --
 -- @return (self)
+--
+-- @see _mustLog
 function M:log(message, level, category)
     level = level or self._defaultMessageLevel
     category = category or self._defaultMessageCategory
@@ -240,6 +243,8 @@ end
 -- @param categories (string|table) One or more categories
 --
 -- @return (self)
+--
+-- @see removeCategory
 function M:removeCategories(categories)
     if categories and type(categories) ~= "table" then
         categories = { categories }
@@ -256,6 +261,7 @@ function M:removeCategories(categories)
 end
 
 --- Registers one message category for logging.
+--
 -- A special category "*" allows all messages to be logged, as long as it is 
 -- registered (categories explicitely removed after that won't be logged though)
 --
@@ -337,6 +343,7 @@ function M.getLevelName(level)
 end
 
 --- Checks whether a message must be logged.
+--
 -- This is determined by its level and category, and the config of the logger
 --
 -- @param level (number)
@@ -368,8 +375,14 @@ function M:_mustLog(level, category)
 end
 
 --- Formats a log message.
+--
 -- It does so by replacing some placeholders in the current log format string
--- with appropriate data (the message itself, level, category, time...)
+-- with appropriate data:
+--   . %d : date
+--   . %t : time
+--   . %l : level name
+--   . %c : category name
+--   . %m : the message itself
 --
 -- @param message (string)
 -- @param level (number)
@@ -389,7 +402,8 @@ function M:_format(message, level, category)
 end
 
 --- Writes a log message.
--- This is where the real operation happens, this method could be overriden to
+--
+-- This is where the real operation happens. This method could be overriden to
 -- do other things instead of printing the message to the console
 function M._write(message)
     print(message)
