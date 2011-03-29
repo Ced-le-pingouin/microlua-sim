@@ -30,6 +30,21 @@ local Class = require "clp.Class"
 local M = Class.new()
 
 --- Constructor.
+--
+-- @param moduleNames (table) A list of module names (string), in the order in
+--                            which they should be loaded. Optional, because
+--                            there's a default list/order
+-- @param prefixes (table) A list of prefixes that should be used when trying
+--                         to load/register modules. By default, it's "wx."
+--
+-- @param emulateLibs (boolean) If true, "external" modules of uLua, which were
+--                              in fact provided by the default shell, will be
+--                              emulated as if the shell was present. If false,
+--                              only the "internal" uLua modules (written in C)
+--                              are available. Please note that internal or 
+--                              emulated modules sometimes have a different 
+--                              name (e.g. ds_controls for internal version, 
+--                              Controls for emulated version)
 function M:ctr(moduleNames, prefixes, emulateLibs)
     self._moduleNames = moduleNames or {
         -- MUST be loaded first because other modules depend on it!
