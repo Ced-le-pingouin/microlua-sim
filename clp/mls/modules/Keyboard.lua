@@ -30,6 +30,7 @@ local Sys = require "clp.mls.Sys"
 
 local M = Class.new()
 
+--- Module initialization function.
 function M:initModule()
     M._fontHeight = Font.getCharHeight(Font._defaultFont)
     M._enterChar = "\n" --"|"
@@ -216,7 +217,12 @@ function M._processInput()
     end
 end
 
--- Performs the correct operation after a key has been released.
+--- Performs the correct operation after a key has been released.
+--
+-- @param line (number) line number on the keyboard for the key to process
+-- @param num (number) "row" number on the keyboard for the key to process
+--
+-- @see _initKeyboardLayout
 function M._processKey(line, num)
     local keyVal = M._currentLayout[line][num]
     
