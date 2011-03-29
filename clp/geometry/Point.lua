@@ -38,14 +38,14 @@ function M:ctr(x, y ,z)
     self._z = z or 0
 end
 
---- Return the the point as x,y,z cartesian coordinates (numbers).
+--- Returns the the point as x,y,z cartesian coordinates (numbers).
 --
 -- @return (number, number, number)
 function M:asCartesian()
     return self._x, self._y, self._z
 end
 
---- Add a x,y,z values to this point and return a new point.
+--- Adds a x,y,z values to this point and return a new point.
 --
 -- @param x (number)
 -- @param y (number)
@@ -56,7 +56,7 @@ function M:add(x, y, z)
     return M:new(self._x + x, self._y + y, self._z + z)
 end
 
---- Add a point to this point and return a new point.
+--- Adds a point to this point and returns a new point.
 --
 -- @param point (Point) The point to add to this object
 --
@@ -65,7 +65,7 @@ function M:addPoint(point)
     return M:new(self._x + point._x, self._y + point._y, self._z + point._z)
 end
 
---- Substract a point from this point and return a new point.
+--- Substracts a point from this point and returns a new point.
 --
 -- @param point (Point) The point to substract from this object
 --
@@ -74,6 +74,9 @@ function M:substractPoint(point)
     return M:new(self._x - point._x, self._y - point._y, self._z - point._z)
 end
 
+--- Returns the point as a printable string "(x, y, z)"
+--
+-- @return (string)
 function M:__tostring()
     return string.format("(%d, %d, %d)", self._x, self._y, self._z)
 end

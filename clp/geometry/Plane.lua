@@ -36,7 +36,7 @@ function M:ctr(...)
     return self:newFromPointAndNormalVector(...)
 end
 
--- Construct a plane from a point and a normal vector.
+-- Constructs a plane from a point and a normal vector.
 --
 -- @param point (Point)
 -- @param normalVector (Vector)
@@ -49,7 +49,7 @@ function M:newFromPointAndNormalVector(point, normalVector)
     return self
 end
 
---- Construct a plane from 3 non-colinear points
+--- Constructs a plane from 3 non-colinear points.
 --
 -- @param p1 (Point)
 -- @param p2 (Point)
@@ -66,7 +66,7 @@ function M:newFrom3Points(p1, p2, p3)
     return M:newFromPointAndNormalVector(p1, normalVector)
 end
 
---- Get the A, B, C, and D parameters for the plane equation.
+--- Gets the A, B, C, and D parameters for the plane equation.
 --
 -- The equation is: a.x + b.y + c.z + d = 0, <a, b, c> being the normal vector 
 -- of the plane, and <x, y, z> being any point belonging to the plane.
