@@ -61,7 +61,7 @@ function M.setFakeRoot(fakeRoot)
 end
 
 --- Converts a given absolute path, replacing the root (/) with a predefined 
--- location (set by setFakeRoot()).
+--  location (set by setFakeRoot()).
 --
 -- @param path (string)
 --
@@ -86,8 +86,8 @@ function M.convertRootToFakeRoot(path)
 end
 
 --- Converts a given absolute path, replacing a predefined location (set by 
--- setFakeRoot()) with a simple "/", to convert back a complete absolute local 
--- path to an absolute ML "sdcard root" if applicable.
+--  setFakeRoot()) with a simple "/", to convert back a complete absolute local 
+--  path to an absolute ML "sdcard root" if applicable.
 --
 -- @param path (string)
 --
@@ -238,8 +238,8 @@ function M.setPath(path)
 end
 
 --- Gets the possible path for a file/dir, trying different lowercase/uppercase
--- combinations for the file name and extension if the original path doesn't 
--- exist, and some additional paths as well.
+--  combinations for the file name and extension if the original path doesn't 
+--  exist, and some additional paths as well.
 --
 -- If the original path exists, the original path is returned.
 -- If a variant of this path with different case exists, returns the variant. 
@@ -370,8 +370,9 @@ end
 
 --- Gets the case-sensitive name of a file/directory if it exists in a given 
 --  directory, the search being case-insensitive.
---  (for example, if you search for "MLS.Lua" in a directory where "mls.lua" 
---  exists, the latter will be returned, even in Linux)
+-- 
+--  For example, if you search for "MLS.Lua" in a directory where "mls.lua" 
+--  exists, the latter will be returned, even in Linux.
 --
 -- @param dir (string) The directory to search in. This one can be a path.
 -- @param file (string) The name of the file/dir to search for. It must not 
