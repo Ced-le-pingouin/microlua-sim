@@ -194,7 +194,7 @@ function M:getName()
 end
 
 --- Returns a text representation of the thread, with info on its name and 
--- priority.
+--  priority.
 --
 -- @return (self)
 function M:toString()
@@ -219,7 +219,7 @@ function M.pendingThreads()
 end
 
 --- Stops the currently executing thread and gives back control (normally to the
--- thread manager).
+--  thread manager).
 function M.yield()
     coroutine.yield()
 end
@@ -229,7 +229,8 @@ end
 -- The time is a *minimum* time, not a precise time. The precision also depends
 -- on the time functions used (see useWxTimer())
 --
--- @param millis (number) The time you'd like the thread to sleep, in milliseconds
+-- @param millis (number) The time you'd like the thread to sleep, in 
+--                        milliseconds
 --
 -- @see useWxTimer
 function M.sleep(millis)
@@ -239,7 +240,7 @@ function M.sleep(millis)
     coroutine.yield()
 end
 
---- Tells the class to use time functions of wxWidgets if it is loaded.
+--- Sets up the class to use time functions of wxWidgets if it is loaded.
 --
 -- The result is that time measurement and sleep() will have real millisecond
 -- granularity
@@ -273,8 +274,8 @@ end
 --
 -- This is the basic Lua version, with an awful granularity (seconds only)
 --
--- @param offset (number) Optional offset in *milliseconds* to add to the current 
---                     time
+-- @param offset (number) Optional offset in *milliseconds* to add to the 
+--                        current time
 --
 -- @return (number) The current time (+ optional offset), in *seconds*
 function M._getTime(offset)
@@ -285,8 +286,8 @@ end
 --
 -- This is the wxWidgets version, with a millisecond granularity
 --
--- @param offset (number) Optional offset in *milliseconds* to add to the current 
---                     time
+-- @param offset (number) Optional offset in *milliseconds* to add to the 
+--                        current time
 --
 -- @return (number) The current time (+ optional offset), in *milliseconds*
 function M._getTimeWx(offset)
@@ -357,7 +358,7 @@ function M._threadManagerLoop(async)
 end
 
 --- Adds a thread for the manager to run (if the max number of threads hasn't
--- been reached).
+--  been reached).
 --
 -- @param thread (Thread)
 function M._addThread(thread)
@@ -392,7 +393,7 @@ function M._resumeThread(thread)
 end
 
 --- Marks a thread as already processed by the manager, or removes it from the
--- list if it's "dead".
+--  list if it's "dead".
 --
 -- After all running threads have been processed once, they become "unprocessed"
 -- or "ready" again
