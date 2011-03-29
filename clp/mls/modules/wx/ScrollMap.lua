@@ -172,9 +172,10 @@ end
 -- @param y (number) The y coordinate of the tile to change in the map table
 -- @param tile (number) The new tile value
 function M.setTile(scrollmap, x, y, tile)
-    scrollmap._map._data[y][x] = tile
-    
     local map = scrollmap._map
+    
+    map._data[y][x] = tile
+    
     local tileWidth, tileHeight = map._tileWidth, map._tileHeight
     local posX, posY = x * tileWidth, y * tileHeight
     local sourcex = (tile % map._tilesPerRow) * tileWidth
