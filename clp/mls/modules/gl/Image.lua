@@ -43,6 +43,8 @@ local M = Class.new(Image_wx)
 -- @todo Take RAM/VRAM into account, to simulate real DS/ML limitations
 -- @todo In ML, does a non-existent image throw an error ? (applicable to other
 --       things, such as maps, sounds,...)
+--
+-- @see wx.Image.load
 function M.load(path, destination)
     local image = M.super().load(path, destination)
     
@@ -61,6 +63,8 @@ end
 --- Destroys the image [ML 2+ API].
 --
 -- @param image (Image)
+--
+-- @see wx.Image.destroy
 function M.destroy(image)
     M.super().destroy(image)
     
