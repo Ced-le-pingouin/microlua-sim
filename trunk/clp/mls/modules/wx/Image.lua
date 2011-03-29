@@ -28,6 +28,7 @@ local Sys = require "clp.mls.Sys"
 
 local M = Class.new()
 
+--- Module initialization function.
 function M:initModule()
     M.MASK_COLOR = Color.MAGENTA
     M.MASK_PEN = wx.wxPen(M.MASK_COLOR, 1, wx.wxSOLID)
