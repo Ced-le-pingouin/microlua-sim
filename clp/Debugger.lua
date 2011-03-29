@@ -29,12 +29,15 @@ local M = Class.new()
 
 --- Constructor.
 --
--- Create a debugger for a specific thread. Note that after its creation, the 
+-- Creates a debugger for a specific thread. Note that after its creation, the 
 -- debugger has no hook functions and is disabled.
 --
 -- @param thread (thread) The thread you want to debug
 --
--- @see setHookOnFunctionCall, setHookOnFunctionReturn, setHookOnNewLine, enable
+-- @see setHookOnFunctionCall
+-- @see setHookOnFunctionReturn
+-- @see setHookOnNewLine
+-- @see enable
 function M:ctr(thread)
     self._enabled = false
     self._hooks = {}
@@ -42,7 +45,7 @@ function M:ctr(thread)
     self._fileFilter = {}
 end
 
---- Add a filename to the file filter.
+--- Adds a filename to the file filter.
 --
 -- The filter is used before calling defined hooks, to ensure only scripts 
 -- contained in specific files are triggering the debugger.
