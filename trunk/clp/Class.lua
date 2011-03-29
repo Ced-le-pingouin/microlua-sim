@@ -28,9 +28,8 @@ local M = {}
 --- Creates a new class and returns it.
 --
 -- Instances of this class should then be created by calling 
--- <class variable>:new(...). Additional arguments are allowed, because the
--- new() function will call <class variable>:ctr(...) as a user-defined 
--- constructor
+-- <class variable>:new(...). Additional arguments are allowed, because new()
+-- will call <class variable>:ctr(...) as a user-defined constructor
 -- 
 -- @param parentClass (Class) An optional parent class
 --
@@ -80,6 +79,15 @@ function M:instanceOf(ancestor)
     return false
 end
 
+--- Checks if the current way to implement inheritance is supported.
+--
+-- For example, if the classes are stored in local variables (a.k.a. "local 
+-- classes"), inheritance uses the debug library, and messes with upvalues in 
+-- inherited methods. But this would not work if the script that uses the 
+-- classes has been compiled and debug symbols have been stripped from it.
+-- This method detects this and aborts if something's wrong.
+--
+-- @return (boolean)
 function M._checkChosenClassSystemIsOk()
     if M._classSystemHasBeenChecked then return true end
     
@@ -110,6 +118,11 @@ function M._checkChosenClassSystemIsOk()
 end
 
 --- Creates a new instance from a class.
+--
+-- @param ... (any) Any number of parameters. They will be passed to the user
+--                  constructor if it exists
+--
+-- @return (table) The created instance
 function M:_newInstance(...)
     local object = {}
     setmetatable(object, { __index = self, __tostring = self.__tostring })
@@ -124,16 +137,32 @@ function M:_newInstance(...)
     return object
 end
 
+--- Sets up inheritance system for global classes.
+--
+-- User classes can either be stored in variables local to each module, or 
+-- stored globally (in _G). Depending on what the use prefers, the way we 
+-- implement inheritance correctly (with late static binding, too) will change
 function M.enableGlobalClasses()
     M._globalClassesEnabled = true
     
     M._cloneMethod = M._cloneMethodWithNewEnvironment
 end
 
+--- Checks whether global classes have been set up.
+--
+-- @return (boolean)
+--
+-- @see enableGlobalClasses()
 function M.globalClassesEnabled()
     return M._globalClassesEnabled
 end
 
+--- Performs further initialization needed when a class inherits from another 
+--  class.
+--
+-- @param parentClass (Class) An optional parent class
+--
+-- @return (self)
 function M:setupInheritance(...)
     local parentClass = nil
     
@@ -170,6 +199,11 @@ function M:setupInheritance(...)
     return self
 end
 
+--- Copies methods from parent class to child class, making sure inheritance 
+--  will work correctly.
+--
+-- @param parentClass (Class)
+-- @param newClass (Class)
 function M._copyMethodsFromParentToNewClass(parentClass, newClass)
     for memberName, member in pairs(parentClass) do
         if type(member) == "function" then
@@ -182,10 +216,83 @@ function M._copyMethodsFromParentToNewClass(parentClass, newClass)
     end
 end
 
+--- Clones a method from a parent class to a child class.
+--
+-- Depending whether local or global classes are used, this method will point
+-- to a different behavior
+--
+-- @param method (function)
+-- @param parentClass (Class)
+-- @param newClass (Class)
+--
+-- @return (function)
+--
+-- @see _cloneMethodIfItUsesUpvalueElseReferenceIt
+-- @see _cloneMethodWithNewEnvironment
 function M._cloneMethod(method, parentClass, newClass)
     return M._cloneMethodIfItUsesUpvalueElseReferenceIt(method, parentClass, newClass)
 end
 
+--- Clones a method from a parent class to a child class (specific 
+--  implementation for global classes).
+--
+-- @param method (function)
+-- @param parentClass (Class)
+-- @param newClass (Class)
+--
+-- @return (function)
+--
+-- @see _cloneMethod
+function M._cloneMethodWithNewEnvironment(method, parentClass, newClass)
+    local newMethod = M._cloneFunction(method)
+    
+    -- once a new environment has been created for a class, we cache it so we 
+    -- don't have to recreate a similar environment for all methods of the class
+    if not newClass.__inheritedEnvironment then
+        local originalEnv = getfenv(method)
+        local newEnv = {}
+        
+        -- in the new class' methods environment, change all the references to 
+        -- the original class, to references to the new class
+        -- @warning: it might be safer NOT to change ALL references, only one
+        -- named a certain way ?
+        for k, v in pairs(originalEnv) do
+            if v == parentClass then
+                newEnv[k] = newClass
+            end
+        end
+        
+        -- make _G work correctly on new env
+        newEnv._G = newEnv
+        
+        -- only the new class' own members can be read/written, any member that
+        -- that exists in parent class will be read from there, and any new 
+        -- member be created in the parent class also
+        local newEnv_mt = { __index = originalEnv, __newindex = originalEnv }
+        setmetatable(newEnv, newEnv_mt)
+        
+        newClass.__inheritedEnvironment = newEnv
+    end
+    
+    -- methods cloned from the parent class to the new class will have their
+    -- environment changed to a new one, all the same except the references to
+    -- the parent class will now be references to the new class, so that LSB
+    -- works
+    setfenv(newMethod, newClass.__inheritedEnvironment)
+    
+    return newMethod
+end
+
+--- Clones a method from a parent class to a child class (specific 
+--  implementation for local classes).
+--
+-- @param method (function)
+-- @param parentClass (Class)
+-- @param newClass (Class)
+--
+-- @return (function)
+--
+-- @see _cloneMethod
 function M._cloneMethodIfItUsesUpvalueElseReferenceIt(method, upvalue, replacementForUpvalue)
     if M._functionHasUpvalue(method, upvalue) then
         return M._cloneFunctionAndReplaceUpvalues(
@@ -196,6 +303,14 @@ function M._cloneMethodIfItUsesUpvalueElseReferenceIt(method, upvalue, replaceme
     return method
 end
 
+--- Checks whether a function has an upvalue with a specific value.
+--
+-- @param func (function)
+-- @param upvalue (any)
+--
+-- @return (boolean)
+--
+-- @warning This method won't work if the debug symbols aren't available
 function M._functionHasUpvalue(func, upvalue)
     local upvaluesCount = debug.getinfo(func, "u").nups
     
@@ -209,6 +324,14 @@ function M._functionHasUpvalue(func, upvalue)
     return false
 end
 
+--- Checks whether a function has an upvalue with a specific name.
+--
+-- @param func (function)
+-- @param name (string)
+--
+-- @return (boolean)
+--
+-- @warning This method won't work if the debug symbols aren't available
 function M._functionHasUpvalueNamed(func, name)
     local upvaluesCount = debug.getinfo(func, "u").nups
     
@@ -221,6 +344,15 @@ function M._functionHasUpvalueNamed(func, name)
     return false
 end
 
+--- Clones a function with (table) upvalues replaced with provided replacements.
+--
+-- @param func (function) The function to be cloned
+-- @param upvaluesReplacements (table) The replacements. Each key is the upvalue
+--                                     to be replaced, and its value is the 
+--                                     replacement that will be used in the 
+--                                     cloned function
+--
+-- @return (function) The clone of the function
 function M._cloneFunctionAndReplaceUpvalues(func, upvaluesReplacements)
     local upvaluesCount = debug.getinfo(func, "u").nups
     assert(upvaluesCount > 0, "Cloning a function that has no upvalues is useless. You should simply assign it (by reference)")
@@ -247,47 +379,21 @@ function M._cloneFunctionAndReplaceUpvalues(func, upvaluesReplacements)
     return funcClone
 end
 
+--- Clones a function instead of simply referencing it (as is the default in 
+--  Lua).
+--
+-- It is made possible by string.dump() and loadstring(), which allow to get 
+-- the binary code for a function, and to create a new function with existing
+-- binary code. Thank you Lua! :D
+--
+-- @param func (function) The original function
+--
+-- @return (function) The clone of the function
 function M._cloneFunction(func)
     local binaryFunc = string.dump(func)
     local funcClone = assert(loadstring(binaryFunc))
     
     return funcClone
-end
-
-function M._cloneMethodWithNewEnvironment(method, parentClass, newClass)
-    local newMethod = M._cloneFunction(method)
-    
-    -- once a new environment has been created for a class, we cache it so we 
-    -- don't have to recreate a similar environment for all methods of the class
-    if not newClass.__inheritedEnvironment then
-        local originalEnv = getfenv(method)
-        local newEnv = {}
-        
-        -- in the new class' methods environment, change all the references to 
-        -- the original class, to references to the new class
-        -- @warning: it might be safer NOT to change ALL references, only one
-        -- named a certain way ?
-        for k, v in pairs(originalEnv) do
-            if v == parentClass then
-                newEnv[k] = newClass
-            end
-        end
-        
-        newEnv._G = newEnv
-        
-        local newEnv_mt = { __index = originalEnv, __newindex = originalEnv }
-        setmetatable(newEnv, newEnv_mt)
-        
-        newClass.__inheritedEnvironment = newEnv
-    end
-    
-    -- methods cloned from the parent class to the new class will have their
-    -- environment changed to a new one, all the same except the references to
-    -- the parent class will now be references to the new class, so that LSB
-    -- works
-    setfenv(newMethod, newClass.__inheritedEnvironment)
-    
-    return newMethod
 end
 
 return M
