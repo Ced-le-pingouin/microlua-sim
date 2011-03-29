@@ -89,6 +89,7 @@ Mls = Class.new(Observable)
 Mls.VERSION = "0.5"
 
 --- Constructor.
+--
 -- Creates and initializes the app main window, and the ML simulated modules
 --
 -- @param scriptPath (string) The path of an initial script to run
@@ -387,6 +388,7 @@ end
 
 --- Quits the app if the debug variable limiting execution time is set, and time
 --  is over.
+--
 -- Called on stopDrawing events
 --
 -- @eventHandler
@@ -399,6 +401,7 @@ end
 --- Handles keys that are not part of ML, such as FPS/UPS modification, log 
 --  level modification, pause/resume script, reset script, show/hide GUI 
 --  console, clear GUI console...
+--
 -- Called on keyDown events
 --
 -- @param event (string) The name of the event that caused the callback. 
@@ -451,6 +454,7 @@ function Mls:onKeyDown(event, key, shift)
 end
 
 --- Displays ups and fps information in the Gui.
+--
 -- Called on upsUpdate events
 --
 -- @param event (string) The name of the event that caused the callback. 
@@ -580,6 +584,7 @@ function Mls.onShowKeyBindings()
 end
 
 --- Requests the application to close.
+--
 -- Sends a request to the GUI, the app will only exit after the main window has 
 -- closed
 function Mls.onExit()
