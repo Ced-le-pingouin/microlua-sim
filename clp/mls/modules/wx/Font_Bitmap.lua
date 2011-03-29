@@ -177,9 +177,10 @@ function M._printNoClip(screenNum, font, x, y, text, color)
     offscreenDC:DrawBitmap(stringBitmap, x, y, true)
 end
 
---- Renders a whole string to a bitmap then put it in a cache, so that a new
---  request to display that same string with the same font would display the 
---  bitmap at once, rather than printing each character again.
+--- Renders a whole string to a bitmap then puts it in a cache.
+--
+-- This way, a new request to display the same string with the same font would 
+-- display the bitmap at once, rather than printing each character again.
 --
 -- The minimum number of characters for a string to be cached is configured with
 -- CACHE_MIN_STRING_LEN.
