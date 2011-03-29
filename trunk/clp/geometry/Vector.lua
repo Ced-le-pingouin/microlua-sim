@@ -35,7 +35,7 @@ function M:ctr(...)
     return self:newFromCartesian(...)
 end
 
---- Construct a Vector from cartesian coordinates (x,y,z).
+--- Constructs a Vector from cartesian coordinates (x,y,z).
 --
 -- @param x (number)
 -- @param y (number)
@@ -52,7 +52,7 @@ function M:newFromCartesian(x, y, z)
     return self
 end
 
---- Construct a Vector from an existing Point object.
+--- Constructs a Vector from an existing Point object.
 --
 -- @param point (Point)
 --
@@ -61,7 +61,7 @@ function M:newFromPoint(point)
     return M:new(point:asCartesian())
 end
 
---- Construct a Vector from two existing Point objects.
+--- Constructs a Vector from two existing Point objects.
 --
 -- @param pointA (Point)
 -- @param pointB (Point)
@@ -71,14 +71,14 @@ function M:newFrom2Points(pointA, pointB)
     return M:newFromPoint(pointB:substractPoint(pointA))
 end
 
---- Return the vector as x,y,z cartesian coordinates (number).
+--- Returns the vector as x,y,z cartesian coordinates (number).
 --
 -- @return (number, number, number)
 function M:asCartesian()
     return self._x, self._y, self._z
 end
 
---- Compute the dot product of this vector with another vector.
+--- Computes the dot product of this vector with another vector.
 --
 -- @param vector (Vector) The second vector for the dot product
 --
@@ -87,7 +87,7 @@ function M:dot(vector)
     return (self._x * vector._x) + (self._y * vector._y) + (self._z * vector._z)
 end
 
---- Get the cross product of this vector with another vector.
+--- Computes the cross product of this vector with another vector.
 --
 -- The formula is: a x b = <a2.b3 − a3.b2, a3.b1 − a1.b3, a1.b2 − a2.b1>
 -- (where a and b are the vector, and 1/2/3 are the component x/y/z)
@@ -103,7 +103,7 @@ function M:cross(vector)
     )
 end
 
---- Get the length of the vector
+--- Returns the length of the vector
 --
 -- Note: the length of a vector is also called norm or magnitude.
 -- The formula is that of the Euclidian norm (2-norm, which is a p-norm): 
@@ -119,7 +119,7 @@ function M:length()
     return self._length
 end
 
---- Return the normalized vector.
+--- Returns the normalized vector.
 --
 -- @return (Vector)
 function M:normalize()
@@ -132,6 +132,9 @@ function M:normalize()
     )
 end
 
+--- Returns the vector as a printable string "<x, y, z>"
+--
+-- @return (string)
 function M:__tostring()
     return string.format("<%d, %d, %d>", self._x, self._y, self._z)
 end
