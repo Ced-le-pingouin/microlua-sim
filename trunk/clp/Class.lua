@@ -35,7 +35,7 @@ local M = {}
 --
 -- @return (table) The created class
 function M.new(...) -- only one arg accepted = parentClass
-    M._checkChosenClassSystemIsOk()
+    M._assertChosenClassSystemIsOk()
     
     local newClass = {}
     
@@ -79,17 +79,16 @@ function M:instanceOf(ancestor)
     return false
 end
 
---- Checks if the current way to implement inheritance is supported.
+--- Checks that the current way to implement inheritance is supported, aborts if
+--  not.
 --
 -- For example, if the classes are stored in local variables (a.k.a. "local 
 -- classes"), inheritance uses the debug library, and messes with upvalues in 
 -- inherited methods. But this would not work if the script that uses the 
 -- classes has been compiled and debug symbols have been stripped from it.
 -- This method detects this and aborts if something's wrong.
---
--- @return (boolean)
-function M._checkChosenClassSystemIsOk()
-    if M._classSystemHasBeenChecked then return true end
+function M._assertChosenClassSystemIsOk()
+    if M._classSystemHasBeenChecked then return end
     
     local myUpvalue = 1
     
@@ -113,8 +112,6 @@ function M._checkChosenClassSystemIsOk()
     end
     
     M._classSystemHasBeenChecked = true
-    
-    return true
 end
 
 --- Creates a new instance from a class.
