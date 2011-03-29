@@ -27,6 +27,7 @@ local Class = require "clp.Class"
 
 local M = Class.new()
 
+--- Module initialization function.
 function M:initModule()
     M._initAttrConstants()
 end
