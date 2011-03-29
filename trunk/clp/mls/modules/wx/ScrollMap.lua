@@ -46,6 +46,8 @@ local M = Class.new()
 --       without creating/destroying a Map object ? Or maybe we could put this 
 --       function in the main Mls file/class, and use it in both Map and 
 --       ScrollMap ?
+--
+-- @see Map.new
 function M.new(image, mapfile, width, height, tileWidth, tileHeight)
     local scrollmap = {}
     
@@ -103,6 +105,8 @@ end
 --- Destroys a scrollmap [ML 2+ API].
 --
 -- @param scrollmap (ScrollMap) the scrollmap to destroy
+--
+-- @see Map.destroy
 function M.destroy(scrollmap)
     Map.destroy(scrollmap._map)
     
@@ -167,6 +171,7 @@ function M.scroll(scrollmap, x, y)
 end
 
 --- Changes a tile value [ML 2+ API].
+--
 -- @param map (Map) The scrollmap to set a new tile in
 -- @param x (number) The x coordinate of the tile to change in the map table
 -- @param y (number) The y coordinate of the tile to change in the map table
