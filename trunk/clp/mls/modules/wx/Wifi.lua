@@ -30,16 +30,19 @@ local Class = require "clp.Class"
 
 local M = Class.new()
 
+--- Module initialization function.
 function M:initModule()
 	M._timeout = 1
     M:resetModule()
 end
 
+--- Resets the module state (e.g. for use with a new script).
 function M:resetModule()
     M._connected = false
 end
 
 --- Connects the DS to the Wifi connection [ML 3+ API].
+--
 -- Uses the firmware configurations. So, you need to configure your connection 
 -- with an official DS game.
 --
@@ -142,7 +145,7 @@ function M.send(socket, buffer)
     end
 end
 
---- Receive data from a server using a socket [ML 3+ API].
+--- Receives data from a server using a socket [ML 3+ API].
 --
 -- @param socket (Socket) The Socket to use
 -- @param length (number) The size of the data to receive
