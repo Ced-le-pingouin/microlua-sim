@@ -250,7 +250,7 @@ end
 --- Initializes variables for several blits in a row, as used by Map.draw().
 --
 -- These variables won't change while we draw the map, so we'll use a simpler
--- version of blit that won't need to recalculate those variables.
+-- version of blit that won't need to recalculate them.
 --
 -- @param screenNum (number) The screen where to draw (SCREEN_UP or SCREEN_DOWN)
 -- @param image (Image) The image where the parts (tiles) to blit are
@@ -280,7 +280,7 @@ end
 --- Simpler version of blit(), used by Map.draw().
 --
 -- Some variables and operations should have already been taken care of when
--- this method is called, such as knowing on which screen to draw, setting the
+-- this method is called, such as knowing which screen to draw on, setting the
 -- clipping region, computing the texture coords ratio (if needed), and knowing
 -- the parts/tiles width and height.
 --
@@ -288,6 +288,9 @@ end
 -- @param y (number) The y coordinate where to draw
 -- @param sourcex (number) The coordinates in the source image to draw
 -- @param sourcey (number) The coordinates in the source image to draw
+--
+-- @warning Advanced operations like scaling, tinting, mirroring and rotations
+--          are not supported by this method
 function M._mapBlit(x, y, sourcex, sourcey)
     local width, height = M._mapBlitWidth, M._mapBlitHeight
     
