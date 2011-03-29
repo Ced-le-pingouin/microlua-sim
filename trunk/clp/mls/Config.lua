@@ -53,6 +53,7 @@ function M:ctr(file, uniqueSection, validOptions)
 end
 
 --- Validates the loaded options.
+--
 -- The invalid options will be deleted
 --
 -- @param (table) A list of valid options, and their validation rules. The key 
