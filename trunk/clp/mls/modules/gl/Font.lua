@@ -30,6 +30,13 @@ local Font_Bitmap_wx = require "clp.mls.modules.wx.Font_Bitmap"
 
 local M = Class.new(Font_Bitmap_wx)
 
+--- Creates a new font from a font file (oslib and µLibray format) [ML 2+ API].
+--
+-- @param path (string) The path of the file to load
+--
+-- @return (Font) The loaded font. This is library/implementation dependent
+--
+-- @see wx.Font_Bitmap.load
 function M.load(path)
     local font = M.super().load(path)
     
@@ -39,12 +46,28 @@ function M.load(path)
     return font
 end
 
+-- Destroys resources used by a font [ML 2+ API] NOT DOCUMENTED ? .
+--
+-- @param font (Font)
+--
+-- @see wx.Font_Bitmap.destroy
 function M.destroy(font)
     M.super().destroy(font)
     
     glDeleteTextures(1, font._textureId:ptr())
 end
 
+--- Prints a text with a special font [ML 2+ API].
+--
+-- @param screenNum (number) The screen to draw to (SCREEN_UP or SCREEN_DOWN)
+-- @param font (Font) The font to use
+-- @param x (number) The x coordinate to draw to
+-- @param y (number) The y coordinate to draw to
+-- @param text (string) The text to print
+-- @param color (Color) The color of the text
+-- @param _useColor (boolean) This is an INTERNAL parameter to reproduce a ML 
+--                            bug, where color is ignore when using Font.print, 
+--                            but used when using the print functions in screen
 function M.print(screenNum, font, x, y, text, color, _useColor)
     if not _useColor then color = nil end
     
@@ -55,6 +78,20 @@ function M.print(screenNum, font, x, y, text, color, _useColor)
     M._printNoClip(screenNum, font, x, y, text, color)
 end
 
+--- Prints a text, without using clipping at screen limits.
+--
+-- @param screenNum (number) The screen to draw to (SCREEN_UP or SCREEN_DOWN)
+-- @param font (Font) The font to use
+-- @param x (number) The x coordinate to draw to
+-- @param y (number) The y coordinate to draw to
+-- @param text (string) The text to print
+-- @param color (Color) The color of the text
+--
+-- @see print
+--
+-- @todo Since I use lua length operator and process *bytes* (NOT characters) to
+--       display characters, only ASCII texts will work correctly 
+-- @todo Is this the correct use of addedSpace ?
 function M._printNoClip(screenNum, font, x, y, text, color)
     if type(text) == "number" then text = tostring(text) end
     if #text == 0 then return end
@@ -111,6 +148,9 @@ function M._printNoClip(screenNum, font, x, y, text, color)
     glPopMatrix()
 end
 
+--- Initializes the ML default font, which is always available.
+--
+-- @see wx.Font_Bitmap._initDefaultFont
 function M._initDefaultFont()
     M.super()._initDefaultFont()
     
