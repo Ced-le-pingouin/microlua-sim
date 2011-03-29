@@ -27,6 +27,7 @@ local Class = require "clp.Class"
 
 local M = Class.new()
 
+--- Module initialization function.
 function M:initModule()
     M._color  = Color.WHITE
     M._screen = SCREEN_DOWN
@@ -37,6 +38,7 @@ function M:initModule()
     M:resetModule()
 end
 
+--- Resets the module state (e.g. for use with a new script).
 function M:resetModule()
     M._lines  = {}
     M._enabled = false
@@ -76,6 +78,7 @@ function M.setColor (color)
 end
 
 --- Displays the debug lines on the screen.
+--
 -- This is triggered on stopDrawing event
 --
 -- @eventHandler
