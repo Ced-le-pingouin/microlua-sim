@@ -50,6 +50,7 @@ for value, name in pairs(M._SCRIPT_STATES) do
 end
 
 --- Constructor.
+--
 -- Only sets some variables depending on a config file or the current OS, but 
 -- does not start anything costly (init() does).
 --
@@ -97,8 +98,9 @@ function M:ctr(fps, ups, timing, moduleManager)
 end
 
 --- Initializes the script manager.
+--
 -- This should be called (obviously) after its creation, just before using it.
--- It creates and launch the needed timers, and starts listening to the needed
+-- It creates and launches the needed timers, and starts listening to the needed
 -- events.
 function M:init()
     Mls.logger:info("initializing script manager", "script")
@@ -122,6 +124,7 @@ function M:_initTimer()
 end
 
 --- Initializes the main loop system.
+--
 -- Can be an "infinite" loop, the idle event, or a timer event
 function M:_initUpsSystem()
     Mls.logger:debug("initializing UPS system", "script")
@@ -369,6 +372,7 @@ function M:loadScript(scriptPath)
 end
 
 --- Stops a script.
+--
 -- Its function/coroutine and the associated custom environment are deleted, and
 -- garbage collection is forced.
 function M:stopScript()
@@ -386,6 +390,7 @@ function M:stopScript()
 end
 
 --- Starts an already loaded script.
+--
 -- Creates a coroutine from the loaded script, which was stored as a function.
 -- That coroutine will yield() and be resume()d on a regular basis (continuously
 -- or on some event). The yields that interrupt the coroutine will be placed in 
@@ -460,6 +465,7 @@ function M:debugOneStepScript()
 end
 
 --- Pauses the running script, executes a function, then resumes the script.
+--
 -- If the script was already paused, it'll not be resumed at the end, so this
 -- function doesn't interfere with the existing context
 --
@@ -537,6 +543,7 @@ function M:_setScriptState(state)
 end
 
 --- Sets an "empty" environment table on a function.
+--
 -- This allows the release of resources used by a function. It's not really 
 -- empty, as we often need to make global functions and variables (from Lua and 
 -- custom) available to the function
@@ -634,7 +641,7 @@ end
 
 
 --- Replacement function for Lua's os.time(), since the ML version works with
--- milliseconds rather than seconds.
+--  milliseconds rather than seconds.
 --
 -- @param table (table)
 --
@@ -650,7 +657,7 @@ function M:_os_time(table)
 end
 
 --- Replacement for Lua's debug.traceback(), that make long paths in the trace
--- more readable when the trace is displayed on the DS "screen".
+--  more readable when the trace is displayed on the DS "screen".
 --
 -- @param thread (thread) optional
 -- @param message (string) optional if there's no params, but otherwise should
@@ -701,7 +708,7 @@ function M._debug_traceback(...)
     )
 end
 
---- pcall() modified version, that turns pcalls into coroutines!
+--- Custom version of pcall(), that turns pcalls into coroutines!
 --
 -- We need this, because some scripts use pcall(). Then MLS tries to 
 -- coroutine.yield() from inside the pcall(), and we get the dreaded error 
@@ -736,6 +743,7 @@ function M:_pcall(f, ...)
 end
 
 --- "Environment-aware" dofile() replacement.
+--
 -- This is necessary when you run scripts as functions with a custom non-global
 -- environment, because if they use dofile(), the included script will execute 
 -- in the global environment, regardless of the function's custom environment
@@ -770,13 +778,14 @@ function M._dofile(file)
     return fResult
 end
 
---- "Enironment-aware" module() replacement. module() usually stores modules 
---  information in global tables, but since we set a closed environment on 
---  the running script, it won't see the declared modules. So we have to 
---  create a reference in our env to the module loaded by the original module()
---  function. Then we delete the references in the standard global tables used
---  by module(), so that the loaded module is only ref'ed there, and would be
---  gc'ed when we destroy our custom env (well, I hope so :$)
+--- "Enironment-aware" custom version of module().
+--
+-- module() usually stores modules information in global tables, but since we 
+-- set a closed environment on the running script, it won't see the declared 
+-- modules. So we have to create a reference in our env to the module loaded by
+-- the original module() function. Then we delete the references in the standard
+-- global tables used by module(), so that the loaded module is only ref'ed 
+-- there, and would be gc'ed when we destroy our custom env (well, I hope so :$)
 --
 -- This function only works in association with the "replacement" require()
 --
@@ -805,7 +814,7 @@ function M._module(name, ...)
     setfenv(2, moduleEnv)
 end
 
---- "Environment-aware" require() replacement to be used with the replacement 
+--- "Environment-aware" custom version of require(), to be used with the custom
 --  module() function.
 --
 -- @param modname (string)
@@ -888,7 +897,7 @@ end
 -------------------------------------------------------------------------------
 
 --- Make paths in text more "textbox-friendly" by adding spaces around file 
--- separators, so it can be displayed on multiple lines.
+--  separators, so it can be displayed on multiple lines.
 --
 -- @param text (string) The original text
 --
