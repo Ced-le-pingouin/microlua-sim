@@ -247,6 +247,15 @@ function M.blit(screenNum, x, y, image, sourcex, sourcey, width, height)
     glPopMatrix()
 end
 
+--- Initializes variables for several blits in a row, as used by Map.draw().
+--
+-- These variables won't change while we draw the map, so we'll use a simpler
+-- version of blit that won't need to recalculate those variables.
+--
+-- @param screenNum (number) The screen where to draw (SCREEN_UP or SCREEN_DOWN)
+-- @param image (Image) The image where the parts (tiles) to blit are
+-- @param width (number) The width of a a part/tile
+-- @param height (number) The height of the part/tile
 function M._initMapBlit(screenNum, image, width, height)
     M.setClippingForScreen(screenNum)
     
@@ -268,6 +277,17 @@ function M._initMapBlit(screenNum, image, width, height)
     glColor3d(r, g, b)
 end
 
+--- Simpler version of blit(), used by Map.draw().
+--
+-- Some variables and operations should have already been taken care of when
+-- this method is called, such as knowing on which screen to draw, setting the
+-- clipping region, computing the texture coords ratio (if needed), and knowing
+-- the parts/tiles width and height.
+--
+-- @param x (number) The x coordinate where to draw
+-- @param y (number) The y coordinate where to draw
+-- @param sourcex (number) The coordinates in the source image to draw
+-- @param sourcey (number) The coordinates in the source image to draw
 function M._mapBlit(x, y, sourcex, sourcey)
     local width, height = M._mapBlitWidth, M._mapBlitHeight
     
@@ -415,6 +435,11 @@ function M.clearOffscreenSurface()
     glClear(GL_COLOR_BUFFER_BIT + GL_DEPTH_BUFFER_BIT)
 end
 
+--- Sets up viewport and stores new size when the "screen" is resized.
+--
+-- @param event (wxSizeEvent) The event object
+--
+-- @eventSender
 function M.onResize(event)
     local size = event:GetSize()
     glViewport(0, 0, size:GetWidth(), size:GetHeight())
@@ -482,6 +507,12 @@ function M:onStopDrawing()
     glEnable(M.textureType)
 end
 
+--- Sets the clipping region to a specific rectangular area.
+--
+-- @param x (number)
+-- @param y (number)
+-- @param width (number)
+-- @param height (number)
 function M.setClippingRegion(x, y, width, height)
     local lc = M._lastClippingRegion
     if x == lc.x and y == lc.y and width == lc.width and height == lc.height
@@ -509,6 +540,7 @@ function M.setClippingRegion(x, y, width, height)
     M._lastClippingRegion = { x = x, y = y, width = width, height = height }
 end
 
+--- Disables clipping, i.e. drawing operations will appear on both "screens".
 function M.disableClipping()
     for i = 1, #M._clipPlanes do
         glClipPlane(GL_CLIP_PLANE0 + i, M._nullPlane:ptr())
@@ -517,6 +549,13 @@ function M.disableClipping()
     M._lastClippingRegion = {}
 end
 
+--- Sets clipping region using an OpenGL specific method (clip planes).
+--
+-- @planeNum (number) The number of the OpenGL clip plane to set (from 0 to ...)
+-- @a (number) The variable A in the plane equation
+-- @b (number) The variable B in the plane equation
+-- @c (number) The variable C in the plane equation
+-- @d (number) The variable D in the plane equation
 function M._setOpenGlClippingPlane(planeNum, a, b, c, d)
     local cp = M._clipPlanes[planeNum]
     cp[0], cp[1], cp[2], cp[3] = a, b, c, d
@@ -551,6 +590,7 @@ function M.forceRepaint(showPrevious)
 end
 
 --- Draws a point on the screen.
+--
 -- This function exists in Canvas in ML, but not in screen (weird), so it's not 
 -- public
 --
@@ -569,12 +609,17 @@ function M._drawPoint(screenNum, x, y, color)
 end
 
 --- Switches to the next available offscreen surface.
+--
+-- In OpenGL, this flushes the rendering pipeline and displays the result, too.
 function M._switchOffscreen()
     --glFlush()
     M._glCanvas:SwapBuffers()
 end
 
 --- Copies the previously rendered offscreen surface to the current one.
+--
+-- @warning This might not work or be awfully slow on some OpenGL 
+--          implementations.
 function M._copyOffscreenFromPrevious()
     if Mls.openGlSimplePause then return end
     
@@ -595,6 +640,8 @@ function M._hasGlExt(extension)
     return M._glExts:find(" "..extension.." ") ~= nil
 end
 
+--- Sets some internal flags depending on the enabling and availability of
+--  rectangular textures.
 function M._initTextureType()
     if Mls.openGlUseTextureRectangle and M._hasTextureRectangleExt() then
         Mls.logger:info("OpenGL: using texture rectangle extension", "screen")
@@ -611,6 +658,9 @@ function M._initTextureType()
     end
 end
 
+--- Checks whether any extension related to rectangular textures is available.
+--
+-- @return (boolean)
 function M._hasTextureRectangleExt()
     return M._hasGlExt("GL_ARB_texture_rectangle")
         or M._hasGlExt("GL_EXT_texture_rectangle")
