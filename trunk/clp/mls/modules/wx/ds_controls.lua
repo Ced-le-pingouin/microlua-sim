@@ -67,6 +67,7 @@ function M:initModule(emulateLibs)
     M:resetModule()
 end
 
+--- Resets the module state (e.g. for use with a new script)
 function M:resetModule()
     M._clearBothStates()
     M._copyInternalStateToExternalState()
@@ -135,6 +136,7 @@ function M._initKeyBindings()
 end
 
 --- Resets state of the DS buttons, pad, and stylus (everything is released).
+--
 -- This resets both internal (realtime) and external (as last read by read()) 
 -- states
 function M._clearBothStates()
@@ -199,7 +201,7 @@ function M._copyInternalStateToExternalState()
     end
 end
 
---- Binds functions to events needed to keep input state.
+--- Binds functions to events used to keep input state.
 function M._bindEvents()
     M._receiver:Connect(wx.wxEVT_KEY_DOWN, M._onKeyDownEvent)
     M._receiver:Connect(wx.wxEVT_KEY_UP, M._onKeyUpEvent)
@@ -210,8 +212,8 @@ function M._bindEvents()
     M._receiver:Connect(wx.wxEVT_MOTION, M._onMouseMoveEvent)
 end
 
---- Creates all the "read" functions, for external script to use and read keys
--- and stylus status after a Controls.read().
+--- Creates all the "read" functions, that external scripts will use to get 
+--  keys and stylus status after a Controls.read().
 function M._createReadFunctions()
     local stylusVars = { 
         "X", "Y", "held", "released", "doubleClick", "deltaX", "deltaY"
@@ -313,6 +315,12 @@ function M._onMouseMoveEvent(event)
     Mls:notify("mouseMoveBothScreens", event:GetX(), event:GetY())
 end
 
+--- Adjusts mouses coords ratio when the "screen" is resized.
+--
+-- @param event (string) The name of the event that caused the callback. 
+--                       Should be "screenResize" here
+-- @param width (number) The new width of the DS "screens"
+-- @param height (number) The new height of the DS "screens"
 function M:onScreenResize(event, width, height)
     -- for now, we assume the screen keeps its aspect ratio, so X&Y ratios are =
     M._screenRatio = width / SCREEN_WIDTH
@@ -345,6 +353,7 @@ function M._GetY(event)
 end
 
 --- Helper function that decides if a "special" key is pressed.
+--
 -- Used in key events to decide whether or not a key mapped to a DS button 
 -- should be detected. It should not whenever a "menu" modifier key is pressed. 
 -- For example Alt+F on Windows (the File menu) will also "press" Start in the 
