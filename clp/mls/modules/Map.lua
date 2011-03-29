@@ -188,6 +188,7 @@ function M.space(map, x, y)
 end
 
 --- Changes a tile value [ML 2+ API].
+--
 -- @param map (Map) The map to set a new tile in
 -- @param x (number) The x coordinate of the tile to change in the map table
 -- @param y (number) The y coordinate of the tile to change in the map table
