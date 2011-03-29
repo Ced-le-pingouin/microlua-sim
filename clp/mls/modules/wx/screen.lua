@@ -70,6 +70,13 @@ function M:initModule(emulateLibs)
     end
 end
 
+--- Resets the module state (e.g. for use with a new script).
+--
+-- @param scriptEnvironment (function) The "global" environment (_G) for the
+--                                     current user script. This is needed for
+--                                     modules that must read/write to a global
+--                                     variable that changes in real time (such
+--                                     as NB_FPS in the screen module).
 function M:resetModule(scriptEnvironment)
     if scriptEnvironment then
         M._scriptEnvironment = scriptEnvironment
@@ -122,7 +129,7 @@ function M._initOffscreenSurfaces()
     M._brush = wx.wxBrush(wx.wxWHITE, wx.wxSOLID)
 end
 
---- Binds functions to events needed to refresh screen.
+--- Binds functions to the events used to refresh the screen.
 function M._bindEvents()
     M._surface:Connect(wx.wxEVT_PAINT, M._onPaintEvent)
     M._surface:Connect(wx.wxEVT_SIZE, M.onResize)
@@ -215,6 +222,15 @@ function M.blit(screenNum, x, y, image, sourcex, sourcey, width, height)
                      true)
 end
 
+--- Initializes variables for several blits in a row, as used by Map.draw().
+--
+-- These variables won't change while we draw the map, so we'll use a simpler
+-- version of blit that won't need to recalculate those variables.
+--
+-- @param screenNum (number) The screen where to draw (SCREEN_UP or SCREEN_DOWN)
+-- @param image (Image) The image where the parts (tiles) to blit are
+-- @param width (number) The width of a a part/tile
+-- @param height (number) The height of the part/tile
 function M._initMapBlit(screenNum, image, width, height)
     Image._doTransform(image)
     
@@ -225,6 +241,20 @@ function M._initMapBlit(screenNum, image, width, height)
     M._mapBlitHeight = height
 end
 
+--- Simpler version of blit(), used by Map.draw().
+--
+-- Some variables and operations should have already been taken care of when
+-- this method is called, such as knowing which screen to draw on, setting the
+-- clipping region, and knowing the parts/tiles width and height.
+--
+-- @param x (number) The x coordinate where to draw
+-- @param y (number) The y coordinate where to draw
+-- @param sourcex (number) The coordinates in the source image to draw
+-- @param sourcey (number) The coordinates in the source image to draw
+--
+-- @warning As opposed to OpenGL mode, scaling, tinting, and rotations are 
+--          processed by the wx version of this function, but I don't know
+--          if those operations have any effect in the real ML
 function M._mapBlit(x, y, sourcex, sourcey)
     local image = M._mapBlitImage
     
@@ -514,7 +544,7 @@ function M.drawTextBox(screenNum, x0, y0, x1, y1, text, color)
     M.disableClipping()
 end
 
---- Does nothing in MLS.
+--- "Internal" ML function, does nothing in MLS.
 --
 -- This function isn't documented for users, but it is "exported" in ML, so boot
 -- scripts could use it, and we have to make it available
@@ -530,9 +560,19 @@ function M.getMainLcd()
     return SCREEN_UP ~= 0
 end
 
+--- "Internal" ML function, does nothing in MLS.
+--
+-- This function isn't documented for users, but it is "exported" in ML, so boot
+-- scripts could use it, and we have to make it available
+--
 function M.waitForVBL()
 end
 
+--- "Internal" ML function, does nothing in MLS.
+--
+-- This function isn't documented for users, but it is "exported" in ML, so boot
+-- scripts could use it, and we have to make it available
+--
 function M.setSpaceBetweenScreens(space)
 end
 
@@ -557,7 +597,7 @@ function M.setDrawGradientRectAccuracy(accuracy)
     end
 end
 
---- Switchs drawGradientRect() accuracy between simple and the advanced
+--- Switches drawGradientRect() accuracy between simple and the advanced
 --
 -- @see setDrawGradientAccuracy
 function M.switchDrawGradientRectAccuracy()
@@ -675,6 +715,7 @@ function M.forceRepaint(showPrevious)
 end
 
 --- Draws a point on the screen.
+--
 -- This function exists in Canvas in ML, but not in screen (weird), so it's not 
 -- public
 --
@@ -719,12 +760,20 @@ function M._getOffscreenDC(screenNum)
     return M.offscreenDC
 end
 
+--- Sets the clipping region to a rectangular area that matches one of the two
+--  "screens", i.e. SCREEN_UP or SCREEN_DOWN
 function M.setClippingForScreen(screenNum)
     M.setClippingRegion(
         0, M.offset[screenNum], SCREEN_WIDTH, SCREEN_HEIGHT
     )
 end
 
+--- Sets the clipping region to a specific rectangular area.
+--
+-- @param x (number)
+-- @param y (number)
+-- @param width (number)
+-- @param height (number)
 function M.setClippingRegion(x, y, width, height)
     local offscreenDC = M.offscreenDC
     
@@ -732,6 +781,7 @@ function M.setClippingRegion(x, y, width, height)
     offscreenDC:SetClippingRegion(x, y, width, height)
 end
 
+--- Disables clipping, i.e. drawing operations will appear on both "screens".
 function M.disableClipping()
     M.offscreenDC:DestroyClippingRegion()
 end
@@ -751,6 +801,11 @@ function M._copyOffscreenFromPrevious()
                        wx.wxCOPY, false)
 end
 
+--- Sets up viewport and stores new size when the "screen" is resized.
+--
+-- @param event (wxSizeEvent) The event object
+--
+-- @eventSender
 function M.onResize(event)
     local size = event:GetSize()
     
@@ -763,6 +818,7 @@ function M.onResize(event)
 end
 
 --- Event handler used to repaint the screens.
+--
 -- Also update the FPS counter if needed
 --
 -- @param (wxEvent) The event object
