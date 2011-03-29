@@ -29,6 +29,24 @@ local Map = require "clp.mls.modules.Map"
 
 local M = Class.new(Map)
 
+--- Creates a new map by giving a map file [ML 2+ API].
+--
+-- @param image (Image) The image which contains tiles
+-- @param mapfile (string) The path to the map file (.map)
+-- @param width (number) The width of the map in tile
+-- @param height (number) The height of the map in tile
+-- @param tileWidth (number) The width of the tiles in pixel
+-- @param tileHeight (number) The height of the tiles in pixel
+--
+-- @return (ScrollMap)
+--
+-- @todo Since we only create a Map to get its _data from the file, couldn't
+--       we make a function out of the map loading in Map, and use it here, 
+--       without creating/destroying a Map object ? Or maybe we could put this 
+--       function in the main Mls file/class, and use it in both Map and 
+--       ScrollMap ?
+--
+-- @see Map.new
 function M.new(image, mapfile, width, height, tileWidth, tileHeight)
     local scrollmap = M.super().new(image, mapfile, width, height, 
                                     tileWidth, tileHeight)
@@ -46,28 +64,45 @@ function M.new(image, mapfile, width, height, tileWidth, tileHeight)
     return scrollmap
 end
 
+--- Destroys a scrollmap [ML 2+ API].
+--
+-- @param scrollmap (ScrollMap) the scrollmap to destroy
+--
+-- @see Map.destroy
 function M.destroy(scrollmap)
     glDeleteLists(scrollmap._displayList, 1)
     
     M.super().destroy(scrollmap)
 end
 
+--- Draws a scrollmap [ML 2+ API].
+--
+-- @param scrollmap (ScrollMap) The scrollmap to draw
+--
+-- @todo The official doc doesn't mention the screenNum param, so check this
+-- @todo Oddly, on my DS, ML draws the white tiles in the modified Map example 
+--       as black (or transparent?). My implementation doesn't do that right now
 function M.draw(screenNum, scrollmap)
     local posX, posY = -scrollmap._scrollX, -scrollmap._scrollY
     local width  = scrollmap._totalWidth
     local height = scrollmap._totalHeight
     
+    -- sets the starting coords so that repeat works
     while posX > 0 do posX = posX - width end
     while posY > 0 do posY = posY - height end
     
     local startPosX = posX
     
+    -- if setTile() has been called since we last compiled the display list,
+    -- we'll have to re-compile it
     if scrollmap._tilesHaveChanged then
         M._compileDisplayList(scrollmap)
     end
     
+    -- only sets the clipping region once
     screen.setClippingForScreen(screenNum)
     
+    -- loop for repeating the scrollmap on the screen
     while posY < SCREEN_HEIGHT do
         while posX < SCREEN_WIDTH do
             glPushMatrix()
@@ -82,16 +117,32 @@ function M.draw(screenNum, scrollmap)
     end
 end
 
+--- Sets the space between each tiles of a map [ML 2+ API].
+--
+-- @param map (Map) The map
+-- @param x (number) The x space between tiles
+-- @param y (number) The y space between tiles
+--
+-- @todo Check if it's true that ScrollMap doesn't support this method
 function M.space(scrollmap, x, y)
     error("ScrollMap doesn't support space()")
 end
 
+--- Changes a tile value [ML 2+ API].
+--
+-- @param map (Map) The scrollmap to set a new tile in
+-- @param x (number) The x coordinate of the tile to change in the map table
+-- @param y (number) The y coordinate of the tile to change in the map table
+-- @param tile (number) The new tile value
 function M.setTile(scrollmap, x, y, tile)
     scrollmap._data[y][x] = tile
     
     scrollmap._tilesHaveChanged = true
 end
 
+--- Compiles and stores an OpenGL display list for drawing the whole scrollmap.
+--
+-- @param scrollmap (ScrollMap)
 function M._compileDisplayList(scrollmap)
     local image = scrollmap._tilesImage
     local tilesPerRow = scrollmap._tilesPerRow
