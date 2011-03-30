@@ -54,9 +54,6 @@ function M.load(path, destination)
     --image._source:Destroy()
     --image._source = nil
     
-    image._mirrorH = false
-    image._mirrorV = false
-    
     return image
 end
 
@@ -74,27 +71,21 @@ end
 --- Mirrors the image horizontally [ML 2+ API].
 --
 -- @param image (Image) The image to mirror
--- @param mirrorState (boolean) This is a strange, "hidden" parameter in ML. It 
---                              must be true for this function to have any 
---                              effect on a "standard" image (and false on an 
---                              already mirrored image?)
+-- @param mirrorState (boolean) This is a strange, "hidden" parameter in ML.
+--                              If true, the image will be mirrored, if false
+--                              will not be mirrored
 function M.mirrorH(image, mirrorState)
-    if not mirrorState then return end
-    
-    image._mirrorH = true
+    image._mirrorH = mirrorState
 end
 
 --- Mirrors the image vertically [ML 2+ API].
 --
 -- @param image (Image) The image to mirror
--- @param mirrorState (boolean) This is a strange, "hidden" parameter in ML. It 
---                              must be true for this function to have any 
---                              effect on a "standard" image (and false on an 
---                              already mirrored image?)
+-- @param mirrorState (boolean) This is a strange, "hidden" parameter in ML.
+--                              If true, the image will be mirrored, if false
+--                              will not be mirrored
 function M.mirrorV(image, mirrorState)
-    if not mirrorState then return end
-    
-    image._mirrorV = true
+    image._mirrorV = mirrorState
 end
 
 --- Creates an OpenGL texture from a wxImage, giving it an ID, binding it to it 
