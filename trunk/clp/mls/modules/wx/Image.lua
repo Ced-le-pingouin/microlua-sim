@@ -100,6 +100,9 @@ function M.load(path, destination)
     image._width   = image._source:GetWidth()
     image._height  = image._source:GetHeight()
     
+    image._mirrorH = false
+    image._mirrorV = false
+    
     image._tint = Color.WHITE
     
     image._rotationAngle = 0
@@ -217,28 +220,36 @@ end
 --- Mirrors the image horizontally [ML 2+ API].
 --
 -- @param image (Image) The image to mirror
--- @param mirrorState (boolean) This is a strange, "hidden" parameter in ML. It 
---                              must be true for this function to have any 
---                              effect on a "standard" image (and false on an 
---                              already mirrored image?)
+-- @param mirrorState (boolean) This is a strange, "hidden" parameter in ML.
+--                              If true, the image will be mirrored, if false
+--                              will not be mirrored
 function M.mirrorH(image, mirrorState)
-    if not mirrorState then return end
+    -- make sur mirrorState is boolean
+    mirrorState = not not mirrorState
+    -- no effect if current mirroring for image is the same as mirrorState
+    if mirrorState == image._mirrorH then return end
     
     image._source = image._source:Mirror(true)
+    
+    image._mirrorH = mirrorState
     image._changed = true
 end
 
 --- Mirrors the image vertically [ML 2+ API].
 --
 -- @param image (Image) The image to mirror
--- @param mirrorState (boolean) This is a strange, "hidden" parameter in ML. It 
---                              must be true for this function to have any 
---                              effect on a "standard" image (and false on an 
---                              already mirrored image?)
+-- @param mirrorState (boolean) This is a strange, "hidden" parameter in ML.
+--                              If true, the image will be mirrored, if false
+--                              will not be mirrored
 function M.mirrorV(image, mirrorState)
-    if not mirrorState then return end
+    -- make sure mirrorState is boolean
+    mirrorState = not not mirrorState
+    -- no effect if current mirroring for image is the same as mirrorState
+    if mirrorState == image._mirrorV then return end
     
     image._source = image._source:Mirror(false)
+    
+    image._mirrorV = mirrorState
     image._changed = true
 end
 
