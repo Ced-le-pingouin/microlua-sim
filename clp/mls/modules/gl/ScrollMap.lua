@@ -149,7 +149,7 @@ function M._compileDisplayList(scrollmap)
     local tileWidth, tileHeight = scrollmap._tileWidth, scrollmap._tileHeight
     
     local xRatio, yRatio
-    if M.normalizeTextureCoordinates then
+    if screen.normalizeTextureCoordinates then
         xRatio, yRatio = 1 / image._textureWidth, 1 / image._textureHeight
     end
     
@@ -178,7 +178,7 @@ function M._compileDisplayList(scrollmap)
                 sourcex = sourcex + 0.01
                 sourcey = sourcey + 0.01
                 
-                if M.normalizeTextureCoordinates then
+                if screen.normalizeTextureCoordinates then
                     sourcex = sourcex * xRatio
                     sourcey = sourcey * yRatio
                     sourcex2 = sourcex2 * xRatio
