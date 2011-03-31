@@ -261,6 +261,10 @@ function M.getFile(path, usePath)
     
     Mls.logger:debug("searching file "..path, "file")
     
+    -- remove any "device specifier" (fat:, fat[0-3]:) from the start of the 
+    -- path
+    path = path:gsub("^fat[0-3]?:", "")
+    
     -- whatever the OS, if the provided path exists as is, no need to do complex
     -- stuff, we return. Note that we skip "/" because we want to continue to
     -- fake root conversion in that case (a "/" in a script will most probably
