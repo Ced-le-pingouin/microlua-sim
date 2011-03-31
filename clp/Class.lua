@@ -1,3 +1,4 @@
+-------------------------------------------------------------------------------
 -- Small OOP class that allows the creation of "classes" of objects, simple 
 -- inheritance and "instanceof" type checking.
 --
