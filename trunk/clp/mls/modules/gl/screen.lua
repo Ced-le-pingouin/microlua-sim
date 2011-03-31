@@ -147,6 +147,9 @@ end
 -- screen (wx) initModule(), and it creates two surfaces that would be useless
 -- in OpenGL.
 function M._initOffscreenSurfaces()
+    Mls.logger:info(
+        "initializing offscreen surface (does nothing in OpenGL)", "screen"
+    )
 end
 
 --- Blits an image on the screen [ML 2+ API].
@@ -429,6 +432,19 @@ function M.drawGradientRect(screenNum, x0, y0, x1, y1,
         glColor3d(color3:Red() / 255, color3:Green() / 255, color3:Blue() / 255)
         glVertex2d(x0, y1 + screenOffset)
     glEnd()
+end
+
+--- Sets the version of drawGradientRect that will be used, and in case it is 
+--  the newer/correct/slower one, choose how accurate/slow it will be (does 
+--  nothing in OpenGL).
+--
+-- In wx mode, there's a parameter, accuracy.
+--
+-- @see wx.screen.setDrawGradientRectAccuracy
+function M.setDrawGradientRectAccuracy()
+    Mls.logger:info(
+        "setting drawGradientRect() accuracy (does nothing in OpenGL)", "screen"
+    )
 end
 
 --- Clears the current offscreen surface (with black).
