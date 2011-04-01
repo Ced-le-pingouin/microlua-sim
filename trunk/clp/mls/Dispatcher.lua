@@ -44,7 +44,7 @@ function M:ctr(lag)
     
     self._containerName = "container"
     
-    self._itemNames = {}
+    self._itemNames = { "GreenItem" }
     self._items = {}
     
     self._fetchKeys = {}
