@@ -90,6 +90,7 @@ local sourceFiles = {
     "clp/mls/DebugWindow.lua",
     "clp/mls/ScriptManager.lua",
     "clp/mls/ModuleManager.lua",
+    "clp/mls/Dispatcher.lua",
     "clp/mls/modules/wx/screen.lua",
     "clp/mls/modules/gl/screen.lua",
     "clp/mls/modules/wx/Color.lua",
@@ -113,7 +114,9 @@ local sourceFiles = {
     "clp/mls/modules/Sound.lua",
     "clp/mls/modules/Sprite.lua",
     "clp/mls/modules/wx/ds_system.lua",
-    "clp/mls/modules/wx/Wifi.lua"
+    "clp/mls/modules/wx/Wifi.lua",
+    "clp/mls/container/AbstractItem.lua",
+    "clp/mls/container/GreenItem.lua"
 }
 
 -- function that detects useless require()s and module definition commands
