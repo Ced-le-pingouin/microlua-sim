@@ -83,6 +83,7 @@ local DebugWindow = require "clp.mls.DebugWindow"
 local Timer = require "clp.mls.modules.wx.Timer"
 local ModuleManager = require "clp.mls.ModuleManager"
 local ScriptManager = require "clp.mls.ScriptManager"
+local Dispatcher = require "clp.mls.Dispatcher"
 
 Mls = Class.new(Observable)
 
@@ -199,6 +200,13 @@ function Mls:ctr(scriptPath)
         Mls.config:get("draw_gradient_rect_accuracy", 0)
     )
     screen.setRectAdditionalLength(Mls.config:get("rect_length", 0))
+    
+    -- MLS dispatcher
+    local frank = Dispatcher:new()
+    frank:dispatch():enableItemFetching()
+    
+    --print(table.concat(frank:encodeData(""), ", "))
+    --print(frank:decodeData({}))
     
     -- and finally load the script given at the command line if needed, or the
     -- "boot script" that is defined in the config file
