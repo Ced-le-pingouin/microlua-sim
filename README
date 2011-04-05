@@ -3,6 +3,33 @@ Micro Lua DS Simulator 0.5 (by Ced-le-pingouin)
 Note: I sometimes use ML for Micro Lua DS in the text below, or refer to my ML 
       simulator script as "the sim" or MLS
 
+
+Many things happened in 2010, between MLS v0.4 and v0.5, and I would like to
+dedicate this release to the following people:
+
+  - Peter "The Green Man" Steele (1962-2010):
+        Without you, music will be a lot more boring and dull. You will be 
+        deeply missed, Giant.
+  
+  - Ronnie James Dio (1942-2010):
+        Well, it seems the evil eye finally got you. Wherever you are now, 
+        Heaven or Hell, rest assured that your work in heavy metal will never 
+        be forgotten \m/
+        
+  - Nergal (from the band Behemoth):
+        In this terrible year 2010, bad news kept coming, one of them being 
+        your illness. Luckily, it seems you have now beaten that fuckin' 
+        disease, and I hope it's for good. Now come back with an even more kick
+        ass album than Evangelion. Hard to believe it's possible, but I know 
+        you and your bandmates can do it. That's all I wish for you.
+        
+   ...and, last but by no means least:
+   
+   - Some mysterious (Raving? Nooooooo!) Rabbid:
+        Despite all the bad news, you made 2010 one of the best years of my 
+        life. Thank you, you are amazing.
+
+
 ---------------------
 [0] Table of contents
 ---------------------
@@ -103,8 +130,8 @@ Windows: mls <name-of-your-script>
 
 (don't forget to use mls-src instead if you want to run the source version!)
 
-The script name is now optional, as the GUI will start anyway (with a black 
-screen), and you'll be able to open a script file from there.
+The script name is now optional, as MLS will launch a "boot script" if you don't
+give it a user script. See config file for details (boot_script option).
 
 IMPORTANT: the mls or mls-src script should be started with its directory as 
 the current directory. If it's started from elsewhere (e.g. it's in your PATH so
@@ -346,8 +373,9 @@ The Lua Team for this simple and poweful language (http://www.lua.org/)
 Risike for Micro Lua DS (http://microlua.risike.com/)
 
 Killer01, Samy, Reylak, [TheDarkTiger], thermo_nono, Doc, Wolftousen, 
-snatcher-br, Quent42340, aurel2108, Grahack, BALROG and all Micro Lua DS 
-enthusiasts who put their projects and advices on the Micro Lua DS forums 
+snatcher-br, Quent42340, aurel2108, Grahack, BALROG, Darkyx, Fantasix and all 
+Micro Lua DS enthusiasts who put their projects and advices on the Micro Lua DS
+forums 
 (http://microlua.xooit.fr/index.php)
 
 Dev-fr for showing me the DS homebrew scene was alive and well 
