@@ -87,7 +87,7 @@ local Dispatcher = require "clp.mls.Dispatcher"
 
 Mls = Class.new(Observable)
 
-Mls.VERSION = "0.5"
+Mls.VERSION = "0.5beta1"
 
 --- Constructor.
 --
