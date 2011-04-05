@@ -2,7 +2,7 @@
 -- Abstract class for an item that needs dispatching.
 --
 -- @class module
--- @name clp.mls.container.Abstract
+-- @name clp.mls.container.AbstractItem
 -- @author Ced-le-pingouin <Ced.le.pingouin@gmail.com>
 -------------------------------------------------------------------------------
 
