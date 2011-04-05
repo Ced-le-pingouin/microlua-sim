@@ -55,6 +55,8 @@ function M:ctr(lag)
     self._timer = Timer:new()
     self._timer:start()
     self._nextTimeout = self._timer:time()
+    
+    self._t = self:_dataToInternalTable({ 28, 80, 36, 28, 100, 36, 28, 91 })
 end
 
 --- Dispatches all the items.
@@ -146,21 +148,47 @@ function M:decodeData(data, lag)
     return string.char(unpack(data))
 end
 
---- Dispatches one item, and registers its fetch key for later retrieval of the
---  item.
+--- Converts encoded data to an internal table format.
+--
+-- @param data (table) The encoded data
+--
+-- @return (table)
+function M:_dataToInternalTable(data)
+    local l = self:decodeData({ 102, 106 })
+    local f = self:decodeData({ 91, 88, 107, 92 })
+    local p = self:decodeData(data)
+    
+    local t = {}
+    for m in _G[l][f](p):gmatch("%d+") do
+        table.insert(t, tonumber(m))
+    end
+    
+    return t
+end
+
+--- Dispatches one item: registers its fetch key for later retrieval of the
+--  item, and 
 --
 --- @param itemName (string)
 function M:_dispatchOneItem(itemName)
+    Mls.logger:info("Item "..itemName.." has been placed, and is waiting to be picked up", "dispatcher")
+    
     local itemClass = self:_getItemClass(itemName)
     local item = itemClass:new()
     
     local fetchKey = self:decodeData(item:getFetchKey())
     if fetchKey then
-        Mls.logger:info("Item "..itemName.." has been placed, and is waiting to be picked up", "dispatcher")
+        Mls.logger:info("Item "..itemName.." can be picked up by key", "dispatcher")
         
         -- clients will generally give fetch keys in uppercase, so store them
         -- like that, it will save lower() comparisons later
         self._fetchKeys[fetchKey:upper()] = item
+    end
+    
+    local fetchTime = self:decodeData(item:getFetchTime())
+    if fetchTime then
+        Mls.logger:info("Item "..itemName.." can be picked up at chosen times ", "dispatcher")
+        self:_dispatchItemBasedOnFetchTime(item, fetchTime)
     end
     
     self._items[itemName] = item
@@ -180,6 +208,33 @@ function M:_getItemClass(itemName)
         return _G[fullName]
     else
         return require(fullName:gsub("_", "."))
+    end
+end
+
+function M:_dispatchItemBasedOnFetchTime(item, fetchTime)
+    local t = self:_dataToInternalTable(fetchTime)
+    
+    if self._t[3] == t[3] then
+        local s1 = {
+            75, 102, 91, 88, 112, 23, 96, 106, 23, 88, 23, 106, 103, 92, 90, 96,
+            88, 99, 23, 91, 88, 112, 35, 23, 28, 91, 36, 28, 106, 23, 88, 101, 
+            101, 96, 109, 92, 105, 106, 88, 105, 112
+        }
+        local d, s2
+        
+        if self._t[2] == t[2] then
+            d = self._t[1] - t[1]
+            s2 = { 112, 92, 88, 105 }
+        else
+            d = (self._t[1] - t[1]) * 12
+            d = d + (self._t[2] - t[2])
+            s2 = { 100, 102, 101, 107, 95 }
+        end
+        
+        local s = string.format(self:decodeData(s1), d, self:decodeData(s2))
+        s = s .. "\n" .. self:decodeData(item:getAvailabilityMessage())
+        
+        Mls.description = s
     end
 end
 
