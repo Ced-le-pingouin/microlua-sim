@@ -49,6 +49,25 @@ function M:onItemFound()
     end
 end
 
+--- Returns the time when the item could be available.
+--
+-- @return (nil|string|table)
+function M:getFetchTime()
+    return { 41, 39, 40, 39, 36, 39, 43, 36, 40, 43 }
+end
+
+--- Returns a special message to be displayed when an item is fetched based on
+--  availability/time.
+--
+-- @return (string|table)
+function M:getAvailabilityMessage()
+    return {
+        64, 101, 23, 100, 92, 100, 102, 105, 112, 23, 102, 93, 23, 71, 92, 107,
+        92, 105, 23, 74, 107, 92, 92, 99, 92, 23, 31, 40, 48, 45, 41, 36, 41,
+        39, 40, 39, 32
+    }
+end
+
 function M:_replaceColorNew()
     local new = Color.new
     
