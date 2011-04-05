@@ -2,7 +2,7 @@
 -- Green item.
 --
 -- @class module
--- @name clp.mls.container.Abstract
+-- @name clp.mls.container.GreenItem
 -- @author Ced-le-pingouin <Ced.le.pingouin@gmail.com>
 -------------------------------------------------------------------------------
 
