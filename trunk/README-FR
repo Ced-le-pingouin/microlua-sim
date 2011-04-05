@@ -4,6 +4,35 @@ Note: dans le texte ci-dessous, j'utilise parfois l'abbréviation ML pour parler
       de Micro Lua DS, et "le simulateur" ou MLS pour faire référence à mon 
       script de simulation
 
+
+Il s'est passé beaucoup de choses en 2010, entre MLS v0.4 et v0.5, et je 
+voudrais dédier cette version aux personnes suivantes:
+
+  - Peter "The Green Man" Steele (1962-2010):
+        Sans toi, le monde de la musique sera tellement plus ennuyeux et terne.
+        Tu vas cruellement nous manquer, Géant.
+  
+  - Ronnie James Dio (1942-2010):
+        On dirait bien que le mauvais oeil a fini par t'avoir. Où que tu sois
+        maintenant, Heaven ou Hell, je peux t'assurer que tout ce que tu as 
+        fait pour le heavy metal ne sera jamais oublié \m/
+        
+  - Nergal (du groupe Behemoth):
+        En cette triste année 2010 pendant laquelle les mauvaises nouvelles 
+        n'arrêtaient pas de pleuvoir, l'une d'entre elles était l'annonce de 
+        ta maladie. Heureusement, tu sembles avoir vaincu cette merde, et 
+        j'espère que c'est pour de bon. Maintenant reviens-nous avec un album
+        encore meilleur qu'Evangelion. Difficile de croire que c'est possible,
+        mais je sais que toi et tes musiciens, vous en êtes capables. C'est tout
+        le mal que je te souhaite.
+        
+   ...et le dernier mais non le moindre (que du contraire!):
+   
+   - Un mystérieux Lapin (Crétin? Noooon!):
+        Malgré toutes les mauvaises nouvelles, tu as fait de 2010 l'une des 
+        meilleures années de ma vie. Merci, tu es incroyable.
+
+
 ----------------------
 [0] Table des matières
 ----------------------
@@ -116,9 +145,9 @@ Windows: mls <nom-de-votre-script>
 (et n'oubliez pas d'utiliser "mls-src" au lieu de "mls" si vous utilisez la 
 version source!)
 
-Le nom de script est désormais facultatif, étant donné qu'une interface 
-graphique va de toute façon apparaître (avec un écran noir), et vous permettra 
-d'ouvrir un fichier script à exécuter.
+Le nom de script est désormais facultatif, car s'il n'est pas spécifié, un 
+script de lancement sera démarré. Voir le fichier de configuration fourni pour
+plus d'info (option boot_script).
 
 IMPORTANT: mls ou mls-src doit être lancé avec comme dossier courant, le dossier
 où il se trouve. S'il est démarré à partir d'un autre dossier (par exemple s'il
@@ -379,8 +408,9 @@ Les développeurs de Lua pour ce langage simple et puissant (http://www.lua.org/
 Risike pour Micro Lua DS (http://microlua.risike.com/)
 
 Killer01, Samy, Reylak, [TheDarkTiger], thermo_nono, Doc, Wolftousen, 
-snatcher-br, Quent42340, aurel2108, Grahack, BALROG et tous les fans de Micro 
-Lua DS qui fournissent scripts persos et conseils sur les forums de Micro Lua DS
+snatcher-br, Quent42340, aurel2108, Grahack, BALROG, Darkyx, Fantasix et tous 
+les fans de Micro Lua DS qui fournissent scripts persos et conseils sur les 
+forums de Micro Lua DS
 (http://microlua.xooit.fr/index.php)
 
 Dev-fr pour m'avoir fait prendre conscience que la scène homebrew DS se portait 
