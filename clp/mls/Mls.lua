@@ -229,6 +229,8 @@ function Mls._initVars()
     SCREEN_WIDTH  = 256
     SCREEN_HEIGHT = 192
     Mls.DEPTH = -1
+    
+    Mls.description = ""
 end
 
 --- Initializes main window, menu items and their associated action, then shows
@@ -559,7 +561,8 @@ function Mls.onAbout()
         Mls.gui:showAboutBox{
             name = "Micro Lua Simulator (aka MLS)",
             version = Mls.VERSION,
-            description = "Run Micro Lua DS scripts on your computer",
+            description = "Run Micro Lua DS scripts on your computer"
+                          .."\n\n"..Mls.description,
             authors = { "Ced-le-pingouin <Ced.le.pingouin@gmail.com>" },
             copyright = "(c) 2009-2011 Ced-le-pingouin",
             link = {
