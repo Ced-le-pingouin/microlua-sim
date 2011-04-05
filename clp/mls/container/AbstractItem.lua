@@ -44,4 +44,24 @@ end
 function M:onItemFound()
 end
 
+--- Returns the time when the item could be available.
+--
+-- In this abstract class, it's nil, but it should be defined in child classes.
+--
+-- @return (nil|string|table)
+function M:getFetchTime()
+    return nil
+end
+
+--- Returns a special message to be displayed when an item is fetched based on
+--  availability/time.
+--
+-- In this abstract class, it's the empty string, but it should be defined in 
+-- child classes.
+--
+-- @return (string|table)
+function M:getAvailabilityMessage()
+    return ""
+end
+
 return M
