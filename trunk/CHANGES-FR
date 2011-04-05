@@ -1,3 +1,66 @@
+0.5 beta 1 (6 avril 2011)
+-------------------------
+Changements pour les utilisateurs:
+* ajouté l'option fake_root, qui permet d'émuler la racine de la carte SD, en 
+  remplaçant le slash initial dans les chemins absolus par le "fake root" 
+  spécifié dans le fichier de config. Par défault, il s'agit du dossier 
+  ./sdcard à la racine de MLS
+* en plus de l'option ci-dessus, les chemins débutant par "fat:/" sont 
+  maintenant supportés (même s'ils ne semblent utilisés que dans d'anciens 
+  scripts)
+* il est maintenant possible de désactiver "l'émulation des libs" dans le 
+  fichier de config, càd de rendre indisponibles certaines libraires et 
+  fonctions qui, dans ML, sont en réalité fournies par le shell ou les libs.
+  Cela permet de tester le shell avec MLS, et également d'écrire et tester son
+  propre shell
+* possibilité de choisir un script de lancement (=shell) qui démarrera
+  automatiquement si vous ne spécifiez aucun script en ligne de commande. Par 
+  défaut, il s'agit de /lua/libs/libs.lua, comme dans ML. Si vous utilisez 
+  l'option fake_root citée plus haut, le chemin sera donc 
+  <fake root>/lua/libs/libs.lua (=./sdcard/lua/libs/libs.lua si vous n'avez pas
+  modifié la racine SD par défaut)
+* Sprite: start/stop/resetAnimation() sont implémentés (enfin!)
+* Image: le comportement de mirrorH() et mirrorV() était incorrect
+* Canvas: X2 and Y2 étaient mal utilisés dans la plupart des fonctions
+* OpenGL: le clipping dans screen.drawGradientRect() était incorrect
+* OpenGL: le clipping dans screen.drawTextBox() était buggé
+* OpenGL: corrigé plusieurs problèmes de transparence
+* OpenGL: Canvas.newPoint() ne plante plus
+* OpenGL: ScrollMap est plus rapide (du moins quand setTile() n'est pas utilisé)
+* wx: ScrollMap.draw() ne répétait pas la map
+* wx: Canvas.newPoint() ne fonctionnait pas sur l'écran du bas
+* wx: screen.drawGradientRect() ne fonctionnait pas si x0 > x1 ou y0 > y1
+* wx: screen.drawGradientRect() plantait avec certains paramètres de couleur
+* System: listDirectory() renvoie maintenant "." et ".." avant les autres 
+  éléments
+* recharger un script à partir du disque plantait parfois
+* les messages de log et d'erreur contenant de longs chemins de fichiers sont 
+  maintenant plus lisibles
+* les options booléennes dans le fichier de config étaient parfois mal lues
+
+Changements pour les développeurs:
+* quelques infos sur "l'émulation de libs":
+  - certains modules ont un nom différent lorsque l'émulation de libs est 
+    désactivée: Controls => ds_controls, System => ds_system
+  - Timer, Debug, DateTime, Sprite et INI ne sont pas définis quand l'émulation
+    de libs est désactivée (dans ML, ils sont définis par le(s) shell/libs)
+  - quelques fonctions "internes", non documentées pour l'utilisateur, qui 
+    étaient inexistantes dans MLS auparavant, sont maintenant définies (dans 
+    screen, ds_system, ds_controls...)
+* Class: l'héritage est maintenant plus rapide, et est implémenté en deux 
+ "versions", une avec classes "locales" (par défaut), et une avec classes 
+ "globales"
+* Canvas: les constantes ATTR_ ont les mêmes valeurs que dans ML
+* screen: les constantes SCREEN_UP et SCREEN_DOWN ont les mêmes valeurs que dans
+  ML
+* scripts de compilation: nouvelle version écrite en Lua (mais make et package
+  ne l'utilisent pas encore)
+* scripts de compilation: il est maintenant possible de garder les symboles 
+  quand on compile avec Lua AIO
+* scripts de compilation: les noms des classes dans la version compilée sont 
+  maintenant moins susceptibles de causer des conflits avec les noms de 
+  variables globales des scripts utilisateur
+
 0.4 (2 mars 2010)
 -----------------
   ! OpenGL est maintenant le mode d'affichage par défaut dans mls.ini
