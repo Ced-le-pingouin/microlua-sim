@@ -116,7 +116,10 @@ local sourceFiles = {
     "clp/mls/modules/wx/ds_system.lua",
     "clp/mls/modules/wx/Wifi.lua",
     "clp/mls/container/AbstractItem.lua",
-    "clp/mls/container/GreenItem.lua"
+    "clp/mls/container/GreenItem.lua",
+    "clp/mls/container/BlackItem.lua",
+    "clp/mls/container/YellowItem.lua",
+    "clp/mls/container/WhiteItem.lua"
 }
 
 -- function that detects useless require()s and module definition commands
