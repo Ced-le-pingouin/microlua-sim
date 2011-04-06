@@ -4,8 +4,8 @@ Changes for users:
 * added the fake_root option in the config file, which will allow emulating SD
   card root by replacing the initial "/" in absolute paths with the "fake root"
   directory on your machine. By default, it is ./sdcard in MLS directory
-* as an addition to the above feature, "fat:/" paths are now supported
-  (I suppose they're mostly used in older scripts anyway)
+* as an addition to the above feature, "fat:/" paths are now supported (I guess
+  they're mostly used in older scripts anyway)
 * it is now possible to disable "libs emulation", i.e. remove the libs and 
   functions made available by the default ML shell/libs. So you can test the 
   shell or write your own and test it with MLS
