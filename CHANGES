@@ -1,18 +1,21 @@
 0.5 beta 1 (6 April 2011)
 -------------------------
 Changes for users:
-* add the fake_root option, which will allow emulating SD card root by replacing
-  the initial "/" in absolute paths with the "fake root" directory on your
-  machine. By default, it is ./sdcard in MLS directory
+* added the fake_root option in the config file, which will allow emulating SD
+  card root by replacing the initial "/" in absolute paths with the "fake root"
+  directory on your machine. By default, it is ./sdcard in MLS directory
 * as an addition to the above feature, "fat:/" paths are now supported
   (I suppose they're mostly used in older scripts anyway)
 * it is now possible to disable "libs emulation", i.e. remove the libs and 
   functions made available by the default ML shell/libs. So you can test the 
   shell or write your own and test it with MLS
-* it is now possible to choose a boot script (=shell) that will automatically
+* it is now possible to choose a boot script (=shell) that can automatically
   start if you don't provide a script name on the command line. By default, it
-  is /lua/libs/libs.lua, just like in ML. If you use the "fake root" described
-  above, you should put the libs in <fake root>/lua/libs/libs.lua
+  is /lua/libs/libs.lua, just like in ML, but you'll have to uncomment it in
+  the config file, and copy the shell/libs file in the right location. If you 
+  use the "fake root" described above, you should put the libs in 
+  <fake root>/lua/libs/libs.lua (=./sdcard/lua/libs/libs.lua if you haven't 
+  changed the default fake root)
 * Sprite: start/stop/resetAnimation() are implemented (finally!)
 * Image: mirrorH() and mirrorV() behavior was incorrect
 * Canvas: X2 and Y2 handling was wrong in most functions

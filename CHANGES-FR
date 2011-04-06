@@ -1,10 +1,10 @@
 0.5 beta 1 (6 avril 2011)
 -------------------------
 Changements pour les utilisateurs:
-* ajouté l'option fake_root, qui permet d'émuler la racine de la carte SD, en 
-  remplaçant le slash initial dans les chemins absolus par le "fake root" 
-  spécifié dans le fichier de config. Par défault, il s'agit du dossier 
-  ./sdcard à la racine de MLS
+* ajouté l'option de configuration fake_root, qui permet d'émuler la racine de 
+  la carte SD d'un linker, en remplaçant le slash initial dans les chemins 
+  absolus par le "fake root" spécifié dans le fichier de config. Par défault, il
+  s'agit du dossier ./sdcard à la racine de MLS
 * en plus de l'option ci-dessus, les chemins débutant par "fat:/" sont 
   maintenant supportés (même s'ils ne semblent utilisés que dans d'anciens 
   scripts)
@@ -15,10 +15,12 @@ Changements pour les utilisateurs:
   propre shell
 * possibilité de choisir un script de lancement (=shell) qui démarrera
   automatiquement si vous ne spécifiez aucun script en ligne de commande. Par 
-  défaut, il s'agit de /lua/libs/libs.lua, comme dans ML. Si vous utilisez 
-  l'option fake_root citée plus haut, le chemin sera donc 
-  <fake root>/lua/libs/libs.lua (=./sdcard/lua/libs/libs.lua si vous n'avez pas
-  modifié la racine SD par défaut)
+  défaut, il s'agit de /lua/libs/libs.lua, comme dans ML, mais vous devrez 
+  décommenter la ligne correspondante dans le fichier de config, et aussi copier
+  les libs/shell au bon endroit. Si vous utilisez l'option fake_root citée plus
+  haut, le chemin sera donc <fake root>/lua/libs/libs.lua 
+  (=./sdcard/lua/libs/libs.lua si vous n'avez pas modifié la racine SD par 
+  défaut)
 * Sprite: start/stop/resetAnimation() sont implémentés (enfin!)
 * Image: le comportement de mirrorH() et mirrorV() était incorrect
 * Canvas: X2 and Y2 étaient mal utilisés dans la plupart des fonctions
