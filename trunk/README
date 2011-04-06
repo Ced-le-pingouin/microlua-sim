@@ -130,8 +130,10 @@ Windows: mls <name-of-your-script>
 
 (don't forget to use mls-src instead if you want to run the source version!)
 
-The script name is now optional, as MLS will launch a "boot script" if you don't
-give it a user script. See config file for details (boot_script option).
+The script name is now optional, as MLS GUI will show up with a blank screen if
+you don't give it a user script, or even launch a "boot script" (=shell/libs) if
+you define one in the config file (see boot_script option in the provided config
+file).
 
 IMPORTANT: the mls or mls-src script should be started with its directory as 
 the current directory. If it's started from elsewhere (e.g. it's in your PATH so

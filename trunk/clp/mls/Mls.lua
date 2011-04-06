@@ -111,9 +111,12 @@ function Mls:ctr(scriptPath)
     Mls.logger:setLevel(Mls.config:get("debug_log_level", Logger.WARN))
     
     
-    -- a boot script is launched if no command-line script is given
-    local bootScript = Mls.config:get("boot_script", "/lua/libs/libs.lua")
-    if scriptPath then
+    -- if a user script has been specified on the command line OR if boot_script
+    -- is empty in the config file, no boot script will be used, the user script
+    -- will be started, or the GUI will show up with a blank screen if no user
+    -- script is specified
+    local bootScript = Mls.config:get("boot_script", "")
+    if scriptPath or bootScript == "" then
         bootScript = nil
     else
         scriptPath = bootScript

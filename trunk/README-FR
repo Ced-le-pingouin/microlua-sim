@@ -145,9 +145,12 @@ Windows: mls <nom-de-votre-script>
 (et n'oubliez pas d'utiliser "mls-src" au lieu de "mls" si vous utilisez la 
 version source!)
 
-Le nom de script est désormais facultatif, car s'il n'est pas spécifié, un 
-script de lancement sera démarré. Voir le fichier de configuration fourni pour
-plus d'info (option boot_script).
+Le nom de script est désormais facultatif, car s'il n'est pas spécifié, 
+l'interface graphique de MLS sera tout de même lancée, sans script, avec un 
+écran vierge, ou il sera même possible de lancer automatiquement un "script de 
+lancement" (= boot script = shell/libs) en le définissant dans le fichier de 
+configuration (voir l'option boot_script dans le fichier de configuration 
+fourni).
 
 IMPORTANT: mls ou mls-src doit être lancé avec comme dossier courant, le dossier
 où il se trouve. S'il est démarré à partir d'un autre dossier (par exemple s'il
