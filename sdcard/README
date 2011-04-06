@@ -1,0 +1,4 @@
+This is the default "root" for the "linker SD card emulation" in MLS.
+
+So you should put your scripts and libs somewhere in here, as if this 
+directory was the root of the SD card in your DS linker.
