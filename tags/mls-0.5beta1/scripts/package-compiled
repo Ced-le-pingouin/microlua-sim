@@ -1,0 +1,75 @@
+#!/bin/bash
+
+# package-compiled : create os-specific archives of the compiled version of 
+#                    Micro Lua Simulator
+#
+# @author Ced-le-pingouin <Ced.le.pingouin@gmail.com>
+
+#   Copyright (C) 2009-2011 Cédric FLOQUET
+#   
+#   This file is part of Micro Lua DS Simulator.
+#   
+#   Micro Lua DS Simulator is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
+#   
+#   Micro Lua DS Simulator is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#   
+#   You should have received a copy of the GNU General Public License
+#   along with Micro Lua DS Simulator.  If not, see <http://www.gnu.org/licenses/>.
+
+## go to MLS root dir (doesn't work if script was started from PATH)
+OLD_DIR=$PWD
+SCRIPT_DIR=$(dirname $0)
+cd $SCRIPT_DIR/..
+
+VERSION=`cat VERSION`
+OS_DIR="os_specific"
+SDCARD_DIR="sdcard"
+# we list all root files that are under version control, though for the compiled
+# version we won't need some of them
+COMMON_FILES="mls.lua mls.comp.lua mls.ini.dist icon.png about.png README README-FR CHANGES CHANGES-FR COPYING"
+KEYBOARD_IMAGE_FILES="clp/mls/images/keyboard/*"
+for OS in linux win mac; do
+    OS_SRC_DIR="$OS_DIR/$OS"
+    DEST_DIR="mls-$VERSION-$OS"
+    ARCHIVE_NAME="$DEST_DIR.zip"
+    
+    mkdir $DEST_DIR
+    cp $COMMON_FILES $DEST_DIR
+    # keyboard images can be copied directly at root, they'll be found
+    cp $KEYBOARD_IMAGE_FILES $DEST_DIR
+    cp -r $OS_SRC_DIR/* $DEST_DIR
+    
+    # the root dir for linker SD card emulation should be in the zip file, with
+    # its associated readme file
+    mkdir $DEST_DIR/$SDCARD_DIR
+    cp $SDCARD_DIR/README $DEST_DIR/$SDCARD_DIR
+    
+    # get rid of svn directories and unneeded mls-src files since we're creating
+    # the compiled version archive
+    find $DEST_DIR -name '.svn' -type d -prune -exec rm -fR {} \;
+    rm $DEST_DIR/mls-src* $DEST_DIR/mls.lua
+    
+    # on Windows, the batch files have been converted to exe, so in the compiled
+    # archive we don't need them
+    rm $DEST_DIR/*.bat
+    
+    # users seem to prefer getting an mls.ini file directly, instead of renaming
+    # the .ini.dist file
+    mv $DEST_DIR/mls.ini.dist $DEST_DIR/mls.ini
+    
+    # delete any previous archive with the same name
+    rm -f $ARCHIVE_NAME
+    # create the new archive
+    zip -r $ARCHIVE_NAME $DEST_DIR
+    # remove temp dir used to create the archive
+    rm -fR $DEST_DIR
+done
+
+## back to original dir
+cd $OLD_DIR

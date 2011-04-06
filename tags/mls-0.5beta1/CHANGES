@@ -1,0 +1,206 @@
+0.5 beta 1 (6 April 2011)
+-------------------------
+Changes for users:
+* added the fake_root option in the config file, which will allow emulating SD
+  card root by replacing the initial "/" in absolute paths with the "fake root"
+  directory on your machine. By default, it is ./sdcard in MLS directory
+* as an addition to the above feature, "fat:/" paths are now supported
+  (I suppose they're mostly used in older scripts anyway)
+* it is now possible to disable "libs emulation", i.e. remove the libs and 
+  functions made available by the default ML shell/libs. So you can test the 
+  shell or write your own and test it with MLS
+* it is now possible to choose a boot script (=shell) that can automatically
+  start if you don't provide a script name on the command line. By default, it
+  is /lua/libs/libs.lua, just like in ML, but you'll have to uncomment it in
+  the config file, and copy the shell/libs file in the right location. If you 
+  use the "fake root" described above, you should put the libs in 
+  <fake root>/lua/libs/libs.lua (=./sdcard/lua/libs/libs.lua if you haven't 
+  changed the default fake root)
+* Sprite: start/stop/resetAnimation() are implemented (finally!)
+* Image: mirrorH() and mirrorV() behavior was incorrect
+* Canvas: X2 and Y2 handling was wrong in most functions
+* OpenGL: screen.drawGradientRect() clipping was wrong
+* OpenGL: screen.drawTextBox() clipping was buggy
+* OpenGL: fixed many transparency issues
+* OpenGL: Canvas.newPoint() no longer crashes
+* OpenGL: ScrollMap is faster (when setTile() is not used, at least)
+* wx: ScrollMap.draw() didn't repeat correctly 
+* wx: Canvas.newPoint() didn't work on the lower screen
+* wx: screen.drawGradientRect() didn't work when x0 > x1 or y0 > y1
+* wx: screen.drawGradientRect() crashed with some Color parameters
+* System: listDirectory() now puts "." and ".." before other items
+* reloading a script from disk would sometimes crash
+* log and error messages containing long paths are more readable
+* boolean options in config were sometimes read incorrectly
+
+Changes for the developer:
+* Libs emulation facts:
+  - some modules have a different name when libs emulation is disabled: 
+    Controls => ds_controls, System => ds_system
+  - Timer, Debug, DateTime, Sprite and INI are not defined when libs emulation 
+    is disabled (in ML, they're defined by the default shell/libs)
+  - some "internal" functions, undocumented for users, are available (in screen,
+    ds_system, ds_controls...)
+* Class: inheritance support is faster. And comes in two versions: "local" 
+  (the default) and "global" classes
+* Canvas: ATTR_ constants have the same values as in ML
+* screen: SCREEN_UP and SCREEN_DOWN constants have the same values as in ML
+* compile scripts: new version written in Lua (make and package don't use it 
+  yet, though)
+* compile scripts: it is now possible to keep debug symbols when compiling with
+  Lua AIO
+* compile scripts: class names in compiled version are less likely to clash with
+  global variables in user scripts
+
+0.4 (2 March 2010)
+------------------
+  ! OpenGL is now the default display mode in mls.ini
+  * OpenGL fixes: no more white rectangles instead of images, or garbled images,
+    or unbearably low FPS (on older GPUs that switched to software rendering)
+    If you still have problems with OpenGL, notably with Pause, take a look at
+    mls.ini, there are additional options for OpenGL
+  * screen.drawTextBox() now supports newlines
+  * new "key bindings" dialog in Help menu (or Ctrl+K)
+  * zoom: fix cases where the zoom factor wouldn't switch back to 1x
+  * zoom: disable zoom change while in fullscreen mode
+  * mls.ini config file is provided instead of mls.ini.dist (which had to be 
+    renamed by the user)
+
+0.4 beta 3 (21 February 2010)
+-----------------------------
+  * OpenGL support. It can be enabled in the config file
+  * the main window can now be resized, and a shortcut key (F7) allows you to 
+    switch between 1x and 2x zoom. On Windows, F11 enables/disables fullscreen 
+    (a bit ugly because of the non integer zoom ratio).
+    WARNING: resizing the window can cause massive slowdown if OpenGL is 
+    disabled (except maybe on Windows)
+  * it is now possible to reload a script from disk (Shift+B)
+  * initial current working directory is now the same as the running script
+  * shortcut keys: increasing/decreasing FPS/UPS now uses steps of 5, instead of
+    1
+  * shortcut keys: displaying and hiding the console is now bound to F12 instead
+    of F5
+  * arrow keys now work on Windows too
+  * screen: drawGradientRect() accuracy can now be adjusted (F5 key and config 
+    file option). This option does nothing in OpenGL mode
+  * screen: it is now possible to enable or disable "rectangle length 
+    correction" (F6 key and config file option). This option does nothing in 
+    OpenGL mode
+  * screen.drawTextBox() is now correctly clipped when overflowing from the 
+    upper screen to the lower one
+  * module() and require() should work better in loaded scripts
+  * Font.print(): in ML, the color argument is ignored (bug). This behaviour is
+    now reproduced by MLS
+  * Image.load() now only accepts png/gif/jpg/jpeg files
+  * newPress behaviour can mimic either ML2 or ML3 (H key and config file 
+    option)
+  * Image.blit(): MLS reproduces the "weird" behaviour of ML when a rotation is
+    set on the image (offset or not when displaying)
+  * variable accesses like _G["var_name"] didn't work in previous versions
+  * default UPS in the provided config file are now set to 60 instead of 55
+  * timing handling has been changed (but I'm not quite happy with it right now
+    :( )
+    
+0.4 beta 2 (9 August 2009)
+--------------------------
+  * Stylus: doubleClick has been implemented, released behaviour is now 
+    similar to the one in Micro Lua, and newPress can behave as in ML2 or ML3
+  * screen.mirrorH()/mirrorV(): they are now enabled, because we discovered 
+    that they really were enabled in ML, only they needed a second 
+    (undocumented) boolean parameter set to true to have any effect
+  * ScrollMap: getTile()/setTile() are now implemented, and scrollmap 
+    transparency is now respected
+  * screen: functions drawing a rectangle now draw it correctly (they used to
+    draw rectangles one pixel shorter than they should have been)
+  * enabled an internal hack that detects whether the StylusBox library is 
+    loading, and replace its newPressinBox() function with our own version, 
+    because the original one doesn't work in MLS (nor in ML3)
+  * state of current script (paused etc.) is now displayed in a colored box, 
+    directly on the DS screen, in addition to the status bar, where it wasn't 
+    too noticeable
+  * shortcut to erase the content of the console (Del key)
+  * the console is automatically displayed on error
+  * whenever an error occurs while loading an image, the error message is no 
+    longer displayed in an alert dialog box, it's displayed in the console
+  * more detailed error messages (the call stack is displayed)
+  * "*.*" filter available in File open dialog. It allows Linux users to see
+    "*.LUA" files, which are different, on Linux, than "*.lua" files
+  * Windows: mls and mls-src don't crash when you specify the path of a script
+    that contains spaces on the command line
+  * Windows: the launcher file is now a (fake) .exe instead of a .bat, which 
+    allows us to embed an icon in it
+  * Linux: folders and files with incorrect case in dofile(), Image.load() etc.
+    are now always found if they exist (e.g. trying to load "LIBWindow.lua" when
+    the file name is "libWindow.lua")
+
+0.4 beta 1 (2 August 2009)
+--------------------------
+  ! Micro Lua Simulator is now licenced under GPL v3. This means you get the 
+    source, and you can modify it, BUT you have to provide the modified source
+    whenever you decide to re-distribute your work
+  * compatible with the new Micro Lua version, 3.0:
+    - Image.scale() works as it should, i.e. it doesn't reset itself after a 
+      blit()
+    - new variable: MICROLUA_VERSION
+    - new functions: render(), Font.getStringWidth()
+    - new classes/objects:
+      . Rumble (right now it's seen as always inserted, but does nothing 
+        visible)
+      . Motion (considered missing, the various measure functions return 0)
+      . DateTime
+      . Wifi (but no UDP sockets)
+      . Sound (a stub)
+  * bitmap fonts (read: MicroLua-correct), but slower (and latin-1 only)
+  * GUI and menus: you can load scripts from there, and you don't have to 
+    provide the name of the initial script at the command line anymore
+  * some key bindings allowing to change FPS/UPS, pause and restart scripts...
+  * also added the keypad numbers for up/down/left/right moves
+  * all new console that displays the errors encountered in scripts, instead
+    of violently exiting MLS. MLS log/debug messages also appear there
+  * no more screen flickering in Windows (at least not on my side)
+  * the sim now reads some options from a config file
+  * scripts and their additional files (images, libs...) don't have to sit in 
+    MLS root anymore to be found
+  * semi case-insensitive file loading for non-Windows systems (different 
+    uppercase/lowercase combinations tried for the name and extension)
+
+0.3 (11 March 2009)
+-------------------
+  * Mac version officially released. It seems slower than Linux/Windows versions
+    as far as unlimited FPS average are concerned, but it can achieve 60fps in 
+    Seaquest, so I guess it's not a problem right now
+  * bash/batch scripts to launch the sim more easily
+  * many graphics optimisations for "simple" images, i.e. sprites and 
+    non-transformed images (no tint/scale/rotate) => in the Seaquest remake demo
+    mode, I noticed a 350+% FPS increase on Linux, and a whopping 1700+% on 
+    Windows! (of course, for optimisation measurement, I temporarily removed FPS
+    limit to get these)
+  * "display" FPS are limited to 60, and "internal" FPS (main loop) to 55
+    (although the real achieved FPS may vary slightly depending on the OS, from 
+    50 to 60+)
+  * in addition to the existing key bindings, I put back the arrow keys for 
+    up/down/left/right, because these seem to work well on Linux and Mac.
+    Also, to eliminate differences between AZERTY and QWERTY keyboard layouts, 
+    R/T can now be used as L/R, and F/V as Start/Select
+  * README and CHANGES are now also available in french
+
+0.2 (22 February 2009)
+----------------------
+  * Windows version now works, yeah! (though slowly, and not thoroughly tested)
+  * internal change: the main loop is no longer executed in the main process, it
+    is in a Lua coroutine. This is my first try, and this change was made for 
+    the Windows version. It seems to work in Linux too, so all is ok for now
+  * changed key bindings: up/down/left/right are now the I/K/J/L keys, and 
+    Start/Select = Q/W. These changes were made because wxWidgets for Windows 
+    doesn't seem to detect key presses on arrows on my laptop, and the key codes
+    for "&" and "é" (Start/Select in version 0.1) were different than Linux
+
+0.1 (18 February 2009)
+----------------------
+  * initial release
+  * doesn't work under Windows at the moment, for unknown reasons
+  * sound doesn't crash the scripts but is not heard
+  * font system not correct
+  * some methods and behaviours of ML DS not implemented yet
+  * all scripts are limited to 30FPS (even "internal" frames, not only display)
+  * a bit slow

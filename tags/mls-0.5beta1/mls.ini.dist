@@ -1,0 +1,135 @@
+[mls]
+;; Set the "fake root", i.e. a folder on your machine that simulates the SD card
+;; root on the DS. This allows you to put your "/lua" folder anywhere on the 
+;; disk, and test the scripts in it as if they were on the SD card, without 
+;; having to modify your script
+;;
+;; If fake_root isn't defined here (or if it's commented), the default is a 
+;; "sdcard" folder located in the MLS folder
+;;
+;fake_root = 
+
+;; Script that should be automatically launched by MLS.
+;;
+;; The boot script mentionned here will be launched when you don't specify any
+;; user script on the command line
+;;
+;; If the boot script path begins with a slash, it will be searched in the 
+;; "fake root" (see option above)
+;;
+;; The default is no boot script, i.e. launch the user script given on the 
+;; command line, or if none given just start the GUI without any script
+;;
+;boot_script = /lua/libs/libs.lua
+
+;; Enable MLS libs emulation, i.e. tells it to make Controls and System 
+;; available (in ML, these don't exist, they're named ds_controls and ds_system)
+;; as well as some other functions (e.g. startDrawing, stopDrawing...)
+;;
+;; It also removes some libs, such as Debug, Sprite...
+;;
+;; This option is needed to make MLS behave more like ML (when set to 0), where 
+;; some features aren't coded in C, but reside in externals libs written in Lua
+;;
+;; Disabling this will allow ML developers to modify and test ML libs, and will
+;; allow MLS not to change too often, since only ML C code would need to be 
+;; emulated (not the libs).
+;;
+;; Eventually this option will disappear, and be considered always off
+;;
+;;  0 = MLS libs emulation disabled (you'll need ML libs in sdcard/lua/libs)
+;;  1 = MLS libs emulation enabled
+;;
+;emulate_libs = 1
+
+;; Display refresh rate in frames/ second(number): controls the perceived 
+;; animation smoothness
+;;
+;;  min: 0 = unlimited
+;;
+;; Please note that the achieved rate can vary (+- 5 fps) because of my bad
+;; timing handling
+;;
+fps = 60
+
+;; Internal updates in updates/second (number): controls the real speed of the 
+;; loaded script.
+;; You may need to adjust this to make your script run at the same speed as on
+;; the real Micro Lua DS
+;;
+;;  min: 0 = unlimited
+;;
+;; Please note that the achieved rate can vary (+- 5 fps) because of bad timings
+;;
+ups = 60
+
+;; Use bitmap fonts (0 or 1)
+;;
+;;  0 = no  = native OS fonts  => faster but no custom fonts are displayed
+;;  1 = yes = bitmap fonts => slower
+;;
+bitmap_fonts = 1
+
+;; Enable "stylus hack", which causes Stylus.newPress to behave as in ML2, i.e.
+;; it is always true except when the stylus is held
+;;
+;;  0 = disable the hack (Stylus.newPress is only true *once* after a "click")
+;;  1 = enable the hack
+;;
+stylus_hack = 0
+
+;; Set the value to use when computing rectangles width and height. Normally it
+;; should be 1, as in "width = x1 - x0 + 1", but some scripts won't display 
+;; correctly unless set to 0
+;;
+;;  min: 0
+;;  max: 1
+;;
+rect_length = 0
+
+;; Choose wich function will be used and with what precision when 
+;; drawGradientRect() is called (has no effect in OpenGL mode)
+;;
+;;  min: 0 = use the simple version, not ML-correct but fast (2-color gradient)
+;;  2-256  = use the advanced version, slower (4-color gradient). Defines the
+;;           number of "color blocks" that will compose the final rectangle.
+;;           The higher the number, the slower the function. Any value above
+;;           24 is not recommended
+;;  max: 256
+;;
+draw_gradient_rect_accuracy = 0
+
+;; Use OpenGL for drawing operations
+;;
+;;  0 = no
+;;  1 = yes
+;;
+open_gl = 1
+
+;; In OpenGL mode, should MLS use a texture_rectangle extension for images, or 
+;; standard 2D textures (which then will be loaded with power of two dimensions)
+;; ?
+;;
+;;  0 = no  = use standard - power of two - 2D textures for images
+;;  1 = yes = use any texture_rectangle extension found on the GPU. If there are
+;;            none, falls back to standard 2D textures
+open_gl_use_texture_rectangle = 1
+
+;; Use simple ("dumb") pause method in OpenGL mode
+;;
+;; On some GPUs, the method used to implement "normal" pause doesn't work well
+;; Sometimes it displays garbage, sometimes it's very slow
+;; 
+;; If "normal" pause causes trouble for you, try setting this to 1, then you'll 
+;; get the "dumb" pause method
+;;
+;;  0 = no  = use normal pause (displays the last frame while paused)
+;;  1 = yes = use simple/dumb pause (displays a black background while paused)
+;;
+open_gl_simple_pause = 0
+
+;; DEBUG OPTIONS !!! YOU SHOULD NOT ENABLE OR CHANGE THESE !!!
+;debug_log_level = 4
+;debug_main_loop_timing = 3
+;debug_no_refresh = true
+;debug_limit_time = 9000

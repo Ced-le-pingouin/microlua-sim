@@ -1,0 +1,225 @@
+#!/bin/bash
+
+# compile : compiles Micro Lua Simulator into one unique big file
+#
+# @author Ced-le-pingouin <Ced.le.pingouin@gmail.com>
+
+#   Copyright (C) 2009-2011 Cédric FLOQUET
+#   
+#   This file is part of Micro Lua DS Simulator.
+#   
+#   Micro Lua DS Simulator is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
+#   
+#   Micro Lua DS Simulator is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#   
+#   You should have received a copy of the GNU General Public License
+#   along with Micro Lua DS Simulator.  If not, see <http://www.gnu.org/licenses/>.
+
+## go to MLS root dir (doesn't work if script was started from PATH)
+OLD_DIR=$PWD
+SCRIPT_DIR=$(dirname $0)
+cd $SCRIPT_DIR/..
+
+## process arguments
+USE_LUAC=0
+PLAIN_TEXT=0
+STRIP_SYMBOLS=0
+GLOBAL_CLASSES=0
+for OPT in "$@"; do
+    case $OPT in
+        # the "compiled" version will just be an all in one plain text file, 
+        # it'll not really be compiled
+        --plain)
+            PLAIN_TEXT=1
+            ;;
+        # compilation on my 64bit linux would produce binaries that are unusable
+        # with the provided lua (AIO, "bad header" message), so we should use
+        # lua (AIO) with "-c" to compile
+        --luac)
+            USE_LUAC=1
+            ;;
+        # 
+        --strip)
+            STRIP_SYMBOLS=1
+            ;;
+        # 
+        --global-classes)
+            GLOBAL_CLASSES=1
+            ;;
+    esac
+done
+
+## some options are mutually exclusive, so we warn the user they'll be ignored
+if [ "$PLAIN_TEXT" -eq 1 ]; then
+    if [ "$STRIP_SYMBOLS" -eq 1 -o "$USE_LUAC" -eq 1 ]; then
+        echo "WARNING: --plain is mutually exclusive with the following options: --luac, --strip."
+        echo "         Any of the latter options will be ignored if --plain is also present."
+        
+        STRIP_SYMBOLS=0
+        USE_LUAC=0
+    fi
+fi
+
+## local classes don't work when the script is compiled and symbols are stripped
+if [ "$STRIP_SYMBOLS" -eq 1 -a "$GLOBAL_CLASSES" -eq 0 ]; then
+    echo "ERROR: Local classes don't work when the script is compiled AND the symbols are stripped."
+    echo "       If you want to strip symbols, you have to specify --global-classes too."
+    exit 1
+fi
+
+SRC_MLS_SCRIPT="mls.lua"
+TMP_MLS_SCRIPT="$SRC_MLS_SCRIPT.tmp"
+COMPILED_MLS_SCRIPT="mls.comp.lua"
+
+LIB_LIST="
+    clp/Class.lua
+    clp/Observable.lua
+    clp/Logger.lua
+    clp/Math.lua
+    clp/Debugger.lua
+    clp/mls/modules/wx/Timer.lua
+    clp/mls/Mls.lua
+    clp/mls/Sys.lua
+    clp/mls/Config.lua
+    clp/mls/Gui.lua
+    clp/mls/DebugWindow.lua
+    clp/mls/ScriptManager.lua
+    clp/mls/ModuleManager.lua
+    clp/mls/Dispatcher.lua
+    clp/mls/modules/wx/screen.lua
+    clp/mls/modules/gl/screen.lua
+    clp/mls/modules/wx/Color.lua
+    clp/mls/modules/wx/Image.lua
+    clp/mls/modules/gl/Image.lua
+    clp/mls/modules/wx/Font_Native.lua
+    clp/mls/modules/wx/Font_Bitmap.lua
+    clp/mls/modules/gl/Font.lua
+    clp/mls/modules/Canvas.lua
+    clp/mls/modules/wx/ds_controls.lua
+    clp/mls/modules/DateTime.lua
+    clp/mls/modules/Debug.lua
+    clp/mls/modules/INI.lua
+    clp/mls/modules/Keyboard.lua
+    clp/mls/modules/Map.lua
+    clp/mls/modules/Mod.lua
+    clp/mls/modules/Motion.lua
+    clp/mls/modules/Rumble.lua
+    clp/mls/modules/wx/ScrollMap.lua
+    clp/mls/modules/gl/ScrollMap.lua
+    clp/mls/modules/Sound.lua
+    clp/mls/modules/Sprite.lua
+    clp/mls/modules/wx/ds_system.lua
+    clp/mls/modules/wx/Wifi.lua
+    clp/mls/container/AbstractItem.lua
+    clp/mls/container/GreenItem.lua
+    clp/mls/container/BlackItem.lua
+    clp/mls/container/YellowItem.lua
+    clp/mls/container/WhiteItem.lua
+"
+
+## reset any existing temp file
+rm "$TMP_MLS_SCRIPT" 2> /dev/null
+touch "$TMP_MLS_SCRIPT"
+
+## concatenate all source files in one unique temp file
+for LIB_FILE in $LIB_LIST; do
+    ## module name will be the path of the module with "/" replaced with "_"
+    MODULE_NAME=`echo "$LIB_FILE" | cut -f1 -d.`
+    MODULE_NAME=`echo "$MODULE_NAME" | sed -e "s/\//_/g"`
+    ## get the initial content (script) of the module
+    LIB_FILE_CONTENT=`cat "$LIB_FILE"`
+    ## replace "local M = " with "<module name> = " ...
+    MODULE_ASSIGN_REPLACEMENT="$MODULE_NAME =\1"
+    ## ...and assign the module to a local variable (upvalue) if we're not
+    ## using global classes
+    if [ "$GLOBAL_CLASSES" -eq 0 ]; then
+        MODULE_ASSIGN_REPLACEMENT="$MODULE_ASSIGN_REPLACEMENT\nlocal $MODULE_NAME = $MODULE_NAME"
+    fi
+    LIB_FILE_CONTENT=`echo "$LIB_FILE_CONTENT" | sed -re "s/local M =(.*)/$MODULE_ASSIGN_REPLACEMENT/g"`
+    ## when "M.", "M:", or "M[" is found, replace the "M" with "<module name>"
+    ## WARNING: unfortunately, this will also replace such occurences that are
+    ##          quoted!
+    LIB_FILE_CONTENT=`echo "$LIB_FILE_CONTENT" | sed -re "s/\bM([.:\[])/$MODULE_NAME\1/g"`
+    ## find all the "local <local module name> = require "<module path>"
+    LIB_REQUIRES=`echo "$LIB_FILE_CONTENT" | grep "^local.*= require"`
+    LIB_REQUIRES=`echo "$LIB_REQUIRES" | sed -re 's/^local ([[:alnum:]_]+) = require "([[:alnum:]_.]+)".*$/\1,\2/g'`
+    ## this loop replaces all occurences of a local module (e.g. Gui) with its
+    ## unique name (clp_mls_Gui)
+    for LIB_REQUIRE in $LIB_REQUIRES; do
+        ORIGINAL_LOCAL_MODULE_NAME=`echo "$LIB_REQUIRE" | cut -f1 -d, `
+        NEW_LOCAL_MODULE_NAME=`echo "$LIB_REQUIRE" | cut -f2 -d, | sed -e "s/\./_/g"`
+        ## occurences like "Gui.", "Gui:", "Gui["
+        LOCAL_MODULE_REGEX="s/\b${ORIGINAL_LOCAL_MODULE_NAME}([.:\[])/${NEW_LOCAL_MODULE_NAME}\1/g"
+        LIB_FILE_CONTENT=`echo "$LIB_FILE_CONTENT" | sed -re "$LOCAL_MODULE_REGEX"`
+        ## special case: inheritance
+        LOCAL_MODULE_REGEX="s/Class\.new\(${ORIGINAL_LOCAL_MODULE_NAME}\)/Class\.new\(${NEW_LOCAL_MODULE_NAME}\)/g"
+        LIB_FILE_CONTENT=`echo "$LIB_FILE_CONTENT" | sed -re "$LOCAL_MODULE_REGEX"`
+    done
+    ## concatenate current lib's modified content with previous content
+    echo "$LIB_FILE_CONTENT" >> "$TMP_MLS_SCRIPT"
+    echo "" >> "$TMP_MLS_SCRIPT"
+    
+    ## if we use global classes, and we just added the Class module, set it up
+    ## for global mode
+    if [ "$GLOBAL_CLASSES" -eq 1 -a "$MODULE_NAME" = "clp_Class"  ]; then
+        echo "$MODULE_NAME.enableGlobalClasses()" >> "$TMP_MLS_SCRIPT"
+        echo "" >> "$TMP_MLS_SCRIPT"
+    fi
+done
+
+## create a special flag to detect the compiled version of MLS, and put the main
+## script at the end of the temp file
+echo "__MLS_COMPILED = true" >> "$TMP_MLS_SCRIPT"
+cat "$SRC_MLS_SCRIPT" >> "$TMP_MLS_SCRIPT"
+echo "" >> "$TMP_MLS_SCRIPT"
+
+## remove require()s and module definition commands
+REMOVE_REQUIRE='^.*require \"clp'
+REMOVE_MODULE_RETURN='^[[:space:]]*return M[[:space:]]*$'
+grep -v "$REMOVE_REQUIRE" "$TMP_MLS_SCRIPT" | grep -v "$REMOVE_MODULE_RETURN" > "$COMPILED_MLS_SCRIPT"
+
+## compile the only resulting file either with luac or lua AIO ("-c" option)
+if [ "$PLAIN_TEXT" -eq 0 ]; then
+    if [ "$USE_LUAC" -eq 1 ]; then
+        LUAC_OPTIONS=""
+        if [ "$STRIP_SYMBOLS" -eq 1 ]; then
+            LUAC_OPTIONS=-s
+        fi
+        luac $LUAC_OPTIONS "$COMPILED_MLS_SCRIPT"
+        mv -f luac.out "$COMPILED_MLS_SCRIPT"
+    else
+        if [ "$STRIP_SYMBOLS" -eq 1 ]; then
+            ## lua AIO compile option always strips symbols :(
+            ./lua -c "$COMPILED_MLS_SCRIPT"
+        else
+            ## so if we don't want it to, we use a "compiler" written in Lua
+            INFO_LUA_AIO=`./lua $SCRIPT_DIR/luac.lua "$COMPILED_MLS_SCRIPT"`
+            
+            ## It seems that Lua AIO spawns a process to execute scripts, so we
+            ## have to wait for the process finish, otherwise the "compiled"
+            ## file won't be immediately available for mv
+            ##
+            ## THOUGH IT SEEMS that the use of command substitution above forces
+            ## bash to wait for all spawned processes to finish, so maybe we 
+            ## don't need the 4 lines below; uncomment them if you get messages 
+            ## about mv not finding the file to move
+            #PID_LUA_AIO=`echo $INFO_LUA_AIO | sed -re 's/^.*pid ([0-9]+).*$/\1/g'`
+            #while [ "$(ps --no-heading -p $PID_LUA_AIO)" ]; do
+            #    :
+            #done
+        fi
+        mv -f "$COMPILED_MLS_SCRIPT.compiled" "$COMPILED_MLS_SCRIPT"
+    fi
+fi
+
+## remove the temp file
+rm "$TMP_MLS_SCRIPT"
+
+## back to original dir
+cd $OLD_DIR
