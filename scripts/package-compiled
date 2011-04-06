@@ -29,7 +29,6 @@ cd $SCRIPT_DIR/..
 
 VERSION=`cat VERSION`
 OS_DIR="os_specific"
-SDCARD_DIR="sdcard"
 # we list all root files that are under version control, though for the compiled
 # version we won't need some of them
 COMMON_FILES="mls.lua mls.comp.lua mls.ini.dist icon.png about.png README README-FR CHANGES CHANGES-FR COPYING"
@@ -44,11 +43,6 @@ for OS in linux win mac; do
     # keyboard images can be copied directly at root, they'll be found
     cp $KEYBOARD_IMAGE_FILES $DEST_DIR
     cp -r $OS_SRC_DIR/* $DEST_DIR
-    
-    # the root dir for linker SD card emulation should be in the zip file, with
-    # its associated readme file
-    mkdir $DEST_DIR/$SDCARD_DIR
-    cp $SDCARD_DIR/README $DEST_DIR/$SDCARD_DIR
     
     # get rid of svn directories and unneeded mls-src files since we're creating
     # the compiled version archive
