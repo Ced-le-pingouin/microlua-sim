@@ -1,0 +1,16 @@
+#!/bin/sh
+DIR="${0%/*}"
+
+# remove the first arg if it's the internal OS X -psn_X_XXXXXXX
+ARG1_IS_OSX_INTERNAL=`echo "$1" | grep "^-psn_"`
+if [ -n "$ARG1_IS_OSX_INTERNAL" ]; then
+	shift
+fi
+
+# the use of "$@" at the end of the following line allows for 
+# "open mls.app --args myscript.lua" on OS X 10.6(.2?), but causes wxLua to
+# abort with an unrecognized argument error when no --args are given, 
+# because in that case only one argument is passed, an internal -psn_X_XXXXXXX
+# (I guess we should check for it and remove it from params, assuming it has
+# no side effects) 
+exec "$DIR/wxLua" ./mls.lua "$@"
