@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleExecutable</key>
-	<string>wxLua</string>
+	<string>mls</string>
 	<key>CFBundleIconFile</key>
 	<string>mls.icns</string>
 	<key>CFBundleIdentifier</key>
