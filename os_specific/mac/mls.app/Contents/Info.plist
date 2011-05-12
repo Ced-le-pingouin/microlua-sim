@@ -13,21 +13,21 @@
 	<key>CFBundleIconFile</key>
 	<string>mls.icns</string>
 	<key>CFBundleName</key>
-	<string>wxLua</string>
+	<string>MLS 0.5beta1</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>2.8.7</string>
+	<string>0.5beta1</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2.8.7</string>
+	<string>0.5beta1</string>
 	<key>CFBundleGetInfoString</key>
-	<string>wxLua version 2.8.7, (c) 2002-2006 wxWidgets</string>
+	<string>MLS version 0.5beta1, (c) 2009-2011 Ced-le-pingouin</string>
 	<key>CFBundleLongVersionString</key>
-	<string>2.8.7, (c) 2002-2006 wxWidgets</string>
+	<string>0.5beta1, (c) 2009-2011 Ced-le-pingouin</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright 2002-2006 wxWidgets</string>
+	<string>Copyright 2009-2011 Ced-le-pingouin</string>
 	<key>LSRequiresCarbon</key>
 	<true/>
 	<key>CSResourcesFileMapped</key>
