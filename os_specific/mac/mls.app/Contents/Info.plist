@@ -11,7 +11,7 @@
 	<key>CFBundleExecutable</key>
 	<string>wxLua</string>
 	<key>CFBundleIconFile</key>
-	<string>wxLua.icns</string>
+	<string>mls.icns</string>
 	<key>CFBundleName</key>
 	<string>wxLua</string>
 	<key>CFBundlePackageType</key>

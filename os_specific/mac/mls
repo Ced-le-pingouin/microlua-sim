@@ -1,2 +1,2 @@
 #!/bin/sh
-wxLua.app/Contents/MacOS/wxLua mls.comp.lua "$1"
+mls.app/Contents/MacOS/wxLua mls.comp.lua "$1"
