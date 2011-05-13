@@ -307,6 +307,11 @@ function M:setSurface(surface)
     
     -- the new surface is now the one we reference
     self._surface = surface
+    
+    --[[
+    ﻿self._surface:DragAcceptFiles(true)
+	self._surface:Connect(wx.wxEVT_DROP_FILES, function(event) print(event:GetFiles()[1]) end)
+	]]
 end
 
 --- @return (wxPanel|wxGLCanvas)
