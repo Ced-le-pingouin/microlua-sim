@@ -24,5 +24,29 @@
 	<true/>
 	<key>LSRequiresCarbon</key>
 	<true/>
+	<key>CFBundleDocumentTypes</key>
+		<array>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+                <!-- Here goes the file formats your app can read -->
+				<string>lua</string>
+				<!--<string>jpeg</string>-->
+			</array>
+			<!--
+			<key>CFBundleTypeIconFile</key>
+			<string>'icon_for_your_documents.icns'</string>
+			-->
+			<key>CFBundleTypeName</key>
+			<string>Lua scripts</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<!--<string>Editor</string>-->
+			<key>LSIsAppleDefaultForType</key>
+			<true/>
+			<key>LSTypeIsPackage</key>
+			<false/>
+		</dict>
+		</array>
 </dict>
 </plist>
