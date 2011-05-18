@@ -34,6 +34,11 @@ local script
 if arg then script = unpack(arg) end
 if script == "" then script = nil end
 
+local envScript = os.getenv("MLS_SCRIPT_PATH")
+if envScript and envScript ~= "" then
+	script = envScript
+end
+
 require "clp.Class"
 require "clp.mls.Mls"
 
